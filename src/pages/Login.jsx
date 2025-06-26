@@ -6,7 +6,7 @@ export default function Login() {
       {/* <HeaderSimples /> */}
       <div className="flex-1 flex items-center justify-center w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md flex flex-col items-center transition-transform duration-200 hover:scale-[1.025] mx-2">
-          <img src="/src/assets/nevu.png" alt="Nevú" className="w-16 h-16 object-contain mb-4" />
+          <img src="/nevu.png" alt="Nevú" className="w-16 h-16 object-contain mb-4" />
           <h1 className="text-3xl font-extrabold text-blue-700 mb-1 tracking-tight">Nevú</h1>
           <p className="text-gray-600 mb-6 text-center">Bem-vindo de volta!<br/>Acesse sua conta para encontrar novas oportunidades.</p>
           <form className="w-full">

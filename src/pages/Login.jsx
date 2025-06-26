@@ -1,14 +1,12 @@
-import HeaderSimples from '../components/HeaderSimples'
+// import HeaderSimples from '../components/HeaderSimples'
 
 export default function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <HeaderSimples />
+      {/* <HeaderSimples /> */}
       <div className="flex-1 flex items-center justify-center w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md flex flex-col items-center transition-transform duration-200 hover:scale-[1.025] mx-2">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-green-400 flex items-center justify-center mb-4 shadow-lg">
-            <span className="text-white text-3xl font-bold drop-shadow">N</span>
-          </div>
+          <img src="/src/assets/nevu.png" alt="Nevú" className="w-16 h-16 object-contain mb-4" />
           <h1 className="text-3xl font-extrabold text-blue-700 mb-1 tracking-tight">Nevú</h1>
           <p className="text-gray-600 mb-6 text-center">Bem-vindo de volta!<br/>Acesse sua conta para encontrar novas oportunidades.</p>
           <form className="w-full">

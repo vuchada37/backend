@@ -6,9 +6,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="text-center py-16 px-4">
         <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center shadow-lg">
-            <span className="text-white text-3xl font-bold">N</span>
-          </div>
+          <img src="/src/assets/nevu.png" alt="Nevú" className="w-16 h-16 object-contain" />
           <h1 className="text-5xl font-extrabold text-blue-700 tracking-tight">Nevú</h1>
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">

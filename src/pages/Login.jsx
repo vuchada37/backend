@@ -1,6 +1,27 @@
 // import HeaderSimples from '../components/HeaderSimples'
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [tipo, setTipo] = useState('usuario')
+  const [erro, setErro] = useState('')
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (!email || !senha) {
+      setErro('Preencha todos os campos.')
+      return
+    }
+    // Simulação de login (qualquer email/senha aceita)
+    login({ email, nome: email.split('@')[0], tipo })
+    navigate('/')
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       {/* <HeaderSimples /> */}
@@ -9,27 +30,33 @@ export default function Login() {
           <img src="/nevu.png" alt="Nevú" className="w-16 h-16 object-contain mb-4" />
           <h1 className="text-3xl font-extrabold text-blue-700 mb-1 tracking-tight">Nevú</h1>
           <p className="text-gray-600 mb-6 text-center">Bem-vindo de volta!<br/>Acesse sua conta para encontrar novas oportunidades.</p>
-          <form className="w-full">
+          <form className="w-full" onSubmit={handleSubmit}>
             <label className="block text-sm font-medium text-gray-700 mb-1">Usuário ou E-mail</label>
             <div className="relative mb-4">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 12A4 4 0 1 1 8 12a4 4 0 0 1 8 0ZM12 14v7m0 0H9m3 0h3" /></svg>
               </span>
-              <input type="text" className="pl-10 pr-3 py-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition" placeholder="Digite seu usuário ou e-mail" />
+              <input type="text" value={email} onChange={e => setEmail(e.target.value)} className="pl-10 pr-3 py-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition" placeholder="Digite seu usuário ou e-mail" />
             </div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-            <div className="relative mb-6">
+            <div className="relative mb-4">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Zm0 0v2m0 4h.01" /></svg>
               </span>
-              <input type="password" className="pl-10 pr-3 py-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition" placeholder="Digite sua senha" />
+              <input type="password" value={senha} onChange={e => setSenha(e.target.value)} className="pl-10 pr-3 py-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition" placeholder="Digite sua senha" />
             </div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de conta</label>
+            <select value={tipo} onChange={e => setTipo(e.target.value)} className="mb-6 px-3 py-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition">
+              <option value="usuario">Sou candidato</option>
+              <option value="empresa">Sou empresa</option>
+            </select>
+            {erro && <div className="text-red-500 text-sm mb-2">{erro}</div>}
             <button type="submit" className="w-full py-2 rounded bg-gradient-to-r from-blue-600 to-green-400 text-white font-semibold shadow hover:from-blue-700 hover:to-green-500 transition flex items-center justify-center gap-2 mb-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
               Entrar
             </button>
           </form>
-          <p className="text-sm text-gray-600 mt-2">Não tem conta? <a href="#" className="text-blue-600 hover:underline">Cadastre-se</a></p>
+          <p className="text-sm text-gray-600 mt-2">Não tem conta? <Link to="/cadastro" className="text-blue-600 hover:underline">Cadastre-se</Link></p>
         </div>
       </div>
     </div>

@@ -22,7 +22,10 @@ export default function Header() {
           )}
           <Link to="/chamados" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Chamados</Link>
           {isEmpresa && (
-            <Link to="/empresa" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Painel da Empresa</Link>
+            <>
+              <Link to="/empresa" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Painel da Empresa</Link>
+              <Link to="/mensagens" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Mensagens</Link>
+            </>
           )}
           {user ? (
             <>

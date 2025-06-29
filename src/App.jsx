@@ -14,7 +14,7 @@ import Candidaturas from './pages/Candidaturas'
 import HomeEmpresa from './pages/HomeEmpresa'
 import PainelEmpresa from './pages/PainelEmpresa'
 import VagasPublicadas from './pages/VagasPublicadas'
-import Mensagens from './pages/Mensagens'
+import Mensagens from './pages/MensagensMelhorada'
 
 function App() {
   return (

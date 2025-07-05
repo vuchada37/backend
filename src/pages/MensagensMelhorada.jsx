@@ -279,281 +279,224 @@ export default function MensagensMelhorada() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header fixo no topo */}
-      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {mensagemSelecionada && (
-                <button
-                  onClick={() => setMensagemSelecionada(null)}
-                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-              )}
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900">
-                  {mensagemSelecionada ? mensagemSelecionada.candidato : 'Mensagens'}
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {mensagemSelecionada ? mensagemSelecionada.vaga : `${mensagensFiltradas.length} conversas`}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {!mensagemSelecionada && (
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Buscar..."
-                    value={busca}
-                    onChange={(e) => setBusca(e.target.value)}
-                    className="w-32 sm:w-40 px-3 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              )}
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
-            </div>
+  // Responsividade: detectar se é mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Função para renderizar o header do chat
+  function ChatHeader() {
+    if (!mensagemSelecionada) return null
+    return (
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-10 shadow-sm">
+        {/* Botão voltar no mobile */}
+        {isMobile && (
+          <button onClick={() => setMensagemSelecionada(null)} className="mr-2 p-2 rounded-full hover:bg-blue-50 transition">
+            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+        {/* Avatar e nome */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <img src={mensagemSelecionada.foto} alt={mensagemSelecionada.candidato} className="w-12 h-12 rounded-full object-cover border-2 border-blue-100" />
+          <div className="min-w-0">
+            <div className="font-semibold text-gray-800 truncate text-base">{mensagemSelecionada.candidato}</div>
+            <div className="text-xs text-gray-500 truncate">{mensagemSelecionada.vaga}</div>
+            <div className="text-xs text-green-600 font-medium">{mensagemSelecionada.online ? 'Online' : `Última atividade: ${mensagemSelecionada.ultimaAtividade}`}</div>
           </div>
         </div>
+        {/* Ícones de ação */}
+        <div className="flex items-center gap-2 ml-2">
+          <button className="p-2 rounded-full hover:bg-blue-50 transition" title="Ligar"><svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5l7 7-7 7M22 12H3" /></svg></button>
+          <button className="p-2 rounded-full hover:bg-blue-50 transition" title="Adicionar"><svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg></button>
+          <button className="p-2 rounded-full hover:bg-blue-50 transition" title="Mais opções"><svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg></button>
+        </div>
       </div>
+    )
+  }
 
-      {/* Conteúdo principal */}
-      <div className="h-[calc(100dvh-80px)] flex flex-col">
+  // Função para renderizar balões de mensagem
+  function ChatBaloes() {
+    if (!mensagemSelecionada) return null
+    const msgs = historicoMensagens[mensagemSelecionada.id] || []
+    return (
+      <div className="p-4" ref={chatRef}>
+        {msgs.length === 0 && (
+          <div className="text-center text-gray-400 py-4">Nenhuma mensagem ainda</div>
+        )}
+        {msgs.map((msg, idx) => (
+          <div key={msg.id || idx} className={`mb-2 flex ${msg.remetente === (user.tipo === 'empresa' ? 'empresa' : 'candidato') ? 'justify-end' : 'justify-start'}`} >
+            <div className={`max-w-xs sm:max-w-md px-4 py-2 rounded-2xl shadow text-sm relative
+              ${msg.remetente === (user.tipo === 'empresa' ? 'empresa' : 'candidato') ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}
+            >
+              {msg.tipo === 'texto' ? msg.texto : (
+                <a href="#" className="underline flex items-center gap-2">
+                  <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828M7 7h.01" /></svg>
+                  {msg.texto}
+                </a>
+              )}
+              {/* Status de envio */}
+              <div className="flex items-center gap-1 mt-1 text-xs">
+                <span className="text-gray-300">{msg.data}</span>
+                {msg.lida && <span className="text-green-400">✓✓</span>}
+                {!msg.lida && <span className="text-gray-400">✓</span>}
+                {msg.status === 'erro' && <span className="text-red-500">!</span>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // Função para renderizar o campo de digitação
+  function ChatInput() {
+    if (!mensagemSelecionada) return null
+    return (
+      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t p-3 bg-white flex items-center gap-2 shadow-md`}>
+        <button onClick={() => setShowEmojis(!showEmojis)} className="p-2 rounded-full hover:bg-blue-50 transition text-xl">😊</button>
+        <input
+          ref={inputRef}
+          type="text"
+          className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-gray-50"
+          placeholder="Digite uma mensagem..."
+          value={novaMensagem}
+          onChange={e => setNovaMensagem(e.target.value)}
+          onFocus={() => setDigitando(true)}
+          onBlur={() => setDigitando(false)}
+          onKeyDown={e => e.key === 'Enter' && enviarMensagem()}
+        />
+        <button onClick={anexarArquivo} className="p-2 rounded-full hover:bg-blue-50 transition text-xl">📎</button>
+        <button
+          onClick={enviarMensagem}
+          className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full font-semibold transition shadow-md"
+          disabled={!novaMensagem.trim()}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8m-4-4v8" /></svg>
+        </button>
+      </div>
+    )
+  }
+
+  // Renderização condicional
+  return (
+    <div className="relative bg-gray-50">
+      {/* Header fixo principal */}
+      <header className={`fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 flex items-center justify-between px-4 ${isMobile ? 'py-0' : 'py-3'} shadow-sm`}>
+        {/* Botão voltar no mobile quando chat não está aberto */}
+        {isMobile && mensagemSelecionada && (
+          <button onClick={() => setMensagemSelecionada(null)} className="mr-2 p-2 rounded-full hover:bg-blue-50 transition">
+            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+        <span className="text-xl font-bold text-blue-700 mx-auto">Mensagens</span>
+        <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-50 transition">
+          <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+      </header>
+      {!isMobile && <div className="h-16" />}
+
+      {/* Layout responsivo: split view no desktop, troca no mobile */}
+      <div className="max-w-5xl mx-auto flex bg-transparent">
         {/* Lista de conversas */}
-        {!mensagemSelecionada && (
-          <div className="flex-1 overflow-y-auto bg-white">
-            {mensagensFiltradas.length > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {mensagensFiltradas.map((msg) => (
-                  <div
-                    key={msg.id}
-                    onClick={() => setMensagemSelecionada(msg)}
-                    className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors cursor-pointer active:bg-gray-100"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <img 
-                        src={msg.foto} 
-                        alt={msg.candidato}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                      {msg.online && (
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                      )}
-                      {!msg.lida && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
-                          <span className="text-xs text-white font-medium">
-                            {Math.min(99, Math.floor(Math.random() * 10) + 1)}
-                          </span>
-                        </div>
-                      )}
+        {(!isMobile || !mensagemSelecionada) && (
+          <div className={`w-full md:w-1/3 md:max-w-xs border-r bg-gray-50 px-2 sm:px-0 ${isMobile ? 'overflow-y-auto pb-16' : 'rounded-l-xl pt-4'}`} style={isMobile ? {paddingTop: 0, marginTop: '-8px'} : {}}>
+            {mensagensFiltradas.length === 0 && (
+              <div className="text-center text-gray-400 py-8">Nenhuma conversa encontrada</div>
+            )}
+            <ul className="space-y-2" style={isMobile ? {paddingTop:0, marginTop:0} : {}}>
+              {mensagensFiltradas.map((msg, idx) => (
+                <li
+                  key={msg.id}
+                  className={`group bg-white rounded-xl shadow flex items-center gap-3 px-4 py-3 cursor-pointer transition hover:shadow-lg border border-transparent hover:border-blue-200 ${mensagemSelecionada?.id === msg.id ? 'ring-2 ring-blue-400' : ''}`}
+                  style={isMobile && idx === 0 ? {marginTop:0, paddingTop:0} : {}}
+                  onClick={() => { setMensagemSelecionada(msg); marcarComoLida(msg.id); }}
+                >
+                  {/* Avatar */}
+                  <div className="relative">
+                    <img
+                      src={msg.foto}
+                      alt={msg.candidato}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-100"
+                    />
+                    {/* Status online */}
+                    {msg.online && (
+                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full" />
+                    )}
+                  </div>
+                  {/* Conteúdo */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-800 truncate">{msg.candidato}</span>
+                      {/* Badge prioridade */}
+                      {msg.prioridade === 'alta' && <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700 font-bold">Alta</span>}
+                      {msg.prioridade === 'media' && <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-bold">Média</span>}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-medium text-gray-900 truncate">{msg.candidato}</h3>
-                        <span className="text-xs text-gray-500 flex-shrink-0">{msg.data}</span>
-                      </div>
-                      <p className="text-sm text-gray-600 truncate mb-1">{msg.vaga}</p>
-                      <p className={`text-sm truncate ${!msg.lida ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
-                        {msg.ultimaMensagem}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(msg.status)}`}>
-                        {getStatusText(msg.status)}
-                      </span>
-                      <span className="text-xs text-gray-400">{msg.ultimaAtividade}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`truncate text-sm ${msg.lida ? 'text-gray-500' : 'text-blue-700 font-medium'}`}>{msg.ultimaMensagem}</span>
+                      {/* Badge não lida */}
+                      {!msg.lida && <span className="ml-1 w-2 h-2 bg-blue-600 rounded-full inline-block" />}
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-2xl">💬</span>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma conversa</h3>
-                <p className="text-gray-500">Você ainda não tem conversas ativas</p>
-              </div>
-            )}
+                  {/* Horário */}
+                  <div className="flex flex-col items-end min-w-[56px]">
+                    <span className="text-xs text-gray-400">{msg.ultimaAtividade}</span>
+                    {/* Ícone de erro se necessário */}
+                    {msg.status === 'erro' && (
+                      <span title="Erro ao enviar" className="text-red-500 text-lg">!</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
-        {/* Chat */}
-        {mensagemSelecionada && (
-          <div className="flex-1 flex flex-col bg-gray-50 min-h-0">
-            {/* Status do usuário */}
-            <div className="bg-white border-b px-4 py-3 flex items-center gap-3 flex-shrink-0">
-              <div className="relative">
-                <img 
-                  src={mensagemSelecionada.foto} 
-                  alt={mensagemSelecionada.candidato}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                {mensagemSelecionada.online && (
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                )}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900">{mensagemSelecionada.candidato}</h3>
-                <p className="text-sm text-gray-500">{mensagemSelecionada.email}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(mensagemSelecionada.status)}`}>
-                  {getStatusText(mensagemSelecionada.status)}
-                </span>
-                <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
-                  📞
-                </button>
-              </div>
+        {/* Área do chat */}
+        {((!isMobile && mensagemSelecionada) || (isMobile && mensagemSelecionada)) ? (
+          <div className={`flex-1 flex flex-col bg-white rounded-r-xl shadow-lg ${isMobile ? 'fixed inset-0 z-40 pt-16' : ''}`} style={{minWidth:0}}>
+            {/* Header do chat melhorado */}
+            <ChatHeader />
+            {/* Balões de mensagem melhorados */}
+            <div className={`flex-1 ${isMobile ? 'overflow-y-auto pb-28' : ''}`} ref={chatRef}>
+              <ChatBaloes />
             </div>
-
-            {/* Mensagens */}
-            <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-4" style={{paddingBottom: '92px'}}>
-              {historicoMensagens[mensagemSelecionada.id] ? (
-                historicoMensagens[mensagemSelecionada.id].map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.remetente === 'empresa' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] ${msg.remetente === 'empresa' ? 'order-2' : 'order-1'}`}>
-                      <div className={`px-4 py-2 rounded-2xl ${
-                        msg.remetente === 'empresa' 
-                          ? 'bg-blue-500 text-white rounded-br-md' 
-                          : 'bg-white text-gray-900 rounded-bl-md shadow-sm'
-                      }`}>
-                        {msg.tipo === 'arquivo' ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">{getIconeArquivo(msg.arquivo.tipo)}</span>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium truncate">{msg.arquivo.nome}</p>
-                              <p className={`text-xs ${msg.remetente === 'empresa' ? 'opacity-75' : 'text-gray-500'}`}>
-                                {msg.arquivo.tamanho}
-                              </p>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-sm leading-relaxed">{msg.texto}</p>
-                        )}
-                      </div>
-                      <div className={`flex items-center gap-2 mt-1 px-1 ${
-                        msg.remetente === 'empresa' ? 'justify-end' : 'justify-start'
-                      }`}>
-                        <span className="text-xs text-gray-400">{msg.data}</span>
-                        {msg.remetente === 'empresa' && (
-                          <span className="text-xs text-gray-400">
-                            {msg.lida ? '✓✓' : '✓'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                    <span className="text-xl">💬</span>
-                  </div>
-                  <p className="text-gray-500 text-sm">Nenhuma mensagem ainda</p>
-                  <p className="text-gray-400 text-xs mt-1">Inicie uma conversa</p>
-                </div>
-              )}
-            </div>
-
-            {/* Input */}
-            <div className="bg-white border-t p-4 flex-shrink-0 sticky bottom-0 z-10">
-              {arquivosAnexados.length > 0 && (
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {arquivosAnexados.map((arquivo) => (
-                    <div key={arquivo.id} className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
-                      <span className="text-sm">{getIconeArquivo(arquivo.tipo)}</span>
-                      <span className="text-xs truncate max-w-[120px]">{arquivo.nome}</span>
-                      <button
-                        onClick={() => removerArquivo(arquivo.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              <div className="flex items-end gap-3">
-                <div className="flex-1 bg-gray-50 rounded-full px-4 py-3">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={novaMensagem}
-                    onChange={(e) => {
-                      setNovaMensagem(e.target.value)
-                      simularDigitacao()
-                    }}
-                    placeholder="Digite uma mensagem..."
-                    className="w-full bg-transparent border-none outline-none text-sm"
-                    onKeyPress={(e) => e.key === 'Enter' && enviarMensagem()}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={anexarArquivo}
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    📎
-                  </button>
-                  <button 
-                    onClick={() => setShowEmojis(!showEmojis)}
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    😊
-                  </button>
-                  <button 
-                    onClick={() => setShowTemplates(true)}
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    📋
-                  </button>
-                  <button
-                    onClick={enviarMensagem}
-                    disabled={!novaMensagem.trim()}
-                    className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              {showEmojis && (
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="grid grid-cols-8 gap-2">
-                    {emojis.map((emoji, index) => (
-                      <button
-                        key={index}
-                        onClick={() => adicionarEmoji(emoji)}
-                        className="p-2 hover:bg-gray-200 rounded-lg text-lg transition-colors"
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Campo de digitação melhorado */}
+            <ChatInput />
           </div>
+        ) : (
+          // Desktop: área do chat vazia
+          !isMobile && (
+            <div className="flex-1 flex items-center justify-center bg-white rounded-r-xl">
+              <div className="text-gray-400 text-lg">Selecione uma conversa para começar</div>
+            </div>
+          )
         )}
       </div>
+
+      {/* Botão flutuante para nova conversa */}
+      {!mensagemSelecionada && (
+        <button
+          className="fixed right-6 z-40 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg p-4 flex items-center gap-2 transition"
+          style={{bottom: isMobile ? '5rem' : '2rem'}}
+          title="Nova conversa"
+          onClick={() => alert('Funcionalidade de nova conversa em breve!')}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8m-4-4v8" />
+          </svg>
+          <span className="hidden sm:inline">Nova conversa</span>
+        </button>
+      )}
 
       {/* Modal de templates */}
       {showTemplates && (

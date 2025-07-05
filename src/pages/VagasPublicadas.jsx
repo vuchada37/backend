@@ -107,12 +107,12 @@ export default function VagasPublicadas() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-700">Vagas Publicadas</h1>
+    <div className="max-w-6xl mx-auto py-8 px-4 pb-24 md:pb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">Vagas Publicadas</h1>
         <button
           onClick={() => navigate('/empresa')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
         >
           📢 Publicar Nova Vaga
         </button>
@@ -120,18 +120,20 @@ export default function VagasPublicadas() {
 
       {/* Filtros */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex flex-wrap gap-4 items-center">
-          <label className="text-sm font-medium text-gray-700">Filtrar por status:</label>
-          <select
-            value={filtroStatus}
-            onChange={(e) => setFiltroStatus(e.target.value)}
-            className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="todas">Todas</option>
-            <option value="ativa">Ativas</option>
-            <option value="expirada">Expiradas</option>
-            <option value="pausada">Pausadas</option>
-          </select>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-center">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Filtrar por status:</label>
+            <select
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              <option value="todas">Todas</option>
+              <option value="ativa">Ativas</option>
+              <option value="expirada">Expiradas</option>
+              <option value="pausada">Pausadas</option>
+            </select>
+          </div>
           <span className="text-sm text-gray-600">
             {vagasFiltradas.length} vaga(s) encontrada(s)
           </span>
@@ -146,11 +148,11 @@ export default function VagasPublicadas() {
           const isExpirando = diasRestantes <= 7 && diasRestantes >= 0
 
           return (
-            <div key={vaga.id} className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-bold text-gray-800">{vaga.titulo}</h3>
+            <div key={vaga.id} className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-800">{vaga.titulo}</h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vaga.status)}`}>
                       {getStatusText(vaga.status)}
                     </span>
@@ -166,7 +168,7 @@ export default function VagasPublicadas() {
                     )}
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-600">
                     <div>
                       <p><strong>Localização:</strong> {vaga.localizacao}</p>
                       <p><strong>Tipo:</strong> {vaga.tipo}</p>
@@ -179,27 +181,27 @@ export default function VagasPublicadas() {
                     </div>
                   </div>
                   
-                  <p className="text-gray-700 mt-3">{vaga.descricao}</p>
+                  <p className="text-gray-700 mt-3 text-sm sm:text-base">{vaga.descricao}</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2 pt-4 border-t">
                 <button
                   onClick={() => verCandidaturas(vaga.id)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition"
+                  className="flex-1 sm:flex-none px-3 py-2 bg-blue-600 text-white rounded text-xs sm:text-sm hover:bg-blue-700 transition"
                 >
                   👥 Ver Candidaturas ({vaga.candidaturas})
                 </button>
                 <button
                   onClick={() => editarVaga(vaga.id)}
-                  className="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition"
+                  className="flex-1 sm:flex-none px-3 py-2 bg-yellow-600 text-white rounded text-xs sm:text-sm hover:bg-yellow-700 transition"
                 >
                   ✏️ Editar
                 </button>
                 {vaga.status === 'ativa' && (
                   <button
                     onClick={() => alterarStatus(vaga.id, 'pausada')}
-                    className="px-3 py-1 bg-orange-600 text-white rounded text-sm hover:bg-orange-700 transition"
+                    className="flex-1 sm:flex-none px-3 py-2 bg-orange-600 text-white rounded text-xs sm:text-sm hover:bg-orange-700 transition"
                   >
                     ⏸️ Pausar
                   </button>
@@ -207,14 +209,14 @@ export default function VagasPublicadas() {
                 {vaga.status === 'pausada' && (
                   <button
                     onClick={() => alterarStatus(vaga.id, 'ativa')}
-                    className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition"
+                    className="flex-1 sm:flex-none px-3 py-2 bg-green-600 text-white rounded text-xs sm:text-sm hover:bg-green-700 transition"
                   >
                     ▶️ Ativar
                   </button>
                 )}
                 <button
                   onClick={() => alterarStatus(vaga.id, 'expirada')}
-                  className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition"
+                  className="flex-1 sm:flex-none px-3 py-2 bg-red-600 text-white rounded text-xs sm:text-sm hover:bg-red-700 transition"
                 >
                   🗑️ Excluir
                 </button>

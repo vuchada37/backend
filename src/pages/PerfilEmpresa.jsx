@@ -1,9 +1,10 @@
 import { useAuth } from '../context/AuthContext'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 export default function PerfilEmpresa() {
   const { user } = useAuth()
+  const { id } = useParams()
   const [editando, setEditando] = useState(false)
   const [formData, setFormData] = useState({
     nomeFantasia: user?.nome || 'Empresa Exemplo',
@@ -18,6 +19,12 @@ export default function PerfilEmpresa() {
     website: 'www.empresaexemplo.com.br'
   })
   const navigate = useNavigate()
+
+  // Mock de busca por id
+  const mockEmpresas = {
+    '10': { nome: 'Empresa XPTO', email: 'contato@xpto.com', tipo: 'empresa' }
+  }
+  const empresaExibida = id ? mockEmpresas[id] : null;
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -34,6 +41,19 @@ export default function PerfilEmpresa() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
+      {id && empresaExibida && (
+        <div className="mb-4 p-2 bg-blue-100 text-blue-800 rounded text-center">
+          <strong>Perfil de outra empresa:</strong><br/>
+          Nome: {empresaExibida.nome}<br/>
+          Email: {empresaExibida.email}<br/>
+          Tipo: {empresaExibida.tipo}
+        </div>
+      )}
+      {id && !empresaExibida && (
+        <div className="mb-4 p-2 bg-red-100 text-red-800 rounded text-center">
+          Empresa não encontrada!
+        </div>
+      )}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-blue-700">Perfil da Empresa</h1>
         <button

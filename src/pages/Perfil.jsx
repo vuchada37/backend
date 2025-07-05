@@ -1,8 +1,10 @@
 import { useAuth } from '../context/AuthContext'
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 export default function Perfil() {
   const { user } = useAuth()
+  const { id } = useParams()
   const [secaoAtiva, setSecaoAtiva] = useState('pessoal')
   const [editando, setEditando] = useState(false)
   const [formData, setFormData] = useState({
@@ -88,6 +90,14 @@ export default function Perfil() {
     vagasSalvas: 5,
     visualizacoes: 12
   })
+
+  // Mock de busca por id
+  const mockUsuarios = {
+    '1': { nome: 'João Silva', email: 'joao@email.com', tipo: 'candidato' },
+    '2': { nome: 'Maria Santos', email: 'maria@email.com', tipo: 'candidato' },
+    '3': { nome: 'Pedro Costa', email: 'pedro@email.com', tipo: 'candidato' }
+  }
+  const usuarioExibido = id ? mockUsuarios[id] : null;
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -760,6 +770,19 @@ export default function Perfil() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
+      {id && usuarioExibido && (
+        <div className="mb-4 p-2 bg-blue-100 text-blue-800 rounded text-center">
+          <strong>Perfil de outro usuário:</strong><br/>
+          Nome: {usuarioExibido.nome}<br/>
+          Email: {usuarioExibido.email}<br/>
+          Tipo: {usuarioExibido.tipo}
+        </div>
+      )}
+      {id && !usuarioExibido && (
+        <div className="mb-4 p-2 bg-red-100 text-red-800 rounded text-center">
+          Usuário não encontrado!
+        </div>
+      )}
       {/* Foto de perfil */}
       <div className="flex flex-col items-center mb-8">
         <div className="relative">

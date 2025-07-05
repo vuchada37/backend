@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ModalTemplates, ModalNotificacoes } from '../components/Modal'
 
 export default function MensagensMelhorada() {
@@ -15,9 +16,12 @@ export default function MensagensMelhorada() {
   const [notificacoes, setNotificacoes] = useState([])
   const chatRef = useRef(null)
   const inputRef = useRef(null)
+  const [showMenu, setShowMenu] = useState(false)
+  const navigate = useNavigate()
 
   // Mock de mensagens mais realista
-  const mensagens = [
+  const mensagensMock = [
+    // Candidatos
     {
       id: 1,
       candidato: 'João Silva',
@@ -68,54 +72,108 @@ export default function MensagensMelhorada() {
       ultimaAtividade: 'Agora',
       foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
       prioridade: 'baixa'
-    }
+    },
+    // Empresas
+    {
+      id: 10,
+      candidato: 'Empresa XPTO',
+      empresa: 'Empresa XPTO',
+      email: 'contato@xpto.com',
+      telefone: '+55 11 99999-9999',
+      vaga: 'Vaga para Dev',
+      data: '2024-01-20',
+      ultimaMensagem: 'Olá, temos interesse no seu perfil!',
+      lida: false,
+      status: 'ativo',
+      tipo: 'empresa',
+      online: true,
+      ultimaAtividade: 'Agora',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'alta'
+    },
+    {
+      id: 11,
+      candidato: 'Neotrix',
+      empresa: 'Neotrix',
+      email: 'neotrixtecnologias37@gmail.com',
+      telefone: '872664074',
+      vaga: 'Parceria em tecnologia',
+      data: '2024-01-22',
+      ultimaMensagem: 'Tecnologias ao seu alcance!',
+      lida: false,
+      status: 'ativo',
+      tipo: 'empresa',
+      online: true,
+      ultimaAtividade: 'Agora',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'alta',
+      localizacao: 'Gurue, Moçambique',
+      slogan: 'Tecnologias ao seu alcance'
+    },
+    // Chamado (suporte)
+    {
+      id: 20,
+      candidato: 'Suporte Nevú',
+      empresa: 'Nevú',
+      email: 'suporte@nevu.com',
+      telefone: '',
+      vaga: 'Suporte',
+      data: '2024-01-22',
+      ultimaMensagem: 'Seu chamado foi recebido!',
+      lida: true,
+      status: 'ativo',
+      tipo: 'chamado',
+      online: false,
+      ultimaAtividade: 'Há 1h',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'media'
+    },
   ]
 
   // Mock de histórico de mensagens mais realista
   const historicoMensagens = {
     1: [
-      { 
-        id: 1, 
-        remetente: 'candidato', 
-        texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', 
-        data: '2024-01-15 14:30',
-        tipo: 'texto',
-        lida: true
-      },
-      { 
-        id: 2, 
-        remetente: 'empresa', 
-        texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', 
-        data: '2024-01-15 15:00',
-        tipo: 'texto',
-        lida: true
-      },
-      { 
-        id: 3, 
-        remetente: 'candidato', 
-        texto: 'Sim, tenho 3 anos de experiência com React e 1 ano com TypeScript. Posso enviar meu portfólio?', 
-        data: '2024-01-15 15:30',
-        tipo: 'texto',
-        lida: false
-      },
-      {
-        id: 4,
-        remetente: 'candidato',
-        texto: 'portfolio-joao-silva.pdf',
-        data: '2024-01-15 15:35',
-        tipo: 'arquivo',
-        arquivo: {
-          nome: 'portfolio-joao-silva.pdf',
-          tamanho: '2.5 MB',
-          tipo: 'pdf'
-        },
-        lida: false
-      }
+      { id: 1, remetente: 'candidato', texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', data: '2024-01-15 14:30', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'empresa', texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', data: '2024-01-15 15:00', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'candidato', texto: 'Sim, tenho 3 anos de experiência com React e 1 ano com TypeScript. Posso enviar meu portfólio?', data: '2024-01-15 15:30', tipo: 'texto', lida: false },
+      { id: 4, remetente: 'candidato', texto: 'portfolio-joao-silva.pdf', data: '2024-01-15 15:35', tipo: 'arquivo', arquivo: { nome: 'portfolio-joao-silva.pdf', tamanho: '2.5 MB', tipo: 'pdf' }, lida: false }
+    ],
+    2: [
+      { id: 1, remetente: 'candidato', texto: 'Olá, gostaria de saber mais sobre a vaga de Designer.', data: '2024-01-14 10:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'empresa', texto: 'Olá Maria! A vaga é para UI/UX com foco em mobile. Tem interesse?', data: '2024-01-14 10:10', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'candidato', texto: 'Sim, tenho interesse! Quando posso agendar uma entrevista?', data: '2024-01-14 10:15', tipo: 'texto', lida: false }
+    ],
+    10: [
+      { id: 1, remetente: 'empresa', texto: 'Olá! Vimos seu perfil e achamos interessante para nossa vaga.', data: '2024-01-20 09:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'candidato', texto: 'Obrigado! Gostaria de saber mais sobre a empresa XPTO.', data: '2024-01-20 09:05', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'empresa', texto: 'Claro! Somos referência em tecnologia e inovação.', data: '2024-01-20 09:10', tipo: 'texto', lida: false }
+    ],
+    11: [
+      { id: 1, remetente: 'empresa', texto: 'Bem-vindo à Neotrix! Tecnologias ao seu alcance.', data: '2024-01-22 08:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'candidato', texto: 'Olá Neotrix! Gostaria de saber mais sobre seus serviços.', data: '2024-01-22 08:05', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'empresa', texto: 'Atuamos em Moçambique com soluções inovadoras. Podemos marcar uma reunião?', data: '2024-01-22 08:10', tipo: 'texto', lida: false }
+    ],
+    20: [
+      { id: 1, remetente: 'chamado', texto: 'Olá, preciso de suporte com minha conta.', data: '2024-01-22 07:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'empresa', texto: 'Olá! Seu chamado foi recebido. Em breve entraremos em contato.', data: '2024-01-22 07:05', tipo: 'texto', lida: true }
     ]
   }
 
   // Emojis populares
   const emojis = ['😊', '👍', '👋', '🎉', '💼', '📝', '✅', '❌', '🤝', '💡', '🚀', '⭐', '💪', '🎯', '📞', '📧']
+
+  // Filtrar mensagens conforme tipo de usuário logado
+  let mensagens = []
+  if (user?.tipo === 'empresa') {
+    // Empresa vê candidatos e empresas (exceto ela mesma)
+    mensagens = mensagensMock.filter(msg => msg.tipo === 'candidato' || (msg.tipo === 'empresa' && msg.empresa !== user.nome))
+  } else if (user?.tipo === 'candidato') {
+    // Candidato vê apenas empresas e chamados
+    mensagens = mensagensMock.filter(msg => msg.tipo === 'empresa' || msg.tipo === 'chamado')
+  } else {
+    // fallback: mostra tudo
+    mensagens = mensagensMock
+  }
 
   // Filtrar mensagens apenas por busca
   const mensagensFiltradas = mensagens.filter(msg => {
@@ -290,6 +348,7 @@ export default function MensagensMelhorada() {
   // Função para renderizar o header do chat
   function ChatHeader() {
     if (!mensagemSelecionada) return null
+    const mobile = isMobile;
     return (
       <div className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-10 shadow-sm">
         {/* Botão voltar no mobile */}
@@ -310,10 +369,37 @@ export default function MensagensMelhorada() {
           </div>
         </div>
         {/* Ícones de ação */}
-        <div className="flex items-center gap-2 ml-2">
-          <button className="p-2 rounded-full hover:bg-blue-50 transition" title="Ligar"><svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5l7 7-7 7M22 12H3" /></svg></button>
-          <button className="p-2 rounded-full hover:bg-blue-50 transition" title="Adicionar"><svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg></button>
-          <button className="p-2 rounded-full hover:bg-blue-50 transition" title="Mais opções"><svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg></button>
+        <div className="flex items-center gap-2 ml-2 relative">
+          <button
+            className="p-2 rounded-full hover:bg-blue-50 transition"
+            title="Mais opções"
+            onClick={e => { e.stopPropagation(); setShowMenu(v => !v); }}
+          >
+            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="1.5"/>
+              <circle cx="19" cy="12" r="1.5"/>
+              <circle cx="5" cy="12" r="1.5"/>
+            </svg>
+          </button>
+          {showMenu && (
+            <div className={`absolute right-0 w-48 bg-white border rounded-lg shadow-lg z-50 animate-fade-in`} style={mobile ? {marginTop: 72} : {marginTop: 8}}>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => {
+                setShowMenu(false);
+                if (!mensagemSelecionada?.id) {
+                  alert('Perfil não encontrado!');
+                  return;
+                }
+                if (mensagemSelecionada?.tipo === 'empresa') {
+                  navigate(`/perfil-empresa/${mensagemSelecionada.id}`);
+                } else {
+                  navigate(`/perfil/${mensagemSelecionada.id}`);
+                }
+              }}>Ver perfil</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); alert('Silenciar conversa'); }}>Silenciar conversa</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); alert('Apagar conversa'); }}>Apagar conversa</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600" onClick={() => { setShowMenu(false); alert('Bloquear usuário'); }}>Bloquear usuário</button>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -381,6 +467,16 @@ export default function MensagensMelhorada() {
       </div>
     )
   }
+
+  // Fecha o menu ao clicar fora
+  useEffect(() => {
+    if (!showMenu) return;
+    function handleClick(e) {
+      setShowMenu(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showMenu]);
 
   // Renderização condicional
   return (

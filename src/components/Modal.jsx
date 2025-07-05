@@ -200,4 +200,68 @@ export function ModalNotificacoes({ isOpen, onClose }) {
       </div>
     </Modal>
   )
+}
+
+// Modal para detalhes da candidatura
+export function ModalDetalheCandidatura({ isOpen, onClose, candidatura }) {
+  if (!candidatura) return null
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={`Detalhes de ${candidatura.candidato}`} size="md">
+      <div className="space-y-2">
+        <div><span className="font-semibold">Vaga:</span> {candidatura.vaga}</div>
+        <div><span className="font-semibold">Data da candidatura:</span> {candidatura.dataCandidatura}</div>
+        <div><span className="font-semibold">Status:</span> {candidatura.status}</div>
+        <div><span className="font-semibold">Email:</span> {candidatura.email}</div>
+        <div><span className="font-semibold">Telefone:</span> {candidatura.telefone}</div>
+        <div><span className="font-semibold">Experiência:</span> {candidatura.experiencia}</div>
+        <div><span className="font-semibold">Formação:</span> {candidatura.formacao}</div>
+        <div><span className="font-semibold">Currículo:</span> <a href={`/${candidatura.curriculo}`} download className="text-blue-600 underline">Baixar</a></div>
+        <div><span className="font-semibold">Carta de apresentação:</span>
+          <div className="bg-gray-50 rounded p-2 mt-1 text-sm text-gray-700">{candidatura.cartaApresentacao}</div>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+// Modal para candidaturas recebidas
+export function ModalCandidaturasRecebidas({ isOpen, onClose, candidaturas = [] }) {
+  const [detalheOpen, setDetalheOpen] = useState(false)
+  const [candidaturaSelecionada, setCandidaturaSelecionada] = useState(null)
+  return (
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} title="Candidaturas Recebidas" size="lg">
+        {candidaturas.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">Nenhuma candidatura recebida ainda.</div>
+        ) : (
+          <ul className="space-y-4">
+            {candidaturas.map((c) => (
+              <li key={c.id} className="border rounded-xl p-4 bg-white shadow flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="font-bold text-blue-700 text-base">{c.candidato}</div>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium 
+                    ${c.status === 'aprovada' ? 'bg-green-100 text-green-800' :
+                      c.status === 'rejeitada' ? 'bg-red-100 text-red-800' :
+                      c.status === 'entrevista' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'}`}>{c.status}</span>
+                </div>
+                <div className="text-sm text-gray-600 mb-1">Vaga: <span className="font-medium text-gray-800">{c.vaga}</span></div>
+                <div className="text-xs text-gray-400 mb-1">Data: {c.dataCandidatura}</div>
+                <div className="flex gap-2 mt-2">
+                  <a href={`/${c.curriculo}`} download className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 transition">Baixar CV</a>
+                  <button onClick={() => alert(c.cartaApresentacao)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-semibold hover:bg-gray-200 transition">Ver Carta</button>
+                  <button onClick={() => { setCandidaturaSelecionada(c); setDetalheOpen(true); }} className="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition">Detalhes</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
+      <ModalDetalheCandidatura
+        isOpen={detalheOpen}
+        onClose={() => setDetalheOpen(false)}
+        candidatura={candidaturaSelecionada}
+      />
+    </>
+  )
 } 

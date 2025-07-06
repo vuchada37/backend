@@ -17,6 +17,9 @@ export default function MensagensMelhorada() {
   const chatRef = useRef(null)
   const inputRef = useRef(null)
   const [showMenu, setShowMenu] = useState(false)
+  const [showNovaConversa, setShowNovaConversa] = useState(false)
+  const [usuariosDisponiveis, setUsuariosDisponiveis] = useState([])
+  const [buscaUsuario, setBuscaUsuario] = useState('')
   const navigate = useNavigate()
 
   // Mock de mensagens mais realista
@@ -162,6 +165,72 @@ export default function MensagensMelhorada() {
   // Emojis populares
   const emojis = ['😊', '👍', '👋', '🎉', '💼', '📝', '✅', '❌', '🤝', '💡', '🚀', '⭐', '💪', '🎯', '📞', '📧']
 
+  // Mock de usuários disponíveis para conversa
+  const usuariosMock = [
+    {
+      id: 101,
+      nome: 'Ana Silva',
+      email: 'ana.silva@email.com',
+      tipo: 'candidato',
+      profissao: 'Desenvolvedora Full Stack',
+      localizacao: 'Maputo, Moçambique',
+      foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      online: true,
+      ultimaAtividade: 'Agora',
+      disponivel: true
+    },
+    {
+      id: 102,
+      nome: 'Carlos Mendes',
+      email: 'carlos.mendes@email.com',
+      tipo: 'candidato',
+      profissao: 'Designer UX/UI',
+      localizacao: 'Beira, Moçambique',
+      foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      online: false,
+      ultimaAtividade: 'Há 2 horas',
+      disponivel: true
+    },
+    {
+      id: 103,
+      nome: 'TechSolutions Ltda',
+      email: 'contato@techsolutions.co.mz',
+      tipo: 'empresa',
+      setor: 'Tecnologia',
+      localizacao: 'Maputo, Moçambique',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      online: true,
+      ultimaAtividade: 'Agora',
+      disponivel: true,
+      vagasAtivas: 3
+    },
+    {
+      id: 104,
+      nome: 'Digital Innovations',
+      email: 'info@digitalinnovations.co.mz',
+      tipo: 'empresa',
+      setor: 'Inovação Digital',
+      localizacao: 'Nampula, Moçambique',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      online: false,
+      ultimaAtividade: 'Há 1 dia',
+      disponivel: true,
+      vagasAtivas: 1
+    },
+    {
+      id: 105,
+      nome: 'Maria Costa',
+      email: 'maria.costa@email.com',
+      tipo: 'candidato',
+      profissao: 'Analista de Dados',
+      localizacao: 'Quelimane, Moçambique',
+      foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      online: true,
+      ultimaAtividade: 'Agora',
+      disponivel: true
+    }
+  ]
+
   // Filtrar mensagens conforme tipo de usuário logado
   let mensagens = []
   if (user?.tipo === 'empresa') {
@@ -185,7 +254,23 @@ export default function MensagensMelhorada() {
     return matchBusca
   })
 
+  // Filtrar usuários disponíveis para conversa
+  const usuariosFiltrados = usuariosMock.filter(usuario => {
+    // Não mostrar o próprio usuário
+    if (usuario.email === user?.email) return false
+    
+    // Filtrar por busca
+    const matchBusca = buscaUsuario === '' || 
+                      usuario.nome.toLowerCase().includes(buscaUsuario.toLowerCase()) ||
+                      usuario.email.toLowerCase().includes(buscaUsuario.toLowerCase()) ||
+                      (usuario.profissao && usuario.profissao.toLowerCase().includes(buscaUsuario.toLowerCase())) ||
+                      (usuario.setor && usuario.setor.toLowerCase().includes(buscaUsuario.toLowerCase()))
+    
+    return matchBusca && usuario.disponivel
+  })
+
   const enviarMensagem = () => {
+    console.log('Tentando enviar mensagem:', novaMensagem, 'Mensagem selecionada:', mensagemSelecionada)
     if (novaMensagem.trim() && mensagemSelecionada) {
       const novaMsg = {
         id: Date.now(),
@@ -269,6 +354,38 @@ export default function MensagensMelhorada() {
     }
   }
 
+  const iniciarNovaConversa = (usuario) => {
+    // Criar uma nova conversa com o usuário selecionado
+    const novaConversa = {
+      id: Date.now(),
+      candidato: usuario.nome,
+      empresa: usuario.nome,
+      email: usuario.email,
+      telefone: '',
+      vaga: usuario.tipo === 'candidato' ? usuario.profissao : `${usuario.setor} - ${usuario.vagasAtivas} vagas ativas`,
+      data: new Date().toISOString().split('T')[0],
+      ultimaMensagem: 'Nova conversa iniciada',
+      lida: false,
+      status: 'ativo',
+      tipo: usuario.tipo,
+      online: usuario.online,
+      ultimaAtividade: usuario.ultimaAtividade,
+      foto: usuario.foto,
+      prioridade: 'media'
+    }
+
+    // Adicionar à lista de mensagens
+    mensagensMock.unshift(novaConversa)
+    
+    // Inicializar histórico vazio
+    historicoMensagens[novaConversa.id] = []
+    
+    // Selecionar a nova conversa
+    setMensagemSelecionada(novaConversa)
+    setShowNovaConversa(false)
+    setBuscaUsuario('')
+  }
+
   useEffect(() => {
     if (mensagemSelecionada) {
       marcarComoLida(mensagemSelecionada.id)
@@ -350,7 +467,7 @@ export default function MensagensMelhorada() {
     if (!mensagemSelecionada) return null
     const mobile = isMobile;
     return (
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-10 shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3 lg:px-6 lg:py-4 border-b bg-white sticky top-0 z-10 shadow-sm">
         {/* Botão voltar no mobile */}
         {isMobile && (
           <button onClick={() => setMensagemSelecionada(null)} className="mr-2 p-2 rounded-full hover:bg-blue-50 transition">
@@ -361,11 +478,13 @@ export default function MensagensMelhorada() {
         )}
         {/* Avatar e nome */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <img src={mensagemSelecionada.foto} alt={mensagemSelecionada.candidato} className="w-12 h-12 rounded-full object-cover border-2 border-blue-100" />
+          <img src={mensagemSelecionada.foto} alt={mensagemSelecionada.candidato} className="w-12 h-12 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-blue-100" />
           <div className="min-w-0">
-            <div className="font-semibold text-gray-800 truncate text-base">{mensagemSelecionada.candidato}</div>
-            <div className="text-xs text-gray-500 truncate">{mensagemSelecionada.vaga}</div>
-            <div className="text-xs text-green-600 font-medium">{mensagemSelecionada.online ? 'Online' : `Última atividade: ${mensagemSelecionada.ultimaAtividade}`}</div>
+            <div className="font-semibold text-gray-800 truncate text-base lg:text-lg">{mensagemSelecionada.candidato}</div>
+            <div className="text-xs lg:text-sm text-gray-500 truncate">{mensagemSelecionada.vaga}</div>
+            <div className="text-xs lg:text-sm text-green-600 font-medium">
+              {digitando ? 'Digitando...' : (mensagemSelecionada.online ? 'Online' : `Última atividade: ${mensagemSelecionada.ultimaAtividade}`)}
+            </div>
           </div>
         </div>
         {/* Ícones de ação */}
@@ -410,13 +529,13 @@ export default function MensagensMelhorada() {
     if (!mensagemSelecionada) return null
     const msgs = historicoMensagens[mensagemSelecionada.id] || []
     return (
-      <div className="p-4" ref={chatRef}>
+      <div className="p-4 lg:p-6" ref={chatRef}>
         {msgs.length === 0 && (
           <div className="text-center text-gray-400 py-4">Nenhuma mensagem ainda</div>
         )}
         {msgs.map((msg, idx) => (
           <div key={msg.id || idx} className={`mb-2 flex ${msg.remetente === (user.tipo === 'empresa' ? 'empresa' : 'candidato') ? 'justify-end' : 'justify-start'}`} >
-            <div className={`max-w-xs sm:max-w-md px-4 py-2 rounded-2xl shadow text-sm relative
+            <div className={`max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-2 lg:px-6 lg:py-3 rounded-2xl shadow text-sm lg:text-base relative
               ${msg.remetente === (user.tipo === 'empresa' ? 'empresa' : 'candidato') ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}
             >
               {msg.tipo === 'texto' ? msg.texto : (
@@ -443,26 +562,37 @@ export default function MensagensMelhorada() {
   function ChatInput() {
     if (!mensagemSelecionada) return null
     return (
-      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t p-3 bg-white flex items-center gap-2 shadow-md`}>
+      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t p-3 lg:p-4 bg-white flex items-center gap-2 lg:gap-3 shadow-md`}>
         <button onClick={() => setShowEmojis(!showEmojis)} className="p-2 rounded-full hover:bg-blue-50 transition text-xl">😊</button>
         <input
           ref={inputRef}
           type="text"
-          className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-gray-50"
+          className={`flex-1 px-4 py-2 lg:px-6 lg:py-3 rounded-full border text-sm lg:text-base transition-all duration-200 ${
+            novaMensagem.trim() 
+              ? 'border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white' 
+              : 'border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50'
+          }`}
           placeholder="Digite uma mensagem..."
           value={novaMensagem}
           onChange={e => setNovaMensagem(e.target.value)}
           onFocus={() => setDigitando(true)}
           onBlur={() => setDigitando(false)}
-          onKeyDown={e => e.key === 'Enter' && enviarMensagem()}
+          onKeyDown={e => e.key === 'Enter' && novaMensagem.trim() && enviarMensagem()}
         />
         <button onClick={anexarArquivo} className="p-2 rounded-full hover:bg-blue-50 transition text-xl">📎</button>
         <button
           onClick={enviarMensagem}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full font-semibold transition shadow-md"
+          className={`p-3 lg:p-4 rounded-full font-semibold transition-all duration-200 shadow-md ${
+            novaMensagem.trim() 
+              ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' 
+              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+          }`}
           disabled={!novaMensagem.trim()}
+          title={novaMensagem.trim() ? 'Enviar mensagem' : 'Digite uma mensagem para enviar'}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8m-4-4v8" /></svg>
+          <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+          </svg>
         </button>
       </div>
     )
@@ -480,9 +610,9 @@ export default function MensagensMelhorada() {
 
   // Renderização condicional
   return (
-    <div className="relative bg-gray-50">
+    <div className="relative bg-gray-50 h-screen overflow-hidden">
       {/* Header fixo principal */}
-      <header className={`fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 flex items-center justify-between px-4 ${isMobile ? 'py-0' : 'py-3'} shadow-sm`}>
+      <header className={`fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 flex items-center justify-between px-4 ${isMobile ? 'py-0' : 'py-4'} shadow-sm`}>
         {/* Botão voltar no mobile quando chat não está aberto */}
         {isMobile && mensagemSelecionada && (
           <button onClick={() => setMensagemSelecionada(null)} className="mr-2 p-2 rounded-full hover:bg-blue-50 transition">
@@ -499,21 +629,21 @@ export default function MensagensMelhorada() {
           </svg>
         </button>
       </header>
-      {!isMobile && <div className="h-16" />}
+      {!isMobile && <div className="h-20" />}
 
       {/* Layout responsivo: split view no desktop, troca no mobile */}
-      <div className="max-w-5xl mx-auto flex bg-transparent">
+      <div className="max-w-7xl mx-auto flex bg-transparent" style={{ height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 80px)' }}>
         {/* Lista de conversas */}
         {(!isMobile || !mensagemSelecionada) && (
-          <div className={`w-full md:w-1/3 md:max-w-xs border-r bg-gray-50 px-2 sm:px-0 ${isMobile ? 'overflow-y-auto pb-16' : 'rounded-l-xl pt-4'}`} style={isMobile ? {paddingTop: 0, marginTop: '-8px'} : {}}>
+          <div className={`w-full md:w-1/4 lg:w-1/3 xl:w-1/4 border-r bg-gray-50 px-2 sm:px-0 ${isMobile ? 'overflow-y-auto pb-16' : 'rounded-l-xl pt-4 overflow-y-auto'}`} style={isMobile ? {paddingTop: 0, marginTop: '-8px'} : {}}>
             {mensagensFiltradas.length === 0 && (
               <div className="text-center text-gray-400 py-8">Nenhuma conversa encontrada</div>
             )}
-            <ul className="space-y-2" style={isMobile ? {paddingTop:0, marginTop:0} : {}}>
+            <ul className="space-y-2 lg:space-y-3" style={isMobile ? {paddingTop:0, marginTop:0} : {}}>
               {mensagensFiltradas.map((msg, idx) => (
                 <li
                   key={msg.id}
-                  className={`group bg-white rounded-xl shadow flex items-center gap-3 px-4 py-3 cursor-pointer transition hover:shadow-lg border border-transparent hover:border-blue-200 ${mensagemSelecionada?.id === msg.id ? 'ring-2 ring-blue-400' : ''}`}
+                  className={`group bg-white rounded-xl shadow flex items-center gap-3 px-4 py-3 lg:px-6 lg:py-4 cursor-pointer transition hover:shadow-lg border border-transparent hover:border-blue-200 ${mensagemSelecionada?.id === msg.id ? 'ring-2 ring-blue-400' : ''}`}
                   style={isMobile && idx === 0 ? {marginTop:0, paddingTop:0} : {}}
                   onClick={() => { setMensagemSelecionada(msg); marcarComoLida(msg.id); }}
                 >
@@ -522,33 +652,33 @@ export default function MensagensMelhorada() {
                     <img
                       src={msg.foto}
                       alt={msg.candidato}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-100"
+                      className="w-12 h-12 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-blue-100"
                     />
                     {/* Status online */}
                     {msg.online && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full" />
+                      <span className="absolute bottom-0 right-0 w-3 h-3 lg:w-4 lg:h-4 bg-green-400 border-2 border-white rounded-full" />
                     )}
                   </div>
                   {/* Conteúdo */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-800 truncate">{msg.candidato}</span>
+                      <span className="font-semibold text-gray-800 truncate lg:text-base">{msg.candidato}</span>
                       {/* Badge prioridade */}
-                      {msg.prioridade === 'alta' && <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700 font-bold">Alta</span>}
-                      {msg.prioridade === 'media' && <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700 font-bold">Média</span>}
+                      {msg.prioridade === 'alta' && <span className="ml-1 px-2 py-0.5 rounded-full text-xs lg:text-sm bg-red-100 text-red-700 font-bold">Alta</span>}
+                      {msg.prioridade === 'media' && <span className="ml-1 px-2 py-0.5 rounded-full text-xs lg:text-sm bg-yellow-100 text-yellow-700 font-bold">Média</span>}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`truncate text-sm ${msg.lida ? 'text-gray-500' : 'text-blue-700 font-medium'}`}>{msg.ultimaMensagem}</span>
+                      <span className={`truncate text-sm lg:text-base ${msg.lida ? 'text-gray-500' : 'text-blue-700 font-medium'}`}>{msg.ultimaMensagem}</span>
                       {/* Badge não lida */}
-                      {!msg.lida && <span className="ml-1 w-2 h-2 bg-blue-600 rounded-full inline-block" />}
+                      {!msg.lida && <span className="ml-1 w-2 h-2 lg:w-3 lg:h-3 bg-blue-600 rounded-full inline-block" />}
                     </div>
                   </div>
                   {/* Horário */}
-                  <div className="flex flex-col items-end min-w-[56px]">
-                    <span className="text-xs text-gray-400">{msg.ultimaAtividade}</span>
+                  <div className="flex flex-col items-end min-w-[56px] lg:min-w-[64px]">
+                    <span className="text-xs lg:text-sm text-gray-400">{msg.ultimaAtividade}</span>
                     {/* Ícone de erro se necessário */}
                     {msg.status === 'erro' && (
-                      <span title="Erro ao enviar" className="text-red-500 text-lg">!</span>
+                      <span title="Erro ao enviar" className="text-red-500 text-lg lg:text-xl">!</span>
                     )}
                   </div>
                 </li>
@@ -559,11 +689,11 @@ export default function MensagensMelhorada() {
 
         {/* Área do chat */}
         {((!isMobile && mensagemSelecionada) || (isMobile && mensagemSelecionada)) ? (
-          <div className={`flex-1 flex flex-col bg-white rounded-r-xl shadow-lg ${isMobile ? 'fixed inset-0 z-40 pt-16' : ''}`} style={{minWidth:0}}>
+          <div className={`flex-1 flex flex-col bg-white rounded-r-xl shadow-lg ${isMobile ? 'fixed inset-0 z-40 pt-16' : 'h-full'}`} style={{minWidth:0}}>
             {/* Header do chat melhorado */}
             <ChatHeader />
             {/* Balões de mensagem melhorados */}
-            <div className={`flex-1 ${isMobile ? 'overflow-y-auto pb-28' : ''}`} ref={chatRef}>
+            <div className={`flex-1 ${isMobile ? 'overflow-y-auto pb-28' : 'overflow-y-auto'}`} ref={chatRef}>
               <ChatBaloes />
             </div>
             {/* Campo de digitação melhorado */}
@@ -573,7 +703,7 @@ export default function MensagensMelhorada() {
           // Desktop: área do chat vazia
           !isMobile && (
             <div className="flex-1 flex items-center justify-center bg-white rounded-r-xl">
-              <div className="text-gray-400 text-lg">Selecione uma conversa para começar</div>
+              <div className="text-gray-400 text-lg lg:text-xl">Selecione uma conversa para começar</div>
             </div>
           )
         )}
@@ -585,7 +715,7 @@ export default function MensagensMelhorada() {
           className="fixed right-6 z-40 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg p-4 flex items-center gap-2 transition"
           style={{bottom: isMobile ? '5rem' : '2rem'}}
           title="Nova conversa"
-          onClick={() => alert('Funcionalidade de nova conversa em breve!')}
+          onClick={() => setShowNovaConversa(true)}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h8m-4-4v8" />
@@ -634,6 +764,97 @@ export default function MensagensMelhorada() {
             ))}
           </div>
         </Modal>
+      )}
+
+      {/* Modal de Nova Conversa */}
+      {showNovaConversa && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
+            {/* Header do modal */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Nova Conversa</h3>
+              <button 
+                onClick={() => setShowNovaConversa(false)}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+              >
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Campo de busca */}
+            <div className="p-4 border-b">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Buscar usuários..."
+                  value={buscaUsuario}
+                  onChange={(e) => setBuscaUsuario(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Lista de usuários */}
+            <div className="overflow-y-auto max-h-96">
+              {usuariosFiltrados.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  {buscaUsuario ? 'Nenhum usuário encontrado' : 'Nenhum usuário disponível'}
+                </div>
+              ) : (
+                <div className="p-2">
+                  {usuariosFiltrados.map((usuario) => (
+                    <div
+                      key={usuario.id}
+                      onClick={() => iniciarNovaConversa(usuario)}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+                    >
+                      {/* Avatar */}
+                      <div className="relative">
+                        <img
+                          src={usuario.foto}
+                          alt={usuario.nome}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-blue-100"
+                        />
+                        {usuario.online && (
+                          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full" />
+                        )}
+                      </div>
+
+                      {/* Informações */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-gray-800 truncate">{usuario.nome}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            usuario.tipo === 'candidato' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                          }`}>
+                            {usuario.tipo === 'candidato' ? 'Candidato' : 'Empresa'}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-600 truncate">
+                          {usuario.tipo === 'candidato' ? usuario.profissao : usuario.setor}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">{usuario.localizacao}</div>
+                      </div>
+
+                      {/* Status */}
+                      <div className="text-right">
+                        <div className="text-xs text-gray-400">{usuario.ultimaAtividade}</div>
+                        {usuario.tipo === 'empresa' && usuario.vagasAtivas && (
+                          <div className="text-xs text-blue-600 font-medium">{usuario.vagasAtivas} vagas</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

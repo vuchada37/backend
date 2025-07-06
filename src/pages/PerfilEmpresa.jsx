@@ -40,9 +40,9 @@ export default function PerfilEmpresa() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto py-6 px-4 pb-24 md:pb-6">
       {id && empresaExibida && (
-        <div className="mb-4 p-2 bg-blue-100 text-blue-800 rounded text-center">
+        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg text-center text-sm">
           <strong>Perfil de outra empresa:</strong><br/>
           Nome: {empresaExibida.nome}<br/>
           Email: {empresaExibida.email}<br/>
@@ -50,31 +50,32 @@ export default function PerfilEmpresa() {
         </div>
       )}
       {id && !empresaExibida && (
-        <div className="mb-4 p-2 bg-red-100 text-red-800 rounded text-center">
+        <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg text-center text-sm">
           Empresa não encontrada!
         </div>
       )}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-blue-700">Perfil da Empresa</h1>
+      
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">Perfil da Empresa</h1>
         <button
           onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
         >
-          {editando ? 'Cancelar' : 'Editar Perfil'}
+          {editando ? '❌ Cancelar' : '✏️ Editar Perfil'}
         </button>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Informações principais */}
-        <div className="md:col-span-2">
-          <div className="bg-white rounded-lg shadow p-6">
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-6">Informações da Empresa</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nome Fantasia
+                    Nome Fantasia *
                   </label>
                   <input
                     type="text"
@@ -116,7 +117,7 @@ export default function PerfilEmpresa() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    E-mail
+                    E-mail *
                   </label>
                   <input
                     type="email"
@@ -171,7 +172,7 @@ export default function PerfilEmpresa() {
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Setor
@@ -223,24 +224,24 @@ export default function PerfilEmpresa() {
                   onChange={handleChange}
                   disabled={!editando}
                   rows={4}
-                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 resize-none"
                 />
               </div>
 
               {editando && (
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
                   >
-                    Salvar Alterações
+                    💾 Salvar Alterações
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditando(false)}
-                    className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                    className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
                   >
-                    Cancelar
+                    ❌ Cancelar
                   </button>
                 </div>
               )}
@@ -248,37 +249,67 @@ export default function PerfilEmpresa() {
           </div>
         </div>
 
-        {/* Sidebar com estatísticas */}
+        {/* Sidebar */}
         <div className="space-y-6">
+          {/* Logo da empresa */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Estatísticas</h3>
-            <div className="space-y-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">5</div>
-                <div className="text-sm text-gray-600">Vagas publicadas</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Logo da Empresa</h3>
+            <div className="text-center">
+              <div className="w-24 h-24 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <span className="text-3xl">🏢</span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">12</div>
-                <div className="text-sm text-gray-600">Candidaturas recebidas</div>
+              {editando && (
+                <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                  📁 Alterar Logo
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Estatísticas */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Estatísticas</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Vagas publicadas</span>
+                <span className="font-semibold text-blue-600">5</span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">3</div>
-                <div className="text-sm text-gray-600">Vagas ativas</div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Candidaturas recebidas</span>
+                <span className="font-semibold text-green-600">12</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Vagas ativas</span>
+                <span className="font-semibold text-orange-600">3</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Visualizações</span>
+                <span className="font-semibold text-purple-600">45</span>
               </div>
             </div>
           </div>
 
+          {/* Ações rápidas */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Ações Rápidas</h3>
-            <div className="space-y-2">
-              <button onClick={() => navigate('/empresa')} className="w-full text-left p-2 rounded hover:bg-gray-50 transition">
-                📢 Publicar nova vaga
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Ações Rápidas</h3>
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate('/publicar-vaga')}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+              >
+                📢 Publicar Nova Vaga
               </button>
-              <button onClick={() => alert('Funcionalidade em breve!')} className="w-full text-left p-2 rounded hover:bg-gray-50 transition">
-                📊 Ver relatórios
+              <button
+                onClick={() => navigate('/vagas-publicadas')}
+                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+              >
+                📋 Ver Vagas Publicadas
               </button>
-              <button onClick={() => alert('Funcionalidade em breve!')} className="w-full text-left p-2 rounded hover:bg-gray-50 transition">
-                🔒 Alterar senha
+              <button
+                onClick={() => navigate('/candidaturas')}
+                className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium"
+              >
+                👥 Ver Candidaturas
               </button>
             </div>
           </div>

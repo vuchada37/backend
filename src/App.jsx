@@ -15,6 +15,7 @@ import HomeEmpresa from './pages/HomeEmpresa'
 import PainelEmpresa from './pages/PainelEmpresa'
 import PerfilEmpresa from './pages/PerfilEmpresa'
 import VagasPublicadas from './pages/VagasPublicadas'
+import PublicarVaga from './pages/PublicarVaga'
 import Mensagens from './pages/MensagensMelhorada'
 
 function App() {
@@ -38,9 +39,10 @@ function App() {
               <Route path="/candidaturas" element={<Candidaturas />} />
               <Route path="/empresa-home" element={<HomeEmpresa />} />
               <Route path="/empresa" element={<PainelEmpresa />} />
-              <Route path="/perfil-empresa" element={<PainelEmpresa />} />
+              <Route path="/perfil-empresa" element={<PerfilEmpresa />} />
               <Route path="/perfil-empresa/:id" element={<PerfilEmpresa />} />
               <Route path="/vagas-publicadas" element={<VagasPublicadas />} />
+              <Route path="/publicar-vaga" element={<PublicarVaga />} />
               <Route path="/mensagens" element={<Mensagens />} />
             </Routes>
           </main>

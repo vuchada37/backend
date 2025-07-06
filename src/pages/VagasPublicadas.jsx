@@ -111,7 +111,7 @@ export default function VagasPublicadas() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">Vagas Publicadas</h1>
         <button
-          onClick={() => navigate('/empresa')}
+                      onClick={() => navigate('/publicar-vaga')}
           className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
         >
           📢 Publicar Nova Vaga

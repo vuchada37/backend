@@ -32,7 +32,7 @@ export default function Header() {
             // Menu desktop para empresas
             <>
               <Link to="/empresa-home" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Dashboard</Link>
-              <Link to="/empresa" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Publicar Vaga</Link>
+              <Link to="/publicar-vaga" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Publicar Vaga</Link>
               <Link to="/vagas-publicadas" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Minhas Vagas</Link>
               <Link to="/candidaturas" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Candidaturas</Link>
               <Link to="/mensagens" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Mensagens</Link>
@@ -95,7 +95,7 @@ export default function Header() {
                       </svg>
                       <span className="text-xs">Dashboard</span>
                     </Link>
-                    <Link to="/empresa" className="flex flex-col items-center py-2 px-1 text-gray-600 hover:text-blue-600 transition">
+                    <Link to="/publicar-vaga" className="flex flex-col items-center py-2 px-1 text-gray-600 hover:text-blue-600 transition">
                       <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
@@ -211,3 +211,4 @@ export default function Header() {
     </>
   )
 }
+ 

@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ModalTemplates, ModalNotificacoes } from '../components/Modal'
+import Modal from '../components/Modal'
 
 export default function MensagensMelhorada() {
   const { user } = useAuth()
@@ -23,7 +23,7 @@ export default function MensagensMelhorada() {
   const navigate = useNavigate()
 
   // Mock de mensagens mais realista
-  const mensagensMock = [
+  const [mensagens, setMensagens] = useState([
     // Candidatos
     {
       id: 1,
@@ -131,7 +131,7 @@ export default function MensagensMelhorada() {
       foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
       prioridade: 'media'
     },
-  ]
+  ])
 
   // Mock de histórico de mensagens mais realista
   const historicoMensagens = {
@@ -164,6 +164,26 @@ export default function MensagensMelhorada() {
 
   // Emojis populares
   const emojis = ['😊', '👍', '👋', '🎉', '💼', '📝', '✅', '❌', '🤝', '💡', '🚀', '⭐', '💪', '🎯', '📞', '📧']
+
+  // Templates de mensagem
+  const templates = [
+    {
+      titulo: 'Saudação',
+      texto: 'Olá! Como posso ajudá-lo hoje?'
+    },
+    {
+      titulo: 'Agradecimento',
+      texto: 'Obrigado pelo seu interesse!'
+    },
+    {
+      titulo: 'Agendamento',
+      texto: 'Gostaria de agendar uma entrevista?'
+    },
+    {
+      titulo: 'Informações',
+      texto: 'Posso fornecer mais informações sobre a vaga.'
+    }
+  ]
 
   // Mock de usuários disponíveis para conversa
   const usuariosMock = [
@@ -232,27 +252,25 @@ export default function MensagensMelhorada() {
   ]
 
   // Filtrar mensagens conforme tipo de usuário logado
-  let mensagens = []
-  if (user?.tipo === 'empresa') {
-    // Empresa vê candidatos e empresas (exceto ela mesma)
-    mensagens = mensagensMock.filter(msg => msg.tipo === 'candidato' || (msg.tipo === 'empresa' && msg.empresa !== user.nome))
-  } else if (user?.tipo === 'candidato') {
-    // Candidato vê apenas empresas e chamados
-    mensagens = mensagensMock.filter(msg => msg.tipo === 'empresa' || msg.tipo === 'chamado')
-  } else {
-    // fallback: mostra tudo
-    mensagens = mensagensMock
-  }
-
-  // Filtrar mensagens apenas por busca
   const mensagensFiltradas = mensagens.filter(msg => {
+    // Filtrar por tipo de usuário
+    let tipoValido = true
+    if (user?.tipo === 'empresa') {
+      tipoValido = msg.tipo === 'candidato' || (msg.tipo === 'empresa' && msg.empresa !== user.nome)
+    } else if (user?.tipo === 'candidato') {
+      tipoValido = msg.tipo === 'empresa' || msg.tipo === 'chamado'
+    }
+    
+    // Filtrar por busca
     const matchBusca = busca === '' || 
                       msg.candidato.toLowerCase().includes(busca.toLowerCase()) ||
                       msg.vaga.toLowerCase().includes(busca.toLowerCase()) ||
                       msg.email.toLowerCase().includes(busca.toLowerCase())
     
-    return matchBusca
+    return tipoValido && matchBusca
   })
+
+
 
   // Filtrar usuários disponíveis para conversa
   const usuariosFiltrados = usuariosMock.filter(usuario => {
@@ -269,7 +287,7 @@ export default function MensagensMelhorada() {
     return matchBusca && usuario.disponivel
   })
 
-  const enviarMensagem = () => {
+  const enviarMensagem = useCallback(() => {
     console.log('Tentando enviar mensagem:', novaMensagem, 'Mensagem selecionada:', mensagemSelecionada)
     if (novaMensagem.trim() && mensagemSelecionada) {
       const novaMsg = {
@@ -286,30 +304,42 @@ export default function MensagensMelhorada() {
       }
       historicoMensagens[mensagemSelecionada.id].push(novaMsg)
       
-      const msgAtualizada = mensagens.find(m => m.id === mensagemSelecionada.id)
-      if (msgAtualizada) {
-        msgAtualizada.lida = false
-        msgAtualizada.ultimaMensagem = novaMensagem
-        msgAtualizada.data = new Date().toLocaleDateString('pt-BR')
-        msgAtualizada.ultimaAtividade = 'Agora'
-      }
+      // Atualizar o estado das mensagens
+      setMensagens(prevMensagens => 
+        prevMensagens.map(msg => 
+          msg.id === mensagemSelecionada.id 
+            ? {
+                ...msg,
+                lida: false,
+                ultimaMensagem: novaMensagem,
+                data: new Date().toLocaleDateString('pt-BR'),
+                ultimaAtividade: 'Agora'
+              }
+            : msg
+        )
+      )
       
       setNovaMensagem('')
       setDigitando(false)
       
+      // Manter o foco no input
       setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus()
+        }
         if (chatRef.current) {
           chatRef.current.scrollTop = chatRef.current.scrollHeight
         }
       }, 100)
     }
-  }
+  }, [novaMensagem, mensagemSelecionada, user.tipo])
 
   const marcarComoLida = (msgId) => {
-    const msg = mensagens.find(m => m.id === msgId)
-    if (msg) {
-      msg.lida = true
-    }
+    setMensagens(prevMensagens => 
+      prevMensagens.map(msg => 
+        msg.id === msgId ? { ...msg, lida: true } : msg
+      )
+    )
   }
 
   const selecionarTemplate = (texto) => {
@@ -322,7 +352,7 @@ export default function MensagensMelhorada() {
     inputRef.current?.focus()
   }
 
-  const anexarArquivo = () => {
+  const anexarArquivo = useCallback(() => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.pdf,.doc,.docx,.jpg,.png,.zip'
@@ -341,7 +371,7 @@ export default function MensagensMelhorada() {
       })
     }
     input.click()
-  }
+  }, [])
 
   const removerArquivo = (id) => {
     setArquivosAnexados(prev => prev.filter(arq => arq.id !== id))
@@ -375,7 +405,7 @@ export default function MensagensMelhorada() {
     }
 
     // Adicionar à lista de mensagens
-    mensagensMock.unshift(novaConversa)
+    setMensagens(prevMensagens => [novaConversa, ...prevMensagens])
     
     // Inicializar histórico vazio
     historicoMensagens[novaConversa.id] = []
@@ -561,31 +591,50 @@ export default function MensagensMelhorada() {
   // Função para renderizar o campo de digitação
   function ChatInput() {
     if (!mensagemSelecionada) return null
+    
+    const handleInputChange = useCallback((e) => {
+      setNovaMensagem(e.target.value)
+    }, [])
+    
+    const handleKeyDown = useCallback((e) => {
+      if (e.key === 'Enter' && novaMensagem.trim()) {
+        enviarMensagem()
+      }
+    }, [novaMensagem, enviarMensagem])
+    
+    const handleFocus = useCallback(() => {
+      setDigitando(true)
+    }, [])
+    
+    const handleBlur = useCallback(() => {
+      setDigitando(false)
+    }, [])
+    
+    const handleEmojiClick = useCallback(() => {
+      setShowEmojis(!showEmojis)
+    }, [showEmojis])
+    
     return (
-      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t p-3 lg:p-4 bg-white flex items-center gap-2 lg:gap-3 shadow-md`}>
-        <button onClick={() => setShowEmojis(!showEmojis)} className="p-2 rounded-full hover:bg-blue-50 transition text-xl">😊</button>
+      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t p-2 sm:p-3 lg:p-4 bg-white flex items-center gap-2 lg:gap-3 shadow-md`}>
+        <button onClick={handleEmojiClick} className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">😊</button>
         <input
           ref={inputRef}
           type="text"
-          className={`flex-1 px-4 py-2 lg:px-6 lg:py-3 rounded-full border text-sm lg:text-base transition-all duration-200 ${
-            novaMensagem.trim() 
-              ? 'border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white' 
-              : 'border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50'
+          className={`flex-1 px-3 sm:px-4 py-2 lg:px-6 lg:py-3 rounded-full border text-sm lg:text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            novaMensagem.trim() ? 'border-blue-300 bg-white' : 'border-gray-200 bg-gray-50'
           }`}
           placeholder="Digite uma mensagem..."
           value={novaMensagem}
-          onChange={e => setNovaMensagem(e.target.value)}
-          onFocus={() => setDigitando(true)}
-          onBlur={() => setDigitando(false)}
-          onKeyDown={e => e.key === 'Enter' && novaMensagem.trim() && enviarMensagem()}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
         />
-        <button onClick={anexarArquivo} className="p-2 rounded-full hover:bg-blue-50 transition text-xl">📎</button>
+        <button onClick={anexarArquivo} className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">📎</button>
         <button
           onClick={enviarMensagem}
-          className={`p-3 lg:p-4 rounded-full font-semibold transition-all duration-200 shadow-md ${
-            novaMensagem.trim() 
-              ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' 
-              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+          className={`p-2 sm:p-3 lg:p-4 rounded-full font-semibold transition-all duration-200 shadow-md flex-shrink-0 ${
+            novaMensagem.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
           }`}
           disabled={!novaMensagem.trim()}
           title={novaMensagem.trim() ? 'Enviar mensagem' : 'Digite uma mensagem para enviar'}

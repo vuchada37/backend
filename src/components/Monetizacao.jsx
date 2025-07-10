@@ -1,90 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useMonetizacao } from '../context/MonetizacaoContext'
 
 export default function Monetizacao() {
   const { user } = useAuth()
+  const { planosCandidato, planos } = useMonetizacao()
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('mpesa')
 
-  // Planos de assinatura em Meticais (MT)
-  const planos = [
-    {
-      id: 'gratuito',
-      nome: 'Gratuito',
-      preco: 0,
-      moeda: 'MT',
-      periodo: 'Sempre',
-      recursos: [
-        'Até 3 vagas ativas',
-        'Acesso básico a candidatos',
-        'Mensagens limitadas',
-        'Suporte por email'
-      ],
-      limiteVagas: 3,
-      limiteMensagens: 50,
-      cor: 'gray'
-    },
-    {
-      id: 'basico',
-      nome: 'Básico',
-      preco: 2500,
-      moeda: 'MT',
-      periodo: 'Mensal',
-      recursos: [
-        'Até 10 vagas ativas',
-        'Acesso completo a candidatos',
-        'Mensagens ilimitadas',
-        'Suporte prioritário',
-        'Relatórios básicos',
-        'Comissão: 5% por contratação'
-      ],
-      limiteVagas: 10,
-      limiteMensagens: -1, // Ilimitado
-      cor: 'blue',
-      popular: false
-    },
-    {
-      id: 'premium',
-      nome: 'Premium',
-      preco: 4500,
-      moeda: 'MT',
-      periodo: 'Mensal',
-      recursos: [
-        'Vagas ilimitadas',
-        'Acesso completo a candidatos',
-        'Mensagens ilimitadas',
-        'Suporte 24/7',
-        'Relatórios avançados',
-        'Comissão: 3% por contratação',
-        'Destaque nas buscas',
-        'Análise de candidatos'
-      ],
-      limiteVagas: -1, // Ilimitado
-      limiteMensagens: -1,
-      cor: 'purple',
-      popular: true
-    },
-    {
-      id: 'empresarial',
-      nome: 'Empresarial',
-      preco: 8500,
-      moeda: 'MT',
-      periodo: 'Mensal',
-      recursos: [
-        'Tudo do Premium',
-        'Múltiplos usuários',
-        'API personalizada',
-        'Comissão: 2% por contratação',
-        'Consultoria especializada',
-        'Integração com sistemas'
-      ],
-      limiteVagas: -1,
-      limiteMensagens: -1,
-      cor: 'green',
-      popular: false
-    }
-  ]
+  // Determinar se é candidato ou empresa
+  const isEmpresa = user && user.tipo === 'empresa'
+  const planosParaMostrar = isEmpresa ? Object.values(planos) : Object.values(planosCandidato)
 
   // Métodos de pagamento disponíveis em Moçambique
   const metodosPagamento = [
@@ -118,13 +45,13 @@ export default function Monetizacao() {
     }
   ]
 
-  // Sistema de comissões por contratação
-  const comissoes = {
+  // Sistema de comissões por contratação (apenas para empresas)
+  const comissoes = isEmpresa ? {
     gratuito: 0,
     basico: 0.05, // 5%
     premium: 0.03, // 3%
     empresarial: 0.02 // 2%
-  }
+  } : null
 
   const handleSelectPlan = (plan) => {
     setSelectedPlan(plan)
@@ -133,13 +60,6 @@ export default function Monetizacao() {
 
   const handlePayment = async () => {
     // Simular processo de pagamento
-    console.log('Processando pagamento:', {
-      plano: selectedPlan,
-      metodo: paymentMethod,
-      usuario: user
-    })
-    
-    // Aqui seria integrado com gateway de pagamento real
     alert('Pagamento processado com sucesso!')
     setShowPaymentModal(false)
   }
@@ -155,21 +75,24 @@ export default function Monetizacao() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Planos e Preços
+            {isEmpresa ? 'Planos e Preços para Empresas' : 'Planos e Benefícios para Candidatos'}
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Escolha o plano ideal para sua empresa e comece a contratar os melhores talentos de Moçambique
+            {isEmpresa
+              ? 'Escolha o plano ideal para sua empresa e comece a contratar os melhores talentos de Moçambique'
+              : 'Escolha um plano para se destacar, candidatar-se a mais vagas e acessar benefícios exclusivos.'}
           </p>
         </div>
 
         {/* Planos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {planos.map((plano) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 mb-12">
+          {planosParaMostrar.map((plano) => (
             <div
               key={plano.id}
               className={`relative bg-white rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl ${
                 plano.popular ? 'border-purple-500 scale-105' : 'border-gray-200 hover:border-blue-300'
-              }`}
+              } flex flex-col overflow-hidden min-h-[320px] sm:min-h-[380px] sm:max-h-[480px]`}
+              style={{height: '100%'}}
             >
               {plano.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -178,30 +101,50 @@ export default function Monetizacao() {
                   </span>
                 </div>
               )}
-
-              <div className="p-8">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plano.nome}</h3>
-                  <div className="text-4xl font-bold text-gray-900 mb-1">
-                    {plano.preco === 0 ? 'Grátis' : `${plano.preco.toLocaleString()} ${plano.moeda}`}
+              <div className="p-4 sm:p-5 flex-1 flex flex-col overflow-y-auto">
+                <div className="text-center mb-3 sm:mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">{plano.nome}</h3>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">
+                    {plano.preco === 0 ? 'Grátis' : `${plano.preco.toLocaleString()} MT`}
                   </div>
-                  <p className="text-gray-500">{plano.periodo}</p>
+                  <p className="text-gray-500 text-sm">{isEmpresa ? plano.periodo : 'Mensal'}</p>
                 </div>
-
-                <ul className="space-y-3 mb-8">
-                  {plano.recursos.map((recurso, index) => (
-                    <li key={index} className="flex items-center text-gray-700">
-                      <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {recurso}
-                    </li>
-                  ))}
+                <ul className="space-y-2 mb-3 sm:mb-4 text-sm flex-1 overflow-y-auto">
+                  {isEmpresa ? (
+                    plano.recursos.map((recurso, index) => (
+                      <li key={index} className="flex items-center text-gray-700">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {recurso}
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex items-center text-gray-700">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {plano.limiteCandidaturas === -1 ? 'Candidaturas ilimitadas' : `Até ${plano.limiteCandidaturas} candidaturas simultâneas`}
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {plano.limiteMensagens === -1 ? 'Mensagens ilimitadas' : `Até ${plano.limiteMensagens} mensagens por mês`}
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {plano.destaque ? 'Perfil em destaque nas buscas' : 'Perfil padrão'}
+                      </li>
+                    </>
+                  )}
                 </ul>
-
                 <button
                   onClick={() => handleSelectPlan(plano)}
-                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+                  className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors mt-auto ${
                     plano.id === 'gratuito'
                       ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       : plano.popular
@@ -216,52 +159,52 @@ export default function Monetizacao() {
           ))}
         </div>
 
-        {/* Sistema de Comissões */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-            Sistema de Comissões
-          </h2>
-          <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
-            Ganhe dinheiro com cada contratação bem-sucedida. Quanto maior o plano, menor a comissão que cobramos.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {Object.entries(comissoes).map(([plano, comissao]) => (
-              <div key={plano} className="text-center p-6 bg-gray-50 rounded-xl">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2 capitalize">
-                  {plano === 'gratuito' ? 'Gratuito' : plano}
-                </h3>
-                <div className="text-3xl font-bold text-blue-600 mb-2">
-                  {comissao === 0 ? '0%' : `${(comissao * 100)}%`}
+        {/* Sistema de Comissões - apenas para empresas */}
+        {isEmpresa && (
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+              Sistema de Comissões
+            </h2>
+            <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
+              Ganhe dinheiro com cada contratação bem-sucedida. Quanto maior o plano, menor a comissão que cobramos.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {Object.entries(comissoes).map(([plano, comissao]) => (
+                <div key={plano} className="text-center p-6 bg-gray-50 rounded-xl">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 capitalize">
+                    {plano === 'gratuito' ? 'Gratuito' : plano}
+                  </h3>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {comissao === 0 ? '0%' : `${(comissao * 100)}%`}
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    {comissao === 0 
+                      ? 'Sem comissão' 
+                      : `Comissão por contratação`
+                    }
+                  </p>
                 </div>
-                <p className="text-gray-600 text-sm">
-                  {comissao === 0 
-                    ? 'Sem comissão' 
-                    : `Comissão por contratação`
-                  }
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Métodos de Pagamento */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
             Métodos de Pagamento
           </h2>
           <p className="text-gray-600 text-center mb-8">
             Aceitamos todos os principais métodos de pagamento de Moçambique
           </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
             {metodosPagamento.map((metodo) => (
-              <div key={metodo.id} className="text-center p-6 border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
-                <div className="text-4xl mb-3">{metodo.icone}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{metodo.nome}</h3>
-                <p className="text-gray-600 text-sm">{metodo.descricao}</p>
+              <div key={metodo.id} className="flex flex-col items-center justify-between text-center p-3 sm:p-6 border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-colors h-full min-h-[120px] break-words">
+                <div className="text-3xl mb-2">{metodo.icone}</div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 break-words">{metodo.nome}</h3>
+                <p className="text-gray-600 text-xs sm:text-sm mb-1 break-words">{metodo.descricao}</p>
                 {metodo.popular && (
-                  <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                  <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
                     Popular
                   </span>
                 )}
@@ -273,21 +216,19 @@ export default function Monetizacao() {
 
       {/* Modal de Pagamento */}
       {showPaymentModal && selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto">
+            <div className="p-4 sm:p-6">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Finalizar Assinatura
               </h3>
-              
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <h4 className="font-semibold text-gray-900 mb-2">{selectedPlan.nome}</h4>
                 <div className="text-2xl font-bold text-gray-900">
-                  {selectedPlan.preco === 0 ? 'Grátis' : `${selectedPlan.preco.toLocaleString()} ${selectedPlan.moeda}`}
-                  <span className="text-sm font-normal text-gray-500">/{selectedPlan.periodo}</span>
+                  {selectedPlan.preco === 0 ? 'Grátis' : `${selectedPlan.preco.toLocaleString()} MT`}
+                  <span className="text-sm font-normal text-gray-500">/Mensal</span>
                 </div>
               </div>
-
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Método de Pagamento
@@ -314,8 +255,7 @@ export default function Monetizacao() {
                   ))}
                 </div>
               </div>
-
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowPaymentModal(false)}
                   className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"

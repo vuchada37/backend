@@ -423,9 +423,19 @@ export default function MensagensMelhorada() {
         if (chatRef.current) {
           chatRef.current.scrollTop = chatRef.current.scrollHeight
         }
+        if (inputRef.current) {
+          inputRef.current.focus()
+        }
       }, 100)
     }
   }, [mensagemSelecionada])
+
+  // Foco no input ao enviar mensagem
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [novaMensagem])
 
   // Simular notificações em tempo real
   useEffect(() => {
@@ -559,13 +569,13 @@ export default function MensagensMelhorada() {
     if (!mensagemSelecionada) return null
     const msgs = historicoMensagens[mensagemSelecionada.id] || []
     return (
-      <div className="p-4 lg:p-6" ref={chatRef}>
+      <div className="p-4 lg:p-6" ref={chatRef} onClick={() => inputRef.current && inputRef.current.focus()}>
         {msgs.length === 0 && (
           <div className="text-center text-gray-400 py-4">Nenhuma mensagem ainda</div>
         )}
         {msgs.map((msg, idx) => (
           <div key={msg.id || idx} className={`mb-2 flex ${msg.remetente === (user.tipo === 'empresa' ? 'empresa' : 'candidato') ? 'justify-end' : 'justify-start'}`} >
-            <div className={`max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-2 lg:px-6 lg:py-3 rounded-2xl shadow text-sm lg:text-base relative
+            <div className={`max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-2 rounded-2xl shadow text-sm lg:text-base relative
               ${msg.remetente === (user.tipo === 'empresa' ? 'empresa' : 'candidato') ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}
             >
               {msg.tipo === 'texto' ? msg.texto : (
@@ -615,33 +625,42 @@ export default function MensagensMelhorada() {
     }, [showEmojis])
     
     return (
-      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t p-2 sm:p-3 lg:p-4 bg-white flex items-center gap-2 lg:gap-3 shadow-md`}>
-        <button onClick={handleEmojiClick} className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">😊</button>
+      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t bg-white flex items-center gap-2 lg:gap-3 shadow-md px-2 sm:px-4 py-2`} style={{boxShadow: '0 2px 12px #0001'}}>
+        <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
+          {/* SVG emoji */}
+          <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+        </button>
         <input
           ref={inputRef}
           type="text"
-          className={`flex-1 px-3 sm:px-4 py-2 lg:px-6 lg:py-3 rounded-full border text-sm lg:text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            novaMensagem.trim() ? 'border-blue-300 bg-white' : 'border-gray-200 bg-gray-50'
-          }`}
-          placeholder="Digite uma mensagem..."
           value={novaMensagem}
           onChange={handleInputChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          placeholder="Digite uma mensagem..."
+          className="flex-1 px-4 py-2 rounded-full border text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
+          style={{
+            border: novaMensagem.trim() ? '1px solid #3b82f6' : '1px solid #d1d5db',
+            boxShadow: novaMensagem.trim() ? '0 0 0 2px #3b82f6' : 'none'
+          }}
+          aria-label="Digite uma mensagem"
         />
-        <button onClick={anexarArquivo} className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">📎</button>
+        <button onClick={anexarArquivo} aria-label="Anexar arquivo" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
+          {/* SVG clipe */}
+          <svg width="22" height="22" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3 3 0 114.24 4.24l-9.2 9.19a1 1 0 01-1.41-1.41l9.2-9.19"/></svg>
+        </button>
         <button
           onClick={enviarMensagem}
+          aria-label="Enviar mensagem"
           className={`p-2 sm:p-3 lg:p-4 rounded-full font-semibold transition-all duration-200 shadow-md flex-shrink-0 ${
-            novaMensagem.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+            novaMensagem.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 shadow-none'
           }`}
           disabled={!novaMensagem.trim()}
           title={novaMensagem.trim() ? 'Enviar mensagem' : 'Digite uma mensagem para enviar'}
         >
-          <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-          </svg>
+          {/* SVG avião */}
+          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
       </div>
     )

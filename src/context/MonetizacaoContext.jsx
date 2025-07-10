@@ -53,21 +53,62 @@ export const MonetizacaoProvider = ({ children }) => {
     }
   }
 
+  // Adicionar definição de planos para candidatos
+  const planosCandidato = {
+    gratuito: {
+      id: 'gratuito',
+      nome: 'Gratuito',
+      preco: 0,
+      limiteCandidaturas: 5,
+      limiteMensagens: 10,
+      destaque: false
+    },
+    basico: {
+      id: 'basico',
+      nome: 'Básico',
+      preco: 500,
+      limiteCandidaturas: 20,
+      limiteMensagens: 50,
+      destaque: true
+    },
+    premium: {
+      id: 'premium',
+      nome: 'Premium',
+      preco: 1500,
+      limiteCandidaturas: -1,
+      limiteMensagens: -1,
+      destaque: true
+    }
+  }
+
   // Mock de dados da assinatura
   useEffect(() => {
     if (user) {
-      // Simular carregamento de dados do usuário
       setTimeout(() => {
-        setAssinatura({
-          plano: 'basico',
-          nome: 'Básico',
-          preco: 2500,
-          dataInicio: '2024-01-01',
-          proximoPagamento: '2024-02-01',
-          status: 'ativa',
-          vagasUsadas: 3,
-          mensagensUsadas: 45
-        })
+        if (user.tipo === 'empresa') {
+          setAssinatura({
+            plano: 'basico',
+            nome: 'Básico',
+            preco: 2500,
+            dataInicio: '2024-01-01',
+            proximoPagamento: '2024-02-01',
+            status: 'ativa',
+            vagasUsadas: 3,
+            mensagensUsadas: 45
+          })
+        } else {
+          setAssinatura({
+            plano: 'gratuito',
+            nome: 'Gratuito',
+            preco: 0,
+            dataInicio: '2024-01-01',
+            proximoPagamento: '2024-02-01',
+            status: 'ativa',
+            candidaturasUsadas: 2,
+            mensagensUsadas: 3,
+            destaque: false
+          })
+        }
         setLoading(false)
       }, 1000)
     }
@@ -87,6 +128,33 @@ export const MonetizacaoProvider = ({ children }) => {
     const plano = planos[assinatura.plano]
     if (plano.limiteMensagens === -1) return true
     return assinatura.mensagensUsadas < plano.limiteMensagens
+  }
+
+  // Adicionar funções para candidatos
+  const podeCandidatar = () => {
+    if (!assinatura || user?.tipo !== 'usuario') return false
+    const plano = planosCandidato[assinatura.plano]
+    if (plano.limiteCandidaturas === -1) return true
+    return assinatura.candidaturasUsadas < plano.limiteCandidaturas
+  }
+  const podeEnviarMensagemCandidato = () => {
+    if (!assinatura || user?.tipo !== 'usuario') return false
+    const plano = planosCandidato[assinatura.plano]
+    if (plano.limiteMensagens === -1) return true
+    return assinatura.mensagensUsadas < plano.limiteMensagens
+  }
+  const fazerUpgradeCandidato = async (novoPlano) => {
+    try {
+      setAssinatura(prev => ({
+        ...prev,
+        plano: novoPlano,
+        nome: planosCandidato[novoPlano].nome,
+        preco: planosCandidato[novoPlano].preco
+      }))
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
   }
 
   // Calcular comissão por contratação
@@ -180,7 +248,11 @@ export const MonetizacaoProvider = ({ children }) => {
     fazerUpgrade,
     cancelarAssinatura,
     adicionarComissao,
-    getEstatisticasComissoes
+    getEstatisticasComissoes,
+    podeCandidatar,
+    podeEnviarMensagemCandidato,
+    fazerUpgradeCandidato,
+    planosCandidato
   }
 
   return (

@@ -610,7 +610,7 @@ export default function Candidaturas() {
                     >
                       💬 Ver Mensagens
                     </button>
-                    {!isEmpresa && user && user.tipo === 'candidato' && candidatoSelecionado && user.email === candidatoSelecionado.email && podeCancelar(candidatoSelecionado.status) && (
+                    {!isEmpresa && user && user.tipo === 'candidato' && candidatoSelecionado && user.email === candidatoSelecionado.email && podeCancelar(candidatoSelecionado.status) ? (
                       <button 
                         onClick={() => {
                           cancelarCandidatura(candidatoSelecionado.id)
@@ -620,7 +620,7 @@ export default function Candidaturas() {
                       >
                         ❌ Cancelar Minha Candidatura
                       </button>
-                    )}
+                    ) : null}
                   </>
                 )}
               </div>

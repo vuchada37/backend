@@ -135,7 +135,7 @@ export default function MensagensMelhorada() {
   ])
 
   // Mock de histórico de mensagens mais realista
-  const historicoMensagens = {
+  const [historicoMensagens, setHistoricoMensagens] = useState({
     1: [
       { id: 1, remetente: 'candidato', texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', data: '2024-01-15 14:30', tipo: 'texto', lida: true },
       { id: 2, remetente: 'empresa', texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', data: '2024-01-15 15:00', tipo: 'texto', lida: true },
@@ -161,7 +161,7 @@ export default function MensagensMelhorada() {
       { id: 1, remetente: 'chamado', texto: 'Olá, preciso de suporte com minha conta.', data: '2024-01-22 07:00', tipo: 'texto', lida: true },
       { id: 2, remetente: 'empresa', texto: 'Olá! Seu chamado foi recebido. Em breve entraremos em contato.', data: '2024-01-22 07:05', tipo: 'texto', lida: true }
     ]
-  }
+  });
 
   // Emojis populares
   const emojis = ['😊', '👍', '👋', '🎉', '💼', '📝', '✅', '❌', '🤝', '💡', '🚀', '⭐', '💪', '🎯', '📞', '📧']
@@ -305,10 +305,13 @@ export default function MensagensMelhorada() {
         lida: false
       }
       
-      if (!historicoMensagens[mensagemSelecionada.id]) {
-        historicoMensagens[mensagemSelecionada.id] = []
-      }
-      historicoMensagens[mensagemSelecionada.id].push(novaMsg)
+      setHistoricoMensagens(prev => {
+        const prevMsgs = prev[mensagemSelecionada.id] || [];
+        return {
+          ...prev,
+          [mensagemSelecionada.id]: [...prevMsgs, novaMsg]
+        };
+      });
       
       // Atualizar o estado das mensagens
       setMensagens(prevMensagens => 
@@ -414,7 +417,10 @@ export default function MensagensMelhorada() {
     setMensagens(prevMensagens => [novaConversa, ...prevMensagens])
     
     // Inicializar histórico vazio
-    historicoMensagens[novaConversa.id] = []
+    setHistoricoMensagens(prev => ({
+      ...prev,
+      [novaConversa.id]: []
+    }));
     
     // Selecionar a nova conversa
     setMensagemSelecionada(novaConversa)
@@ -509,9 +515,20 @@ export default function MensagensMelhorada() {
   }, [])
 
   useEffect(() => {
-    // Forçar o scroll do body para o topo ao montar a página
-    window.scrollTo(0, 0);
-  }, []);
+    if (!isMobile) {
+      // No desktop, ao entrar, desce a página
+      window.scrollTo(0, document.body.scrollHeight);
+    } else {
+      // No mobile, sobe para o topo
+      window.scrollTo(0, 0);
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!isMobile && mensagemSelecionada) {
+      window.scrollTo(0, 0);
+    }
+  }, [mensagemSelecionada, isMobile]);
 
   // Função para renderizar o header do chat
   function ChatHeader() {

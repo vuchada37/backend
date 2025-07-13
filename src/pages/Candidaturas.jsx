@@ -11,6 +11,7 @@ export default function Candidaturas() {
   const [modalVaga, setModalVaga] = useState(false)
   const [modalDetalhes, setModalDetalhes] = useState(false)
   const [vagaSelecionada, setVagaSelecionada] = useState(null)
+  const [feedbackCancelamento, setFeedbackCancelamento] = useState(null)
 
   const isEmpresa = user && user.tipo === 'empresa'
 
@@ -80,7 +81,8 @@ export default function Candidaturas() {
       status: 'pendente',
       salario: 'MZN 4.000 - 6.000',
       localizacao: 'Gurue, Mozambique',
-      tipo: 'CLT'
+      tipo: 'CLT',
+      email: user?.email
     },
     {
       id: 2,
@@ -90,7 +92,8 @@ export default function Candidaturas() {
       status: 'aprovada',
       salario: 'MZN 5.000 - 7.000',
       localizacao: 'Remoto',
-      tipo: 'PJ'
+      tipo: 'PJ',
+      email: user?.email
     },
     {
       id: 3,
@@ -100,7 +103,8 @@ export default function Candidaturas() {
       status: 'rejeitada',
       salario: 'MZN 6.000 - 8.000',
       localizacao: 'Milange, Mozambique',
-      tipo: 'CLT'
+      tipo: 'CLT',
+      email: user?.email
     },
     {
       id: 4,
@@ -110,7 +114,8 @@ export default function Candidaturas() {
       status: 'entrevista',
       salario: 'MZN 7.000 - 9.000',
       localizacao: 'Híbrido',
-      tipo: 'CLT'
+      tipo: 'CLT',
+      email: user?.email
     }
   ]
 
@@ -182,7 +187,7 @@ export default function Candidaturas() {
     'BigTech': {
       empresa: 'BigTech',
       vaga: 'Desenvolvedor React',
-      descricao: 'Desenvolvedor React para uma das maiores empresas de tecnologia do Brasil. Trabalhe em projetos de grande escala.',
+      descricao: 'Desenvolvedor React para uma das maiores empresas de tecnologia de Moçambique. Trabalhe em projetos de grande escala.',
       requisitos: [
         'Experiência sólida com React',
         'Conhecimento em testes automatizados',
@@ -250,13 +255,40 @@ export default function Candidaturas() {
   }
 
   const cancelarCandidatura = (id) => {
-    if (confirm('Tem certeza que deseja cancelar esta candidatura?')) {
-      alert('Candidatura cancelada com sucesso! (Funcionalidade mockada)')
+    if (confirm('Tem certeza que deseja cancelar sua candidatura?\n\nEsta ação não pode ser desfeita.')) {
+      // Simular cancelamento com feedback visual
+      const candidatura = candidaturasCandidato.find(c => c.id === id)
+      if (candidatura) {
+        setFeedbackCancelamento({
+          tipo: 'sucesso',
+          mensagem: `Candidatura cancelada com sucesso!\n\nVaga: ${candidatura.vaga}\nEmpresa: ${candidatura.empresa}\n\nVocê pode se candidatar novamente a esta vaga se desejar.`,
+          vaga: candidatura.vaga,
+          empresa: candidatura.empresa
+        })
+        
+        // Limpar feedback após 5 segundos
+        setTimeout(() => {
+          setFeedbackCancelamento(null)
+        }, 5000)
+        
+        setModalDetalhes(false)
+      } else {
+        alert('Candidatura cancelada com sucesso!')
+      }
     }
   }
 
   const podeCancelar = (status) => {
     return status === 'pendente' || status === 'aprovada' || status === 'entrevista'
+  }
+
+  const verPerfilCandidato = (candidato) => {
+    setModalDetalhes(false)
+    // Navegar para o perfil do candidato
+    if (candidato) {
+      // Mock: usar ID 1 para o candidato (em um sistema real, seria o ID real do candidato)
+      navigate(`/perfil/1`)
+    }
   }
 
   const irParaMensagens = () => {
@@ -324,53 +356,29 @@ export default function Candidaturas() {
               candidaturasFiltradas.map((candidatura) => (
                 <div
                   key={candidatura.id}
-                  onClick={() => handleCandidaturaClick(candidatura)}
-                  className="p-4 cursor-pointer hover:bg-gray-50 transition border-b border-gray-100 last:border-b-0"
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer hover:bg-gray-50 transition border-b border-gray-100 last:border-b-0"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
-                        {isEmpresa ? candidatura.candidato.charAt(0) : candidatura.empresa.charAt(0)}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-800 text-base">
-                          {isEmpresa ? candidatura.candidato : candidatura.empresa}
-                        </h3>
-                        <p className="text-sm text-gray-600">{candidatura.vaga}</p>
-                      </div>
+                  <div onClick={() => handleCandidaturaClick(candidatura)} className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                      {isEmpresa ? candidatura.candidato.charAt(0) : candidatura.empresa.charAt(0)}
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(candidatura.status)}`}>
-                      {getStatusText(candidatura.status)}
-                    </span>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 text-base">
+                        {isEmpresa ? candidatura.candidato : candidatura.empresa}
+                      </h3>
+                      <p className="text-sm text-gray-600">{candidatura.vaga}</p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(candidatura.status)}`}>{getStatusText(candidatura.status)}</span>
                   </div>
-                  
-                  <div className="ml-13">
-                    {isEmpresa ? (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500 mb-2">
-                        <span className="flex items-center gap-1">
-                          📧 {candidatura.email}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          📞 {candidatura.telefone}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-500 mb-2">
-                        <span className="flex items-center gap-1">
-                          💰 {candidatura.salario}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          📍 {candidatura.localizacao}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          📋 {candidatura.tipo}
-                        </span>
-                      </div>
-                    )}
-                    <p className="text-xs text-gray-400 flex items-center gap-1">
-                      📅 Candidatura em {candidatura.dataCandidatura}
-                    </p>
-                  </div>
+                  {/* Botão cancelar para o candidato logado */}
+                  {!isEmpresa && user && user.tipo === 'candidato' && candidatura.email === user.email && podeCancelar(candidatura.status) && (
+                    <button
+                      onClick={() => cancelarCandidatura(candidatura.id)}
+                      className="mt-2 sm:mt-0 sm:ml-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-xs font-medium flex items-center gap-2"
+                    >
+                      ❌ Cancelar Minha Candidatura
+                    </button>
+                  )}
                 </div>
               ))
             )}
@@ -452,177 +460,208 @@ export default function Candidaturas() {
         size="lg"
       >
         {candidatoSelecionado && (
-          <div className="space-y-6">
-            {/* Informações principais */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+          <div className="flex flex-col md:flex-row md:gap-8 space-y-6 md:space-y-0">
+            {/* Coluna Esquerda */}
+            <div className="md:w-1/2 space-y-6">
+              {/* Header com avatar, nome, status */}
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
                   {isEmpresa ? candidatoSelecionado.candidato.charAt(0) : candidatoSelecionado.empresa.charAt(0)}
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-800 text-lg">
+                  <h4 className="font-bold text-gray-800 text-xl">
                     {isEmpresa ? candidatoSelecionado.candidato : candidatoSelecionado.empresa}
                   </h4>
-                  <p className="text-sm text-gray-600">
-                    {isEmpresa ? candidatoSelecionado.email : candidatoSelecionado.vaga}
-                  </p>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(candidatoSelecionado.status)}`}>
+                    {getStatusText(candidatoSelecionado.status)}
+                  </span>
                 </div>
-                <span className={`ml-auto px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(candidatoSelecionado.status)}`}>
-                  {getStatusText(candidatoSelecionado.status)}
-                </span>
               </div>
-              
+              {/* Contatos (apenas para empresa) */}
               {isEmpresa && (
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-white border p-4 rounded-lg space-y-2">
+                  <div><span className="text-gray-600">📧 Email:</span> <span className="font-medium">{candidatoSelecionado.email}</span></div>
+                  <div><span className="text-gray-600">📞 Telefone:</span> <span className="font-medium">{candidatoSelecionado.telefone}</span></div>
+                </div>
+              )}
+              {/* Informações da candidatura */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h5 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  📋 Informações da Candidatura
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">📧 Email:</span>
-                    <p className="font-medium">{candidatoSelecionado.email}</p>
+                    <span className="text-gray-600">🎯 Vaga:</span>
+                    <p className="font-medium">{candidatoSelecionado.vaga}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">📞 Telefone:</span>
-                    <p className="font-medium">{candidatoSelecionado.telefone}</p>
+                    <span className="text-gray-600">📅 Data:</span>
+                    <p className="font-medium">{candidatoSelecionado.dataCandidatura}</p>
+                  </div>
+                  {isEmpresa && (
+                    <>
+                      <div>
+                        <span className="text-gray-600">⏱️ Experiência:</span>
+                        <p className="font-medium">{candidatoSelecionado.experiencia}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">🎓 Formação:</span>
+                        <p className="font-medium">{candidatoSelecionado.formacao}</p>
+                      </div>
+                    </>
+                  )}
+                  {!isEmpresa && (
+                    <>
+                      <div>
+                        <span className="text-gray-600">💰 Salário:</span>
+                        <p className="font-medium">{candidatoSelecionado.salario}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">📍 Localização:</span>
+                        <p className="font-medium">{candidatoSelecionado.localizacao}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">📋 Tipo:</span>
+                        <p className="font-medium">{candidatoSelecionado.tipo}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* Coluna Direita */}
+            <div className="md:w-1/2 space-y-6 flex flex-col">
+              {/* Carta de apresentação (apenas para empresa) */}
+              {isEmpresa && candidatoSelecionado.cartaApresentacao && (
+                <div className="bg-white border border-gray-200 p-4 rounded-lg flex-1">
+                  <h5 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    💬 Carta de Apresentação
+                  </h5>
+                  <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-700 leading-relaxed">
+                    {candidatoSelecionado.cartaApresentacao}
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Informações da candidatura */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                📋 Informações da Candidatura
-              </h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-600">🎯 Vaga:</span>
-                  <p className="font-medium">{candidatoSelecionado.vaga}</p>
-                </div>
-                <div>
-                  <span className="text-gray-600">📅 Data:</span>
-                  <p className="font-medium">{candidatoSelecionado.dataCandidatura}</p>
-                </div>
-                {isEmpresa && (
+              {/* Botões de ação */}
+              <div className="flex flex-col gap-3 mt-auto">
+                {isEmpresa ? (
                   <>
-                    <div>
-                      <span className="text-gray-600">⏱️ Experiência:</span>
-                      <p className="font-medium">{candidatoSelecionado.experiencia}</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button 
+                        onClick={() => verPerfilCandidato(candidatoSelecionado)}
+                        className="p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium flex items-center justify-center gap-2"
+                      >
+                        👤 Ver Perfil
+                      </button>
+                      <button className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium flex items-center justify-center gap-2">
+                        📄 Baixar CV
+                      </button>
+                      <button 
+                        onClick={irParaMensagens}
+                        className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2"
+                      >
+                        💬 Mensagem
+                      </button>
                     </div>
                     <div>
-                      <span className="text-gray-600">🎓 Formação:</span>
-                      <p className="font-medium">{candidatoSelecionado.formacao}</p>
+                      <h6 className="font-medium text-gray-700 mb-3 text-sm">Alterar Status</h6>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => alterarStatus(candidatoSelecionado.id, 'aprovada')}
+                          className="p-2 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition font-medium"
+                        >
+                          ✅ Aprovar
+                        </button>
+                        <button
+                          onClick={() => alterarStatus(candidatoSelecionado.id, 'entrevista')}
+                          className="p-2 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200 transition font-medium"
+                        >
+                          📅 Entrevista
+                        </button>
+                        <button
+                          onClick={() => alterarStatus(candidatoSelecionado.id, 'rejeitada')}
+                          className="p-2 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition font-medium"
+                        >
+                          ❌ Rejeitar
+                        </button>
+                        <button
+                          onClick={() => alterarStatus(candidatoSelecionado.id, 'pendente')}
+                          className="p-2 bg-yellow-100 text-yellow-700 rounded text-xs hover:bg-yellow-200 transition font-medium"
+                        >
+                          ⏳ Pendente
+                        </button>
+                      </div>
                     </div>
                   </>
-                )}
-                {!isEmpresa && (
+                ) : (
                   <>
-                    <div>
-                      <span className="text-gray-600">💰 Salário:</span>
-                      <p className="font-medium">{candidatoSelecionado.salario}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">📍 Localização:</span>
-                      <p className="font-medium">{candidatoSelecionado.localizacao}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">📋 Tipo:</span>
-                      <p className="font-medium">{candidatoSelecionado.tipo}</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Carta de apresentação - apenas para empresas */}
-            {isEmpresa && candidatoSelecionado.cartaApresentacao && (
-              <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                <h5 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  💬 Carta de Apresentação
-                </h5>
-                <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-700 leading-relaxed">
-                  {candidatoSelecionado.cartaApresentacao}
-                </div>
-              </div>
-            )}
-
-            {/* Ações */}
-            <div className="space-y-3 pt-4 border-t">
-              {isEmpresa ? (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium flex items-center justify-center gap-2">
-                      📄 Baixar CV
+                    <button 
+                      onClick={() => {
+                        setModalDetalhes(false)
+                        verVaga(candidatoSelecionado.empresa)
+                      }}
+                      className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      👁️ Ver Vaga Completa
                     </button>
                     <button 
                       onClick={irParaMensagens}
-                      className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2"
+                      className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2"
                     >
-                      💬 Mensagem
+                      💬 Ver Mensagens
                     </button>
-                  </div>
-                  
-                  <div>
-                    <h6 className="font-medium text-gray-700 mb-3 text-sm">Alterar Status</h6>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => alterarStatus(candidatoSelecionado.id, 'aprovada')}
-                        className="p-2 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition font-medium"
+                    {!isEmpresa && user && user.tipo === 'candidato' && candidatoSelecionado && user.email === candidatoSelecionado.email && podeCancelar(candidatoSelecionado.status) && (
+                      <button 
+                        onClick={() => {
+                          cancelarCandidatura(candidatoSelecionado.id)
+                          setModalDetalhes(false)
+                        }}
+                        className="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium flex items-center justify-center gap-2"
                       >
-                        ✅ Aprovar
+                        ❌ Cancelar Minha Candidatura
                       </button>
-                      <button
-                        onClick={() => alterarStatus(candidatoSelecionado.id, 'entrevista')}
-                        className="p-2 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200 transition font-medium"
-                      >
-                        📅 Entrevista
-                      </button>
-                      <button
-                        onClick={() => alterarStatus(candidatoSelecionado.id, 'rejeitada')}
-                        className="p-2 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition font-medium"
-                      >
-                        ❌ Rejeitar
-                      </button>
-                      <button
-                        onClick={() => alterarStatus(candidatoSelecionado.id, 'pendente')}
-                        className="p-2 bg-yellow-100 text-yellow-700 rounded text-xs hover:bg-yellow-200 transition font-medium"
-                      >
-                        ⏳ Pendente
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => {
-                      setModalDetalhes(false)
-                      verVaga(candidatoSelecionado.empresa)
-                    }}
-                    className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    👁️ Ver Vaga Completa
-                  </button>
-                  <button 
-                    onClick={irParaMensagens}
-                    className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    💬 Ver Mensagens
-                  </button>
-                  {podeCancelar(candidatoSelecionado.status) && (
-                    <button 
-                      onClick={() => {
-                        cancelarCandidatura(candidatoSelecionado.id)
-                        setModalDetalhes(false)
-                      }}
-                      className="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium flex items-center justify-center gap-2"
-                    >
-                      ❌ Cancelar Candidatura
-                    </button>
-                  )}
-                </>
-              )}
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
       </Modal>
+      
+      {/* Feedback de cancelamento */}
+      {feedbackCancelamento && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-100" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium">
+                ✅ Candidatura cancelada!
+              </p>
+              <p className="text-xs mt-1 opacity-90">
+                {feedbackCancelamento.vaga} - {feedbackCancelamento.empresa}
+              </p>
+              <p className="text-xs mt-1 opacity-75">
+                Você pode se candidatar novamente se desejar.
+              </p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setFeedbackCancelamento(null)}
+                className="text-green-100 hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

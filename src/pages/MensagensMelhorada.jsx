@@ -16,6 +16,7 @@ export default function MensagensMelhorada() {
   const [notificacoes, setNotificacoes] = useState([])
   const chatRef = useRef(null)
   const inputRef = useRef(null)
+  const listaConversasRef = useRef(null) // ADICIONADO
   const [showMenu, setShowMenu] = useState(false)
   const [showNovaConversa, setShowNovaConversa] = useState(false)
   const [usuariosDisponiveis, setUsuariosDisponiveis] = useState([])
@@ -270,7 +271,12 @@ export default function MensagensMelhorada() {
     return tipoValido && matchBusca
   })
 
-
+  // Garantir que a lista de conversas sempre comece no topo ao montar ou ao filtrar
+  useEffect(() => {
+    if (listaConversasRef.current) {
+      listaConversasRef.current.scrollTop = 0;
+    }
+  }, [mensagensFiltradas.length]);
 
   // Filtrar usuários disponíveis para conversa
   const usuariosFiltrados = usuariosMock.filter(usuario => {
@@ -502,6 +508,11 @@ export default function MensagensMelhorada() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    // Forçar o scroll do body para o topo ao montar a página
+    window.scrollTo(0, 0);
+  }, []);
+
   // Função para renderizar o header do chat
   function ChatHeader() {
     if (!mensagemSelecionada) return null
@@ -523,7 +534,7 @@ export default function MensagensMelhorada() {
             <div className="font-semibold text-gray-800 truncate text-base lg:text-lg">{mensagemSelecionada.candidato}</div>
             <div className="text-xs lg:text-sm text-gray-500 truncate">{mensagemSelecionada.vaga}</div>
             <div className="text-xs lg:text-sm text-green-600 font-medium">
-              {digitando ? 'Digitando...' : (mensagemSelecionada.online ? 'Online' : `Última atividade: ${mensagemSelecionada.ultimaAtividade}`)}
+              {mensagemSelecionada.online ? 'Online' : `Última atividade: ${mensagemSelecionada.ultimaAtividade}`}
             </div>
           </div>
         </div>
@@ -625,7 +636,7 @@ export default function MensagensMelhorada() {
     }, [showEmojis])
     
     return (
-      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t bg-white flex items-center gap-2 lg:gap-3 shadow-md px-2 sm:px-4 py-2`} style={{boxShadow: '0 2px 12px #0001'}}>
+      <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t bg-white flex items-center gap-2 lg:gap-3 shadow-md px-2 sm:px-4 py-2`} style={{boxShadow: '0 2px 12px #0001', marginBottom: isMobile ? 12 : 20}}>
         <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
           {/* SVG emoji */}
           <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
@@ -656,6 +667,7 @@ export default function MensagensMelhorada() {
           className={`p-2 sm:p-3 lg:p-4 rounded-full font-semibold transition-all duration-200 shadow-md flex-shrink-0 ${
             novaMensagem.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 shadow-none'
           }`}
+          style={{marginRight: isMobile ? 8 : 24}}
           disabled={!novaMensagem.trim()}
           title={novaMensagem.trim() ? 'Enviar mensagem' : 'Digite uma mensagem para enviar'}
         >
@@ -703,7 +715,16 @@ export default function MensagensMelhorada() {
       <div className="max-w-7xl mx-auto flex bg-transparent" style={{ height: isMobile ? 'calc(100vh - 64px)' : 'calc(100vh - 80px)' }}>
         {/* Lista de conversas */}
         {(!isMobile || !mensagemSelecionada) && (
-          <div className={`w-full md:w-1/4 lg:w-1/3 xl:w-1/4 border-r bg-gray-50 px-2 sm:px-0 ${isMobile ? 'overflow-y-auto pb-16' : 'rounded-l-xl pt-4 overflow-y-auto'}`} style={isMobile ? {paddingTop: 0, marginTop: '-8px'} : {}}>
+          <div
+            ref={listaConversasRef}
+            className={`w-full md:w-1/4 lg:w-1/3 xl:w-1/4 border-r bg-gray-50 px-2 sm:px-0 ${isMobile ? 'overflow-y-auto pb-16' : 'rounded-l-xl pt-4 overflow-y-auto'}`}
+            style={{
+              height: isMobile ? 'calc(100vh - 64px)' : '100%', // altura fixa para garantir scroll do container
+              maxHeight: isMobile ? 'calc(100vh - 64px)' : '100%',
+              overflowY: 'auto',
+              ...((isMobile) ? {paddingTop: 0, marginTop: '-8px'} : {})
+            }}
+          >
             {mensagensFiltradas.length === 0 && (
               <div className="text-center text-gray-400 py-8">Nenhuma conversa encontrada</div>
             )}
@@ -712,15 +733,16 @@ export default function MensagensMelhorada() {
                 <li
                   key={msg.id}
                   className={`group bg-white rounded-xl shadow flex items-center gap-3 px-4 py-3 lg:px-6 lg:py-4 cursor-pointer transition hover:shadow-lg border border-transparent hover:border-blue-200 ${mensagemSelecionada?.id === msg.id ? 'ring-2 ring-blue-400' : ''}`}
-                  style={isMobile && idx === 0 ? {marginTop:0, paddingTop:0} : {}}
+                  style={isMobile && idx === 0 ? {marginTop: '4px', paddingTop: '8px'} : {}} // garantir espaço no topo
                   onClick={() => { setMensagemSelecionada(msg); marcarComoLida(msg.id); }}
                 >
                   {/* Avatar */}
-                  <div className="relative">
+                  <div className="relative flex-shrink-0 min-w-[48px] min-h-[48px] lg:min-w-[56px] lg:min-h-[56px]">
                     <img
                       src={msg.foto}
                       alt={msg.candidato}
-                      className="w-12 h-12 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-blue-100"
+                      className="w-12 h-12 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-blue-100 block"
+                      style={{objectFit: 'cover', display: 'block'}}
                     />
                     {/* Status online */}
                     {msg.online && (

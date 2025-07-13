@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
 
 export default function DetalheVaga() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [modalCandidatura, setModalCandidatura] = useState(false)
   const [candidatura, setCandidatura] = useState({
-    cartaApresentacao: '',
-    salarioPretendido: '',
-    disponibilidade: ''
+    telefone: '',
+    linkedin: '',
+    curriculo: null,
+    disponibilidade: '',
+    cartaApresentacao: ''
   })
 
   // Mock de detalhes da vaga
@@ -193,7 +196,10 @@ export default function DetalheVaga() {
                   <span className="font-medium">{vaga.empresaInfo.fundacao}</span>
                 </div>
               </div>
-              <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+              <button 
+                onClick={() => navigate(`/perfil-empresa/${vaga.empresaInfo.id || '1'}`)}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+              >
                 Ver Perfil da Empresa
               </button>
             </div>
@@ -268,21 +274,46 @@ export default function DetalheVaga() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Salário Pretendido</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Telefone de Contato *</label>
             <input
               type="text"
-              value={candidatura.salarioPretendido}
-              onChange={(e) => setCandidatura(prev => ({ ...prev, salarioPretendido: e.target.value }))}
-              placeholder="Ex: 20.000 MT"
+              value={candidatura.telefone}
+              onChange={e => setCandidatura(prev => ({ ...prev, telefone: e.target.value }))}
+              placeholder="Ex: (+258) 84 123 4567"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn (opcional)</label>
+            <input
+              type="url"
+              value={candidatura.linkedin}
+              onChange={e => setCandidatura(prev => ({ ...prev, linkedin: e.target.value }))}
+              placeholder="https://linkedin.com/in/seu-perfil"
               className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Disponibilidade</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Currículo (PDF, obrigatório)</label>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={e => setCandidatura(prev => ({ ...prev, curriculo: e.target.files[0] }))}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            {candidatura.curriculo && (
+              <p className="text-xs text-green-700 mt-1">Arquivo selecionado: {candidatura.curriculo.name}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Disponibilidade *</label>
             <select
               value={candidatura.disponibilidade}
-              onChange={(e) => setCandidatura(prev => ({ ...prev, disponibilidade: e.target.value }))}
+              onChange={e => setCandidatura(prev => ({ ...prev, disponibilidade: e.target.value }))}
               className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             >
               <option value="">Selecione</option>
               <option value="imediata">Imediata</option>
@@ -292,13 +323,14 @@ export default function DetalheVaga() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Carta de Apresentação</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Carta de Apresentação *</label>
             <textarea
               value={candidatura.cartaApresentacao}
-              onChange={(e) => setCandidatura(prev => ({ ...prev, cartaApresentacao: e.target.value }))}
+              onChange={e => setCandidatura(prev => ({ ...prev, cartaApresentacao: e.target.value }))}
               placeholder="Conte-nos por que você seria ideal para esta vaga..."
               rows={4}
               className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
           <div className="flex space-x-3 pt-4">

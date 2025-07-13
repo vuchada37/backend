@@ -40,7 +40,6 @@ export default function Header() {
               <Link to="/chamados" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Chamados</Link>
               <Link to="/perfil-empresa" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Perfil</Link>
               <Link to="/monetizacao" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Planos</Link>
-              <Link to="/comissoes" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Comissões</Link>
               <Link to="/assinaturas" className="text-gray-700 hover:text-blue-600 transition-colors font-medium text-sm sm:text-base">Assinatura</Link>
             </>
           )}
@@ -135,12 +134,7 @@ export default function Header() {
                       </svg>
                       <span className="text-xs">Planos</span>
                     </Link>
-                    <Link to="/comissoes" className="flex flex-col items-center py-2 px-2 text-gray-600 hover:text-blue-600 transition flex-shrink-0">
-                      <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                      </svg>
-                      <span className="text-xs">Comissões</span>
-                    </Link>
+
                     <Link to="/assinaturas" className="flex flex-col items-center py-2 px-2 text-gray-600 hover:text-blue-600 transition flex-shrink-0">
                       <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

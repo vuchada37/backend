@@ -14,7 +14,7 @@ export const useMonetizacao = () => {
 export const MonetizacaoProvider = ({ children }) => {
   const { user } = useAuth()
   const [assinatura, setAssinatura] = useState(null)
-  const [comissoes, setComissoes] = useState([])
+
   const [loading, setLoading] = useState(true)
 
   // Planos disponíveis
@@ -25,7 +25,16 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 0,
       limiteVagas: 3,
       limiteMensagens: 50,
-      comissao: 0
+      comissao: 0,
+      recursos: [
+        'Até 3 vagas por mês',
+        '50 mensagens por mês',
+        'Acesso básico a candidatos',
+        'Suporte por email',
+        'Perfil empresa básico'
+      ],
+      popular: false,
+      periodo: 'Mensal'
     },
     basico: {
       id: 'basico',
@@ -33,7 +42,18 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 2500,
       limiteVagas: 10,
       limiteMensagens: -1,
-      comissao: 0.05
+      comissao: 0.05,
+      recursos: [
+        'Até 10 vagas por mês',
+        'Mensagens ilimitadas',
+        'Acesso completo a candidatos',
+        'Suporte prioritário',
+        'Perfil empresa destacado',
+        'Relatórios básicos',
+        'Notificações avançadas'
+      ],
+      popular: true,
+      periodo: 'Mensal'
     },
     premium: {
       id: 'premium',
@@ -41,7 +61,20 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 4500,
       limiteVagas: -1,
       limiteMensagens: -1,
-      comissao: 0.03
+      comissao: 0.03,
+      recursos: [
+        'Vagas ilimitadas',
+        'Mensagens ilimitadas',
+        'Acesso premium a candidatos',
+        'Suporte 24/7',
+        'Perfil empresa premium',
+        'Relatórios avançados',
+        'Notificações prioritárias',
+        'Filtros avançados',
+        'Integração com ATS'
+      ],
+      popular: false,
+      periodo: 'Mensal'
     },
     empresarial: {
       id: 'empresarial',
@@ -49,7 +82,23 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 8500,
       limiteVagas: -1,
       limiteMensagens: -1,
-      comissao: 0.02
+      comissao: 0.02,
+      recursos: [
+        'Vagas ilimitadas',
+        'Mensagens ilimitadas',
+        'Acesso empresarial a candidatos',
+        'Suporte dedicado 24/7',
+        'Perfil empresa premium',
+        'Relatórios empresariais',
+        'Notificações prioritárias',
+        'Filtros avançados',
+        'Integração com ATS',
+        'API personalizada',
+        'Gerente de conta',
+        'Treinamento da equipe'
+      ],
+      popular: false,
+      periodo: 'Mensal'
     }
   }
 
@@ -61,7 +110,15 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 0,
       limiteCandidaturas: 5,
       limiteMensagens: 10,
-      destaque: false
+      destaque: false,
+      recursos: [
+        'Até 5 candidaturas simultâneas',
+        '10 mensagens por mês',
+        'Perfil básico',
+        'Acesso a vagas públicas',
+        'Suporte por email'
+      ],
+      popular: false
     },
     basico: {
       id: 'basico',
@@ -69,7 +126,17 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 500,
       limiteCandidaturas: 20,
       limiteMensagens: 50,
-      destaque: true
+      destaque: true,
+      recursos: [
+        'Até 20 candidaturas simultâneas',
+        '50 mensagens por mês',
+        'Perfil em destaque',
+        'Acesso a todas as vagas',
+        'Suporte prioritário',
+        'Notificações avançadas',
+        'Relatórios de candidatura'
+      ],
+      popular: true
     },
     premium: {
       id: 'premium',
@@ -77,7 +144,19 @@ export const MonetizacaoProvider = ({ children }) => {
       preco: 1500,
       limiteCandidaturas: -1,
       limiteMensagens: -1,
-      destaque: true
+      destaque: true,
+      recursos: [
+        'Candidaturas ilimitadas',
+        'Mensagens ilimitadas',
+        'Perfil premium em destaque',
+        'Acesso exclusivo a vagas',
+        'Suporte 24/7',
+        'Notificações prioritárias',
+        'Relatórios avançados',
+        'Currículo destacado',
+        'Acesso a vagas premium'
+      ],
+      popular: false
     }
   }
 
@@ -217,27 +296,10 @@ export const MonetizacaoProvider = ({ children }) => {
     }
   }
 
-  // Adicionar comissão
-  const adicionarComissao = (comissao) => {
-    setComissoes(prev => [comissao, ...prev])
-  }
 
-  // Obter estatísticas de comissões
-  const getEstatisticasComissoes = () => {
-    const totalGanho = comissoes.reduce((acc, c) => acc + c.valor, 0)
-    const totalContratacoes = comissoes.length
-    const mediaComissao = totalContratacoes > 0 ? totalGanho / totalContratacoes : 0
-
-    return {
-      totalGanho,
-      totalContratacoes,
-      mediaComissao
-    }
-  }
 
   const value = {
     assinatura,
-    comissoes,
     planos,
     loading,
     podePublicarVaga,
@@ -247,8 +309,6 @@ export const MonetizacaoProvider = ({ children }) => {
     incrementarMensagensUsadas,
     fazerUpgrade,
     cancelarAssinatura,
-    adicionarComissao,
-    getEstatisticasComissoes,
     podeCandidatar,
     podeEnviarMensagemCandidato,
     fazerUpgradeCandidato,

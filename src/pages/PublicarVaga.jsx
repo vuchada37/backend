@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HeaderSimples from '../components/HeaderSimples';
 
 const PublicarVaga = () => {
   const navigate = useNavigate();
@@ -43,10 +42,9 @@ const PublicarVaga = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderSimples />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8">
+        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 overflow-y-auto max-h-[90vh]">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -57,7 +55,7 @@ const PublicarVaga = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 pb-8">
             {/* Informações Básicas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -186,7 +184,7 @@ const PublicarVaga = () => {
                   value={formData.salario}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: R$ 3.000 - R$ 5.000"
+                  placeholder="Ex: 15.000 - 25.000 MT"
                 />
               </div>
 

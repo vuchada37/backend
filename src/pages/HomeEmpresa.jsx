@@ -30,7 +30,7 @@ export default function HomeEmpresa() {
   // Mock de dados da empresa
   const logoEmpresa = '/nevu.png'
   const nomeFantasia = user?.nome || 'Empresa Exemplo'
-  const cnpj = '12.345.678/0001-99'
+  const nuit = '123456789'
   const emailEmpresa = user?.email || 'empresa@email.com'
 
   return (
@@ -46,7 +46,7 @@ export default function HomeEmpresa() {
             <div className="space-y-1 text-sm lg:text-base text-gray-600">
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <span className="text-gray-400">🏢</span>
-                <span>CNPJ: {cnpj}</span>
+                <span>NUIT: {nuit}</span>
               </div>
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <span className="text-gray-400">📧</span>

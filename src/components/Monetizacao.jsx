@@ -4,14 +4,16 @@ import { useMonetizacao } from '../context/MonetizacaoContext'
 
 export default function Monetizacao() {
   const { user } = useAuth()
-  const { planosCandidato, planos } = useMonetizacao()
+  const { planosCandidato, planos, loading } = useMonetizacao()
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('mpesa')
 
   // Determinar se é candidato ou empresa
   const isEmpresa = user && user.tipo === 'empresa'
-  const planosParaMostrar = isEmpresa ? Object.values(planos) : Object.values(planosCandidato)
+  const planosParaMostrar = isEmpresa 
+    ? (planos ? Object.values(planos) : [])
+    : (planosCandidato ? Object.values(planosCandidato) : [])
 
   // Métodos de pagamento disponíveis em Moçambique
   const metodosPagamento = [
@@ -45,13 +47,13 @@ export default function Monetizacao() {
     }
   ]
 
-  // Sistema de comissões por contratação (apenas para empresas)
-  const comissoes = isEmpresa ? {
-    gratuito: 0,
-    basico: 0.05, // 5%
-    premium: 0.03, // 3%
-    empresarial: 0.02 // 2%
-  } : null
+  // Mapeamento de cores por plano
+  const borderColors = {
+    gratuito: 'border-green-500',
+    basico: 'border-blue-500',
+    premium: 'border-purple-500',
+    empresarial: 'border-orange-500',
+  }
 
   const handleSelectPlan = (plan) => {
     setSelectedPlan(plan)
@@ -64,10 +66,18 @@ export default function Monetizacao() {
     setShowPaymentModal(false)
   }
 
-  const calcularComissao = (salario) => {
-    if (!user?.plano || user.plano === 'gratuito') return 0
-    return salario * comissoes[user.plano]
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando planos...</p>
+        </div>
+      </div>
+    )
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -86,108 +96,207 @@ export default function Monetizacao() {
 
         {/* Planos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 mb-12">
-          {planosParaMostrar.map((plano) => (
-            <div
-              key={plano.id}
-              className={`relative bg-white rounded-2xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl ${
-                plano.popular ? 'border-purple-500 scale-105' : 'border-gray-200 hover:border-blue-300'
-              } flex flex-col overflow-hidden min-h-[320px] sm:min-h-[380px] sm:max-h-[480px]`}
-              style={{height: '100%'}}
-            >
+          {planosParaMostrar && planosParaMostrar.length > 0 ? (
+            planosParaMostrar.map((plano) => (
+              <div key={plano.id} className="relative flex flex-col items-center mb-8">
+                {/* Badge, se houver */}
               {plano.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-bold px-4 py-1 rounded-full shadow z-10">
                     Mais Popular
                   </span>
-                </div>
-              )}
-              <div className="p-4 sm:p-5 flex-1 flex flex-col overflow-y-auto">
-                <div className="text-center mb-3 sm:mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-1">{plano.nome}</h3>
-                  <div className="text-3xl font-bold text-gray-900 mb-1">
+                )}
+                {/* Card do Plano */}
+                <div
+                  className={`w-full bg-white border-2 rounded-xl shadow p-6 pt-10 flex flex-col items-center transition-all duration-300 hover:shadow-xl ${borderColors[plano.id] || 'border-gray-200'} min-h-[380px] sm:min-h-[420px]`}
+                  style={{ height: '100%' }}
+                >
+                  <h3 className="text-2xl font-extrabold text-gray-900 mb-2 text-center">{plano.nome}</h3>
+                  <div className="text-3xl font-extrabold text-gray-900 mb-1 text-center">
                     {plano.preco === 0 ? 'Grátis' : `${plano.preco.toLocaleString()} MT`}
                   </div>
-                  <p className="text-gray-500 text-sm">{isEmpresa ? plano.periodo : 'Mensal'}</p>
-                </div>
-                <ul className="space-y-2 mb-3 sm:mb-4 text-sm flex-1 overflow-y-auto">
-                  {isEmpresa ? (
-                    plano.recursos.map((recurso, index) => (
-                      <li key={index} className="flex items-center text-gray-700">
-                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="text-sm text-gray-500 mb-4 text-center">{isEmpresa ? plano.periodo : 'Mensal'}</div>
+                  <ul className="text-sm text-gray-700 space-y-2 mb-6 w-full">
+                    {isEmpresa
+                      ? plano.recursos && plano.recursos.slice(0, 8).map((recurso, index) => (
+                          <li key={index} className="flex items-start text-gray-700">
+                            <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        {recurso}
+                            <span>{recurso}</span>
                       </li>
                     ))
-                  ) : (
-                    <>
-                      <li className="flex items-center text-gray-700">
-                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      : plano.recursos && plano.recursos.slice(0, 8).map((recurso, index) => (
+                          <li key={index} className="flex items-start text-gray-700">
+                            <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        {plano.limiteCandidaturas === -1 ? 'Candidaturas ilimitadas' : `Até ${plano.limiteCandidaturas} candidaturas simultâneas`}
+                            <span>{recurso}</span>
                       </li>
-                      <li className="flex items-center text-gray-700">
-                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {plano.limiteMensagens === -1 ? 'Mensagens ilimitadas' : `Até ${plano.limiteMensagens} mensagens por mês`}
-                      </li>
-                      <li className="flex items-center text-gray-700">
-                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {plano.destaque ? 'Perfil em destaque nas buscas' : 'Perfil padrão'}
-                      </li>
-                    </>
-                  )}
+                        ))}
                 </ul>
+                  {plano.id === 'gratuito' ? (
+                    <button
+                      className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg cursor-not-allowed"
+                      disabled
+                    >
+                      Plano Ativo
+                    </button>
+                  ) : (
                 <button
                   onClick={() => handleSelectPlan(plano)}
-                  className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors mt-auto ${
-                    plano.id === 'gratuito'
-                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      : plano.popular
-                      ? 'bg-purple-600 text-white hover:bg-purple-700'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
-                >
-                  {plano.id === 'gratuito' ? 'Começar Grátis' : 'Escolher Plano'}
+                      className="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 transition"
+                    >
+                      Escolher Plano
                 </button>
+                  )}
+                  {plano.id === 'gratuito' && (
+                    <p className="text-xs text-gray-500 text-center mt-1">
+                      Sem cartão de crédito necessário
+                    </p>
+                  )}
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="text-gray-500">
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+                <p className="text-lg font-medium">Nenhum plano disponível</p>
+                <p className="text-sm">Tente novamente mais tarde.</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Comparação de Planos - Mobile (cards) */}
+        <div className="block md:hidden space-y-4 mb-8">
+          {planosParaMostrar.map((plano) => (
+            <div key={plano.id} className="bg-white rounded-xl shadow p-4">
+              <h4 className="font-bold text-lg mb-2">{plano.nome}</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {isEmpresa ? (
+                  <>
+                    <li>Vagas por mês: {plano.limiteVagas === -1 ? 'Ilimitadas' : plano.limiteVagas}</li>
+                    <li>Mensagens por mês: {plano.limiteMensagens === -1 ? 'Ilimitadas' : plano.limiteMensagens}</li>
+                    <li>Destaque nas buscas: {plano.destaque ? 'Sim' : 'Não'}</li>
+                    <li>Suporte prioritário: {plano.id !== 'gratuito' ? 'Sim' : 'Não'}</li>
+                  </>
+                ) : (
+                  <>
+                    <li>Candidaturas simultâneas: {plano.limiteCandidaturas === -1 ? 'Ilimitadas' : plano.limiteCandidaturas}</li>
+                    <li>Mensagens por mês: {plano.limiteMensagens === -1 ? 'Ilimitadas' : plano.limiteMensagens}</li>
+                    <li>Perfil em destaque: {plano.destaque ? 'Sim' : 'Não'}</li>
+                    <li>Notificações prioritárias: {plano.id !== 'gratuito' ? 'Sim' : 'Não'}</li>
+                    <li>Suporte 24/7: {plano.id !== 'gratuito' ? 'Sim' : 'Não'}</li>
+                  </>
+                )}
+              </ul>
             </div>
           ))}
         </div>
-
-        {/* Sistema de Comissões - apenas para empresas */}
-        {isEmpresa && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
+        {/* Comparação de Planos - Desktop (tabela) */}
+        <div className="hidden md:block bg-white rounded-2xl shadow-lg p-8 mb-12 overflow-x-auto">
             <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-              Sistema de Comissões
+            Comparação Detalhada
             </h2>
-            <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
-              Ganhe dinheiro com cada contratação bem-sucedida. Quanto maior o plano, menor a comissão que cobramos.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {Object.entries(comissoes).map(([plano, comissao]) => (
-                <div key={plano} className="text-center p-6 bg-gray-50 rounded-xl">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2 capitalize">
-                    {plano === 'gratuito' ? 'Gratuito' : plano}
-                  </h3>
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
-                    {comissao === 0 ? '0%' : `${(comissao * 100)}%`}
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    {comissao === 0 
-                      ? 'Sem comissão' 
-                      : `Comissão por contratação`
-                    }
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900">Recursos</th>
+                  {planosParaMostrar && planosParaMostrar.map((plano) => (
+                    <th key={plano.id} className="text-center py-4 px-6 font-semibold text-gray-900">
+                      {plano.nome}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {isEmpresa ? (
+                  <>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Vagas por mês</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.limiteVagas === -1 ? 'Ilimitadas' : plano.limiteVagas}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Mensagens por mês</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.limiteMensagens === -1 ? 'Ilimitadas' : plano.limiteMensagens}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Destaque nas buscas</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.destaque ? '✅' : '❌'}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Suporte prioritário</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.id !== 'gratuito' ? '✅' : '❌'}
+                        </td>
+                      ))}
+                    </tr>
+                  </>
+                ) : (
+                  <>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Candidaturas simultâneas</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.limiteCandidaturas === -1 ? 'Ilimitadas' : plano.limiteCandidaturas}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Mensagens por mês</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.limiteMensagens === -1 ? 'Ilimitadas' : plano.limiteMensagens}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Perfil em destaque</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.destaque ? '✅' : '❌'}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Notificações prioritárias</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.id !== 'gratuito' ? '✅' : '❌'}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-medium text-gray-700">Suporte 24/7</td>
+                      {planosParaMostrar.map((plano) => (
+                        <td key={plano.id} className="text-center py-4 px-6">
+                          {plano.id !== 'gratuito' ? '✅' : '❌'}
+                        </td>
+                      ))}
+                    </tr>
+                  </>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
+        </div>
 
         {/* Métodos de Pagamento */}
         <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 mb-8">

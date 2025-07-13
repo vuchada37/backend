@@ -11,13 +11,13 @@ export default function Perfil() {
     // Informações pessoais
     nome: user?.nome || 'João Silva',
     email: user?.email || 'joao@email.com',
-    telefone: '(11) 99999-9999',
+    telefone: '(258) 84 123 4567',
     dataNascimento: '1990-05-15',
-    endereco: 'Rua das Flores, 123 - São Paulo, SP',
+    endereco: 'Avenida 25 de Setembro, 123 - Maputo',
     
     // Informações profissionais
-    formacao: 'Ciência da Computação',
-    instituicao: 'Universidade de São Paulo',
+    formacao: 'Engenharia Informática',
+    instituicao: 'Universidade Eduardo Mondlane',
     experiencia: '3 anos',
     habilidades: 'React, JavaScript, TypeScript, Node.js, Python',
     resumo: 'Desenvolvedor apaixonado por criar soluções inovadoras e interfaces intuitivas.',
@@ -32,8 +32,8 @@ export default function Perfil() {
     
     // Preferências
     tipoTrabalho: 'remoto',
-    faixaSalarial: '4000-6000',
-    localizacaoPreferida: 'São Paulo, SP',
+    faixaSalarial: '15000-25000',
+    localizacaoPreferida: 'Maputo',
     disponibilidade: 'imediata',
     
     // Currículo
@@ -456,11 +456,11 @@ export default function Perfil() {
             disabled={!editando}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
           >
-            <option value="2000-4000">R$ 2.000 - 4.000</option>
-            <option value="4000-6000">R$ 4.000 - 6.000</option>
-            <option value="6000-8000">R$ 6.000 - 8.000</option>
-            <option value="8000-10000">R$ 8.000 - 10.000</option>
-            <option value="10000+">R$ 10.000+</option>
+            <option value="5000-15000">5.000 - 15.000 MT</option>
+            <option value="15000-25000">15.000 - 25.000 MT</option>
+            <option value="25000-35000">25.000 - 35.000 MT</option>
+            <option value="35000-50000">35.000 - 50.000 MT</option>
+            <option value="50000+">50.000+ MT</option>
           </select>
         </div>
 

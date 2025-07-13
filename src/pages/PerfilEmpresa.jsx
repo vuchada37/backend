@@ -8,15 +8,23 @@ export default function PerfilEmpresa() {
   const [editando, setEditando] = useState(false)
   const [formData, setFormData] = useState({
     nomeFantasia: user?.nome || 'Empresa Exemplo',
-    razaoSocial: 'Empresa Exemplo Ltda',
-    cnpj: '12.345.678/0001-99',
+    razaoSocial: 'Empresa Exemplo Lda',
+    nuit: '123456789',
     email: user?.email || 'empresa@email.com',
-    telefone: '(11) 99999-9999',
-    endereco: 'Rua das Empresas, 123 - São Paulo, SP',
+    telefone: '(258) 84 123 4567',
+    endereco: 'Avenida 25 de Setembro, 123 - Maputo',
     descricao: 'Empresa líder no setor de tecnologia, focada em inovação e desenvolvimento de soluções digitais.',
     setor: 'Tecnologia',
     tamanho: '50-100 funcionários',
-    website: 'www.empresaexemplo.com.br'
+    website: 'www.empresaexemplo.co.mz',
+    // Documentos moçambicanos
+    alvara: 'ALV-2024-001',
+    registroComercial: 'RC-2024-001',
+    inscricaoFiscal: 'IF-2024-001',
+    // Informações adicionais
+    anoFundacao: '2020',
+    capitalSocial: '5000000',
+    moedaCapital: 'MT'
   })
   const navigate = useNavigate()
 
@@ -103,12 +111,54 @@ export default function PerfilEmpresa() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    CNPJ
+                    NUIT
                   </label>
                   <input
                     type="text"
-                    name="cnpj"
-                    value={formData.cnpj}
+                    name="nuit"
+                    value={formData.nuit}
+                    onChange={handleChange}
+                    disabled={!editando}
+                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Alvará
+                  </label>
+                  <input
+                    type="text"
+                    name="alvara"
+                    value={formData.alvara}
+                    onChange={handleChange}
+                    disabled={!editando}
+                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Registo Comercial
+                  </label>
+                  <input
+                    type="text"
+                    name="registroComercial"
+                    value={formData.registroComercial}
+                    onChange={handleChange}
+                    disabled={!editando}
+                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Inscrição Fiscal
+                  </label>
+                  <input
+                    type="text"
+                    name="inscricaoFiscal"
+                    value={formData.inscricaoFiscal}
                     onChange={handleChange}
                     disabled={!editando}
                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -190,6 +240,9 @@ export default function PerfilEmpresa() {
                     <option value="Financeiro">Financeiro</option>
                     <option value="Varejo">Varejo</option>
                     <option value="Indústria">Indústria</option>
+                    <option value="Agricultura">Agricultura</option>
+                    <option value="Mineração">Mineração</option>
+                    <option value="Turismo">Turismo</option>
                     <option value="Outros">Outros</option>
                   </select>
                 </div>
@@ -211,6 +264,47 @@ export default function PerfilEmpresa() {
                     <option value="100-500 funcionários">100-500 funcionários</option>
                     <option value="500+ funcionários">500+ funcionários</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ano de Fundação
+                  </label>
+                  <input
+                    type="number"
+                    name="anoFundacao"
+                    value={formData.anoFundacao}
+                    onChange={handleChange}
+                    disabled={!editando}
+                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Capital Social
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      name="capitalSocial"
+                      value={formData.capitalSocial}
+                      onChange={handleChange}
+                      disabled={!editando}
+                      className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    />
+                    <select
+                      name="moedaCapital"
+                      value={formData.moedaCapital}
+                      onChange={handleChange}
+                      disabled={!editando}
+                      className="w-20 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    >
+                      <option value="MT">MT</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 

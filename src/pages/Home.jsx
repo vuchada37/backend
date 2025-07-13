@@ -104,7 +104,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
       {/* Hero Section */}
       <section className="relative bg-white">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50"></div>

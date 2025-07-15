@@ -119,6 +119,15 @@ export default function Perfil() {
     }
   }
 
+  // Se não houver usuário logado, mostrar mensagem de acesso restrito
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-500 text-lg text-center px-4">Você precisa estar logado para acessar o perfil.</div>
+      </div>
+    )
+  }
+
   const renderSecaoPessoal = () => (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-6">

@@ -520,7 +520,7 @@ export default function MensagensMelhorada() {
       window.scrollTo(0, document.body.scrollHeight);
     } else {
       // No mobile, sobe para o topo
-      window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
     }
   }, [isMobile]);
 

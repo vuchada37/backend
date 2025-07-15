@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation, matchPath } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Header() {
@@ -10,7 +10,12 @@ export default function Header() {
   // Função utilitária para saber se a rota está ativa (inclui subrotas)
   const isActive = (to) => {
     if (to === '/') return location.pathname === '/';
-    return location.pathname === to || location.pathname.startsWith(to + '/');
+    if (to === '/chamados') {
+      // Ativo em /chamados e em qualquer /chamado/:id
+      return !!matchPath({ path: '/chamados', end: true }, location.pathname) ||
+             !!matchPath({ path: '/chamado/:id', end: true }, location.pathname);
+    }
+    return !!matchPath({ path: to + '/*', end: false }, location.pathname);
   };
   return (
     <>

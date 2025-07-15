@@ -129,7 +129,7 @@ export default function Perfil() {
   }
 
   const renderSecaoPessoal = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
         <button
@@ -225,7 +225,7 @@ export default function Perfil() {
   )
 
   const renderSecaoProfissional = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Informações Profissionais</h2>
         <button
@@ -304,7 +304,7 @@ export default function Perfil() {
   )
 
   const renderSecaoCurriculo = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Currículo</h2>
         <button
@@ -341,7 +341,7 @@ export default function Perfil() {
   )
 
   const renderSecaoRedesSociais = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Redes Sociais</h2>
         <button
@@ -429,7 +429,7 @@ export default function Perfil() {
   )
 
   const renderSecaoPreferencias = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Preferências de Trabalho</h2>
         <button
@@ -505,7 +505,7 @@ export default function Perfil() {
   )
 
   const renderSecaoCertificacoes = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Certificações</h2>
         <button
@@ -541,7 +541,7 @@ export default function Perfil() {
   )
 
   const renderSecaoIdiomas = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Idiomas</h2>
         <button
@@ -569,7 +569,7 @@ export default function Perfil() {
   )
 
   const renderSecaoProjetos = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Projetos</h2>
         <button
@@ -610,7 +610,7 @@ export default function Perfil() {
   )
 
   const renderSecaoEstatisticas = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Estatísticas</h2>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -650,7 +650,7 @@ export default function Perfil() {
   )
 
   const renderSecaoNotificacoes = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Notificações</h2>
         <button
@@ -711,7 +711,7 @@ export default function Perfil() {
   )
 
   const renderSecaoPrivacidade = () => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Privacidade</h2>
         <button
@@ -778,7 +778,7 @@ export default function Perfil() {
   )
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl w-full mx-auto min-h-screen py-8 px-4 pb-32 overflow-x-hidden">
       {id && usuarioExibido && (
         <div className="mb-4 p-2 bg-blue-100 text-blue-800 rounded text-center">
           <strong>Perfil de outro usuário:</strong><br/>
@@ -927,17 +927,19 @@ export default function Perfil() {
       </div>
 
       {/* Conteúdo da seção ativa */}
-      {secaoAtiva === 'pessoal' && renderSecaoPessoal()}
-      {secaoAtiva === 'profissional' && renderSecaoProfissional()}
-      {secaoAtiva === 'curriculo' && renderSecaoCurriculo()}
-      {secaoAtiva === 'redes' && renderSecaoRedesSociais()}
-      {secaoAtiva === 'preferencias' && renderSecaoPreferencias()}
-      {secaoAtiva === 'certificacoes' && renderSecaoCertificacoes()}
-      {secaoAtiva === 'idiomas' && renderSecaoIdiomas()}
-      {secaoAtiva === 'projetos' && renderSecaoProjetos()}
-      {secaoAtiva === 'estatisticas' && renderSecaoEstatisticas()}
-      {secaoAtiva === 'notificacoes' && renderSecaoNotificacoes()}
-      {secaoAtiva === 'privacidade' && renderSecaoPrivacidade()}
+      <div className="space-y-6">
+        {secaoAtiva === 'pessoal' && renderSecaoPessoal()}
+        {secaoAtiva === 'profissional' && renderSecaoProfissional()}
+        {secaoAtiva === 'curriculo' && renderSecaoCurriculo()}
+        {secaoAtiva === 'redes' && renderSecaoRedesSociais()}
+        {secaoAtiva === 'preferencias' && renderSecaoPreferencias()}
+        {secaoAtiva === 'certificacoes' && renderSecaoCertificacoes()}
+        {secaoAtiva === 'idiomas' && renderSecaoIdiomas()}
+        {secaoAtiva === 'projetos' && renderSecaoProjetos()}
+        {secaoAtiva === 'estatisticas' && renderSecaoEstatisticas()}
+        {secaoAtiva === 'notificacoes' && renderSecaoNotificacoes()}
+        {secaoAtiva === 'privacidade' && renderSecaoPrivacidade()}
+      </div>
     </div>
   )
 } 

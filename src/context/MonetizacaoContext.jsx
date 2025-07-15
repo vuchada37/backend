@@ -98,7 +98,7 @@ export const MonetizacaoProvider = ({ children }) => {
         'Treinamento da equipe'
       ],
       popular: false,
-      periodo: 'Mensal'
+      periodo: '2 meses'
     }
   }
 

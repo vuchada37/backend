@@ -66,11 +66,8 @@ export default function Apoio() {
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 mb-2">
             <div>
-              <h3 className="font-semibold text-gray-800 mb-1 text-sm">Dados da Empresa</h3>
+              <h3 className="font-semibold text-gray-800 mb-1 text-sm">Localização</h3>
               <ul className="text-gray-600 text-xs space-y-0.5">
-                <li><span className="font-medium">NUIT:</span> 123456789</li>
-                <li><span className="font-medium">Alvará:</span> 2024/001</li>
-                <li><span className="font-medium">Registo Comercial:</span> 987654321</li>
                 <li><span className="font-medium">Localização:</span> Gurue, Moçambique</li>
               </ul>
             </div>

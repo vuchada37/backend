@@ -8,6 +8,8 @@ export default function Monetizacao() {
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('mpesa')
+  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
 
   // Determinar se é candidato ou empresa
   const isEmpresa = user && user.tipo === 'empresa'
@@ -61,9 +63,17 @@ export default function Monetizacao() {
   }
 
   const handlePayment = async () => {
-    // Simular processo de pagamento
-    alert('Pagamento processado com sucesso!')
-    setShowPaymentModal(false)
+    setPaymentLoading(true)
+    setPaymentSuccess(false)
+    // Simular processamento
+    setTimeout(() => {
+      setPaymentLoading(false)
+      setPaymentSuccess(true)
+      setTimeout(() => {
+        setShowPaymentModal(false)
+        setPaymentSuccess(false)
+      }, 1800)
+    }, 2000)
   }
 
   // Loading state
@@ -352,6 +362,7 @@ export default function Monetizacao() {
                         checked={paymentMethod === metodo.id}
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         className="mr-3"
+                        disabled={paymentLoading || paymentSuccess}
                       />
                       <div className="flex items-center">
                         <span className="text-2xl mr-3">{metodo.icone}</span>
@@ -364,18 +375,33 @@ export default function Monetizacao() {
                   ))}
                 </div>
               </div>
+              {/* Feedback visual de pagamento */}
+              {paymentLoading && (
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <span className="text-blue-700 font-medium">Processando pagamento...</span>
+                </div>
+              )}
+              {paymentSuccess && (
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  <span className="text-green-700 font-medium">Pagamento realizado com sucesso!</span>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowPaymentModal(false)}
                   className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  disabled={paymentLoading}
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handlePayment}
-                  className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className={`flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${paymentLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  disabled={paymentLoading || paymentSuccess}
                 >
-                  {selectedPlan.preco === 0 ? 'Ativar Grátis' : 'Pagar Agora'}
+                  {selectedPlan.preco === 0 ? 'Ativar Grátis' : paymentLoading ? 'Processando...' : 'Pagar Agora'}
                 </button>
               </div>
             </div>

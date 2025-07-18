@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import Modal from '../components/Modal'
 
 export default function Perfil() {
   const { user } = useAuth()
@@ -98,6 +99,42 @@ export default function Perfil() {
     '3': { nome: 'Pedro Costa', email: 'pedro@email.com', tipo: 'candidato' }
   }
   const usuarioExibido = id ? mockUsuarios[id] : null;
+
+  // Estados para modais de adição
+  const [modalCert, setModalCert] = useState(false)
+  const [modalIdioma, setModalIdioma] = useState(false)
+  const [modalProjeto, setModalProjeto] = useState(false)
+
+  // Estados dos formulários
+  const [novaCert, setNovaCert] = useState({ nome: '', instituicao: '', data: '', link: '', arquivo: null, arquivoUrl: '' })
+  const [novoIdioma, setNovoIdioma] = useState({ idioma: '', nivel: 'básico' })
+  const [novoProjeto, setNovoProjeto] = useState({ nome: '', descricao: '', tecnologias: '', link: '', imagem: '', imagemFile: null, imagemUrl: '' })
+
+  // Funções para adicionar
+  const adicionarCertificacao = () => {
+    setCertificacoes(prev => [
+      ...prev,
+      { id: Date.now(), ...novaCert, arquivo: novaCert.arquivoUrl || '' }
+    ])
+    setNovaCert({ nome: '', instituicao: '', data: '', link: '', arquivo: null, arquivoUrl: '' })
+    setModalCert(false)
+  }
+  const adicionarIdioma = () => {
+    setIdiomas(prev => [
+      ...prev,
+      { id: Date.now(), ...novoIdioma }
+    ])
+    setNovoIdioma({ idioma: '', nivel: 'básico' })
+    setModalIdioma(false)
+  }
+  const adicionarProjeto = () => {
+    setProjetos(prev => [
+      ...prev,
+      { id: Date.now(), ...novoProjeto, tecnologias: novoProjeto.tecnologias.split(',').map(t => t.trim()), imagem: novoProjeto.imagemUrl || novoProjeto.imagem }
+    ])
+    setNovoProjeto({ nome: '', descricao: '', tecnologias: '', link: '', imagem: '', imagemFile: null, imagemUrl: '' })
+    setModalProjeto(false)
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -455,24 +492,7 @@ export default function Perfil() {
             <option value="presencial">Presencial</option>
           </select>
         </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Faixa Salarial</label>
-          <select
-            name="faixaSalarial"
-            value={formData.faixaSalarial}
-            onChange={handleChange}
-            disabled={!editando}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-          >
-            <option value="5000-15000">5.000 - 15.000 MT</option>
-            <option value="15000-25000">15.000 - 25.000 MT</option>
-            <option value="25000-35000">25.000 - 35.000 MT</option>
-            <option value="35000-50000">35.000 - 50.000 MT</option>
-            <option value="50000+">50.000+ MT</option>
-          </select>
-        </div>
-
+        {/* Campo de faixa salarial removido */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Localização Preferida</label>
           <input
@@ -509,13 +529,37 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Certificações</h2>
         <button
-          onClick={() => alert('Funcionalidade de adicionar certificação em breve!')}
+          onClick={() => setModalCert(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
         >
           Adicionar
         </button>
       </div>
-      
+      {/* Modal de adicionar certificação */}
+      <Modal isOpen={modalCert} onClose={() => setModalCert(false)} title="Adicionar Certificação">
+        <div className="space-y-3">
+          <input type="text" placeholder="Nome da Certificação" value={novaCert.nome} onChange={e => setNovaCert(v => ({...v, nome: e.target.value}))} className="w-full p-2 border rounded" />
+          <input type="text" placeholder="Instituição" value={novaCert.instituicao} onChange={e => setNovaCert(v => ({...v, instituicao: e.target.value}))} className="w-full p-2 border rounded" />
+          <input type="url" placeholder="Link (opcional)" value={novaCert.link} onChange={e => setNovaCert(v => ({...v, link: e.target.value}))} className="w-full p-2 border rounded" />
+          <div>
+            <label className="block text-sm mb-1">Anexar Certificado (PDF/JPG/PNG)</label>
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => {
+              const file = e.target.files[0];
+              if (file) {
+                const url = URL.createObjectURL(file);
+                setNovaCert(v => ({...v, arquivo: file, arquivoUrl: url}))
+              }
+            }} />
+            {novaCert.arquivoUrl && (
+              <div className="mt-1 text-xs text-green-700">Arquivo selecionado: {novaCert.arquivo?.name || 'visualizar'} <a href={novaCert.arquivoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline ml-2">Ver</a></div>
+            )}
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            <button onClick={() => setModalCert(false)} className="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
+            <button onClick={adicionarCertificacao} className="px-4 py-2 bg-blue-600 text-white rounded">Adicionar</button>
+          </div>
+        </div>
+      </Modal>
       <div className="space-y-4">
         {certificacoes.map((cert) => (
           <div key={cert.id} className="border rounded-lg p-4">
@@ -523,7 +567,7 @@ export default function Perfil() {
               <div>
                 <h3 className="font-semibold text-gray-800">{cert.nome}</h3>
                 <p className="text-sm text-gray-600">{cert.instituicao}</p>
-                <p className="text-sm text-gray-500">Obtida em: {cert.data}</p>
+                {cert.link && <a href={cert.link} className="text-blue-600 underline text-xs" target="_blank" rel="noopener noreferrer">Ver certificado</a>}
               </div>
               <div className="flex gap-2">
                 <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">
@@ -545,13 +589,28 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Idiomas</h2>
         <button
-          onClick={() => alert('Funcionalidade de adicionar idioma em breve!')}
+          onClick={() => setModalIdioma(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
         >
           Adicionar
         </button>
       </div>
-      
+      {/* Modal de adicionar idioma */}
+      <Modal isOpen={modalIdioma} onClose={() => setModalIdioma(false)} title="Adicionar Idioma">
+        <div className="space-y-3">
+          <input type="text" placeholder="Idioma" value={novoIdioma.idioma} onChange={e => setNovoIdioma(v => ({...v, idioma: e.target.value}))} className="w-full p-2 border rounded" />
+          <select value={novoIdioma.nivel} onChange={e => setNovoIdioma(v => ({...v, nivel: e.target.value}))} className="w-full p-2 border rounded">
+            <option value="básico">Básico</option>
+            <option value="intermediário">Intermediário</option>
+            <option value="avançado">Avançado</option>
+            <option value="nativo">Nativo</option>
+          </select>
+          <div className="flex gap-2 justify-end pt-2">
+            <button onClick={() => setModalIdioma(false)} className="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
+            <button onClick={adicionarIdioma} className="px-4 py-2 bg-blue-600 text-white rounded">Adicionar</button>
+          </div>
+        </div>
+      </Modal>
       <div className="space-y-4">
         {idiomas.map((idioma) => (
           <div key={idioma.id} className="flex justify-between items-center border rounded-lg p-4">
@@ -573,13 +632,38 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Projetos</h2>
         <button
-          onClick={() => alert('Funcionalidade de adicionar projeto em breve!')}
+          onClick={() => setModalProjeto(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
         >
           Adicionar
         </button>
       </div>
-      
+      {/* Modal de adicionar projeto */}
+      <Modal isOpen={modalProjeto} onClose={() => setModalProjeto(false)} title="Adicionar Projeto">
+        <div className="space-y-3">
+          <input type="text" placeholder="Nome do Projeto" value={novoProjeto.nome} onChange={e => setNovoProjeto(v => ({...v, nome: e.target.value}))} className="w-full p-2 border rounded" />
+          <textarea placeholder="Descrição" value={novoProjeto.descricao} onChange={e => setNovoProjeto(v => ({...v, descricao: e.target.value}))} className="w-full p-2 border rounded" />
+          <input type="text" placeholder="Tecnologias (separadas por vírgula)" value={novoProjeto.tecnologias} onChange={e => setNovoProjeto(v => ({...v, tecnologias: e.target.value}))} className="w-full p-2 border rounded" />
+          <input type="url" placeholder="Link do Projeto" value={novoProjeto.link} onChange={e => setNovoProjeto(v => ({...v, link: e.target.value}))} className="w-full p-2 border rounded" />
+          <div>
+            <label className="block text-sm mb-1">Imagem do Projeto (JPG/PNG)</label>
+            <input type="file" accept=".jpg,.jpeg,.png" onChange={e => {
+              const file = e.target.files[0];
+              if (file) {
+                const url = URL.createObjectURL(file);
+                setNovoProjeto(v => ({...v, imagemFile: file, imagemUrl: url}))
+              }
+            }} />
+            {novoProjeto.imagemUrl && (
+              <div className="mt-1 text-xs text-green-700">Imagem selecionada: {novoProjeto.imagemFile?.name || 'visualizar'} <a href={novoProjeto.imagemUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline ml-2">Ver</a></div>
+            )}
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            <button onClick={() => setModalProjeto(false)} className="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
+            <button onClick={adicionarProjeto} className="px-4 py-2 bg-blue-600 text-white rounded">Adicionar</button>
+          </div>
+        </div>
+      </Modal>
       <div className="grid md:grid-cols-2 gap-6">
         {projetos.map((projeto) => (
           <div key={projeto.id} className="border rounded-lg overflow-hidden">

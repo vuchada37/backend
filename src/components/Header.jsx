@@ -122,7 +122,7 @@ export default function Header() {
           <nav className={`relative bg-white w-72 max-w-full h-full shadow-2xl rounded-l-3xl p-0 flex flex-col animate-drawer-fade-slide-${drawerClosing ? 'out' : 'in'} transition-all duration-400`}
             style={{padding: 0}}>
             <div className="flex flex-col h-full">
-              <button
+          <button 
                 className="absolute top-4 left-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 shadow-md transition"
                 onClick={closeDrawer}
                 aria-label="Fechar menu"
@@ -130,12 +130,12 @@ export default function Header() {
               >
                 <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            </svg>
+          </button>
               {/* Navegação */}
               <div className="flex-1 flex flex-col gap-3 mt-20 px-7 pb-8 overflow-y-auto">
-                {user ? (
-                  <>
+          {user ? (
+            <>
                     {/* Menu para empresa */}
                     {user.tipo === 'empresa' ? (
                       <>
@@ -180,18 +180,36 @@ export default function Header() {
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
+                      </svg>
                     Sair
                   </button>
                 )}
               </div>
             </div>
-          </nav>
-        </div>
+        </nav>
+      </div>
       )}
 
       {/* Remover menu fixo inferior mobile */}
       {/* (menu mobile removido) */}
+      {/* Drawer animação fade + slide personalizada com bounce forte */}
+      <style>{`
+        @keyframes drawer-fade-slide-in {
+          0% { opacity: 0; transform: translateX(100%) scale(0.96); }
+          80% { opacity: 1; transform: translateX(-8%) scale(1.04); }
+          100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes drawer-fade-slide-out {
+          0% { opacity: 1; transform: translateX(0) scale(1); }
+          100% { opacity: 0; transform: translateX(100%) scale(0.96); }
+        }
+        .animate-drawer-fade-slide-in {
+          animation: drawer-fade-slide-in 0.65s cubic-bezier(0.68,-0.55,0.27,1.25);
+        }
+        .animate-drawer-fade-slide-out {
+          animation: drawer-fade-slide-out 0.38s cubic-bezier(0.4,0,0.2,1);
+        }
+      `}</style>
     </>
   )
 }

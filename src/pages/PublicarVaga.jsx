@@ -7,7 +7,7 @@ const PublicarVaga = () => {
     titulo: '',
     empresa: '',
     localizacao: '',
-    tipoContrato: 'CLT',
+    tipoContrato: 'Efetivo',
     salario: '',
     descricao: '',
     requisitos: '',
@@ -131,10 +131,10 @@ const PublicarVaga = () => {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="CLT">CLT</option>
-                  <option value="PJ">PJ</option>
-                  <option value="FREELANCE">Freelance</option>
-                  <option value="ESTAGIO">Estágio</option>
+                  <option value="Efetivo">Efetivo</option>
+                  <option value="Prestador">Prestador</option>
+                  <option value="Freelancer">Freelancer</option>
+                  <option value="Estagio">Estágio</option>
                 </select>
               </div>
 
@@ -245,7 +245,7 @@ const PublicarVaga = () => {
                 onChange={handleInputChange}
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Liste os benefícios oferecidos: plano de saúde, vale refeição, etc..."
+                placeholder="Liste os benefícios oferecidos: seguro de saúde, subsídio de alimentação, etc..."
               />
             </div>
 

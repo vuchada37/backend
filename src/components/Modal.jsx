@@ -215,7 +215,7 @@ export function ModalDetalheCandidatura({ isOpen, onClose, candidatura }) {
         <div><span className="font-semibold">Telefone:</span> {candidatura.telefone}</div>
         <div><span className="font-semibold">Experiência:</span> {candidatura.experiencia}</div>
         <div><span className="font-semibold">Formação:</span> {candidatura.formacao}</div>
-        <div><span className="font-semibold">Currículo:</span> <a href={`/${candidatura.curriculo}`} download className="text-blue-600 underline">Baixar</a></div>
+        <div><span className="font-semibold">CV:</span> <a href={`/${candidatura.curriculo}`} download className="text-blue-600 underline">Baixar</a></div>
         <div><span className="font-semibold">Carta de apresentação:</span>
           <div className="bg-gray-50 rounded p-2 mt-1 text-sm text-gray-700">{candidatura.cartaApresentacao}</div>
         </div>

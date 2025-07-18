@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Apoio() {
   const [form, setForm] = useState({ nome: '', email: '', mensagem: '' });
@@ -46,9 +47,9 @@ export default function Apoio() {
         </div>
         {/* Links úteis */}
         <div className="w-full flex flex-col sm:flex-row sm:justify-between gap-2 mb-4 sm:mb-6 items-center text-center">
-          <a href="/politica-privacidade" className="text-xs text-gray-500 hover:text-blue-600 underline">Política de Privacidade</a>
-          <a href="/termos" className="text-xs text-gray-500 hover:text-blue-600 underline">Termos de Uso</a>
-          <a href="/faq" className="text-xs text-gray-500 hover:text-blue-600 underline">FAQ</a>
+          <Link to="/politica-privacidade" className="text-xs text-gray-500 hover:text-blue-600 underline">Política de Privacidade</Link>
+          <Link to="/termos" className="text-xs text-gray-500 hover:text-blue-600 underline">Termos de Uso</Link>
+          <Link to="/faq" className="text-xs text-gray-500 hover:text-blue-600 underline">FAQ</Link>
         </div>
         {/* Separador visual */}
         <div className="w-full border-t border-gray-200 my-4 sm:my-6"></div>

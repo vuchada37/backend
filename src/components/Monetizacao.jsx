@@ -100,7 +100,7 @@ export default function Monetizacao() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             {isEmpresa
               ? 'Escolha o plano ideal para sua empresa e comece a contratar os melhores talentos de Moçambique'
-              : 'Escolha um plano para se destacar, candidatar-se a mais vagas e acessar benefícios exclusivos.'}
+              : 'Escolha um plano para se destacar, candidatar-se a mais oportunidades e acessar benefícios exclusivos.'}
           </p>
         </div>
 

@@ -37,8 +37,8 @@ export default function Perfil() {
     localizacaoPreferida: 'Maputo',
     disponibilidade: 'imediata',
     
-    // Currículo
-    curriculo: 'joao_silva_cv.pdf',
+    // CV
+    cv: 'joao_silva_cv.pdf',
     
     // Privacidade
     perfilPublico: true,
@@ -343,12 +343,12 @@ export default function Perfil() {
   const renderSecaoCurriculo = () => (
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Currículo</h2>
+        <h2 className="text-xl font-bold text-gray-800">CV</h2>
         <button
           onClick={() => document.getElementById('curriculo-upload').click()}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
         >
-          Atualizar Currículo
+          Atualizar CV
         </button>
       </div>
       
@@ -364,7 +364,7 @@ export default function Perfil() {
         <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <p className="text-gray-600 mb-2">Currículo atual: {formData.curriculo}</p>
+        <p className="text-gray-600 mb-2">CV atual: {formData.cv}</p>
         <div className="flex gap-2 justify-center">
           <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm">
             Visualizar
@@ -926,7 +926,7 @@ export default function Perfil() {
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
-          Currículo
+          CV
         </button>
         <button
           onClick={() => setSecaoAtiva('redes')}

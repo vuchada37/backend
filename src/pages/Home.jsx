@@ -143,10 +143,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {categorias.map(categoria => (
-              <Link
+              <div
                 key={categoria.id}
-                to={`/vagas?categoria=${categoria.id}`}
-                className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-100 p-6 text-center group hover:border-blue-200"
+                className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-100 p-6 text-center group hover:border-blue-200 cursor-default"
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">
                   {categoria.icon}
@@ -155,7 +154,7 @@ export default function Home() {
                   {categoria.nome}
                 </h3>
                 <p className="text-sm text-gray-500">{categoria.vagas} vagas</p>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

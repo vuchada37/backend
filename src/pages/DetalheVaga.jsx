@@ -9,7 +9,7 @@ export default function DetalheVaga() {
   const [candidatura, setCandidatura] = useState({
     telefone: '',
     linkedin: '',
-    curriculo: null,
+    cv: null,
     disponibilidade: '',
     cartaApresentacao: ''
   })
@@ -21,7 +21,7 @@ export default function DetalheVaga() {
     empresa: 'TechMoç',
     localizacao: 'Maputo, Bairro Central',
     categoria: 'tecnologia',
-    tipo: 'CLT',
+    tipo: 'Efetivo',
     salario: '15.000 - 25.000 MT',
     descricao: 'Estamos procurando um desenvolvedor frontend apaixonado por criar interfaces modernas e responsivas. Você trabalhará com React, TypeScript e CSS moderno em projetos de grande escala.',
     requisitos: [
@@ -40,12 +40,12 @@ export default function DetalheVaga() {
       'Documentar componentes e processos'
     ],
     beneficios: [
-      'Plano de saúde completo',
-      'Vale refeição e alimentação',
-      'Gympass',
+      'Seguro de saúde completo',
+      'Subsídio de alimentação',
+      'Acesso a ginásio',
       'Horário flexível',
       'Home office híbrido',
-      'Plano de carreira estruturado',
+      'Progressão de carreira',
       'Participação em eventos e conferências',
       'Acesso a cursos e certificações'
     ],
@@ -56,6 +56,7 @@ export default function DetalheVaga() {
     candidatos: 12,
     visualizacoes: 45,
     empresaInfo: {
+      id: '10',
       nome: 'TechMoç',
       descricao: 'Empresa de tecnologia focada em soluções digitais inovadoras para o mercado moçambicano.',
       funcionarios: '50-100',
@@ -289,16 +290,16 @@ export default function DetalheVaga() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Currículo (PDF, obrigatório)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">CV (PDF, obrigatório)</label>
             <input
               type="file"
               accept=".pdf,.doc,.docx"
-              onChange={e => setCandidatura(prev => ({ ...prev, curriculo: e.target.files[0] }))}
+              onChange={e => setCandidatura(prev => ({ ...prev, cv: e.target.files[0] }))}
               className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
-            {candidatura.curriculo && (
-              <p className="text-xs text-green-700 mt-1">Arquivo selecionado: {candidatura.curriculo.name}</p>
+            {candidatura.cv && (
+              <p className="text-xs text-green-700 mt-1">Arquivo selecionado: {candidatura.cv.name}</p>
             )}
           </div>
           <div>

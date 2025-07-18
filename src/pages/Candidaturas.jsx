@@ -81,7 +81,7 @@ export default function Candidaturas() {
       status: 'pendente',
       salario: 'MZN 4.000 - 6.000',
       localizacao: 'Gurue, Mozambique',
-      tipo: 'CLT',
+      tipo: 'Efetivo',
       email: user?.email
     },
     {
@@ -92,7 +92,7 @@ export default function Candidaturas() {
       status: 'aprovada',
       salario: 'MZN 5.000 - 7.000',
       localizacao: 'Remoto',
-      tipo: 'PJ',
+      tipo: 'Prestador',
       email: user?.email
     },
     {
@@ -103,7 +103,7 @@ export default function Candidaturas() {
       status: 'rejeitada',
       salario: 'MZN 6.000 - 8.000',
       localizacao: 'Milange, Mozambique',
-      tipo: 'CLT',
+      tipo: 'Efetivo',
       email: user?.email
     },
     {
@@ -114,7 +114,7 @@ export default function Candidaturas() {
       status: 'entrevista',
       salario: 'MZN 7.000 - 9.000',
       localizacao: 'Híbrido',
-      tipo: 'CLT',
+      tipo: 'Efetivo',
       email: user?.email
     }
   ]
@@ -132,14 +132,14 @@ export default function Candidaturas() {
         'Boa comunicação e trabalho em equipe'
       ],
       beneficios: [
-        'Plano de saúde',
-        'Vale refeição',
-        'Gympass',
+        'Seguro de saúde',
+        'Subsídio de alimentação',
+        'Acesso a ginásio',
         'Horário flexível'
       ],
       salario: 'MZN 4.000 - 6.000',
       localizacao: 'Maputo, Mozambique',
-      tipo: 'CLT',
+      tipo: 'Efetivo',
       modalidade: 'Híbrido'
     },
     'DesignStudio': {
@@ -153,14 +153,14 @@ export default function Candidaturas() {
         'Experiência com pesquisa de usuários'
       ],
       beneficios: [
-        'Plano de saúde',
-        'Vale alimentação',
+        'Seguro de saúde',
+        'Subsídio de alimentação',
         'Home office',
         'Flexibilidade de horários'
       ],
       salario: 'MZN 5.000 - 7.000',
       localizacao: 'Remoto',
-      tipo: 'PJ',
+      tipo: 'Prestador',
       modalidade: 'Remoto'
     },
     'StartupXYZ': {
@@ -174,14 +174,14 @@ export default function Candidaturas() {
         'Vontade de aprender novas tecnologias'
       ],
       beneficios: [
-        'Plano de saúde',
-        'Participação nos lucros',
+        'Seguro de saúde',
+        'Participação nos resultados',
         'Stock options',
         'Ambiente descontraído'
       ],
       salario: 'MZN 6.000 - 8.000',
       localizacao: 'Milange, Mozambique',
-      tipo: 'CLT',
+      tipo: 'Efetivo',
       modalidade: 'Presencial'
     },
     'BigTech': {
@@ -195,14 +195,18 @@ export default function Candidaturas() {
         'Inglês intermediário'
       ],
       beneficios: [
-        'Plano de saúde premium',
-        'Vale refeição e alimentação',
-        'Gympass',
-        'Plano de carreira estruturado'
+        'Seguro de saúde premium',
+        'Subsídio de alimentação',
+        'Acesso a ginásio',
+        'Progressão de carreira',
+        'Home office híbrido',
+        'Progressão de carreira',
+        'Participação em eventos e conferências',
+        'Acesso a cursos e certificações'
       ],
       salario: 'MZN 7.000 - 9.000',
       localizacao: 'Beira, Mozambique',
-      tipo: 'CLT',
+      tipo: 'Efetivo',
       modalidade: 'Híbrido'
     }
   }
@@ -604,13 +608,8 @@ export default function Candidaturas() {
                   >
                     👁️ Ver Vaga Completa
                   </button>
-                  <button 
-                    onClick={irParaMensagens}
-                    className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    💬 Ver Mensagens
-                  </button>
-                    {!isEmpresa && user && user.tipo === 'candidato' && candidatoSelecionado && user.email === candidatoSelecionado.email && podeCancelar(candidatoSelecionado.status) ? (
+                  {/* Botão 'Ver Mensagens' removido */}
+                  {!isEmpresa && user && user.tipo === 'candidato' && candidatoSelecionado && user.email === candidatoSelecionado.email && podeCancelar(candidatoSelecionado.status) ? (
                     <button 
                       onClick={() => {
                         cancelarCandidatura(candidatoSelecionado.id)

@@ -31,7 +31,9 @@ export const MonetizacaoProvider = ({ children }) => {
         '50 mensagens por mês',
         'Acesso básico a candidatos',
         'Suporte por email',
-        'Perfil empresa básico'
+        'Perfil empresa básico',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: false,
       periodo: 'Mensal'
@@ -50,7 +52,9 @@ export const MonetizacaoProvider = ({ children }) => {
         'Suporte prioritário',
         'Perfil empresa destacado',
         'Relatórios básicos',
-        'Notificações avançadas'
+        'Notificações avançadas',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: true,
       periodo: 'Mensal'
@@ -71,7 +75,9 @@ export const MonetizacaoProvider = ({ children }) => {
         'Relatórios avançados',
         'Notificações prioritárias',
         'Filtros avançados',
-        'Integração com ATS'
+        'Integração com ATS',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: false,
       periodo: 'Mensal'
@@ -95,7 +101,9 @@ export const MonetizacaoProvider = ({ children }) => {
         'Integração com ATS',
         'API personalizada',
         'Gerente de conta',
-        'Treinamento da equipe'
+        'Treinamento da equipe',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: false,
       periodo: '2 meses'
@@ -116,7 +124,9 @@ export const MonetizacaoProvider = ({ children }) => {
         '10 mensagens por mês',
         'Perfil básico',
         'Acesso a vagas públicas',
-        'Suporte por email'
+        'Suporte por email',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: false
     },
@@ -134,7 +144,9 @@ export const MonetizacaoProvider = ({ children }) => {
         'Acesso a todas as vagas',
         'Suporte prioritário',
         'Notificações avançadas',
-        'Relatórios de candidatura'
+        'Relatórios de candidatura',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: true
     },
@@ -153,8 +165,10 @@ export const MonetizacaoProvider = ({ children }) => {
         'Suporte 24/7',
         'Notificações prioritárias',
         'Relatórios avançados',
-        'Currículo destacado',
-        'Acesso a vagas premium'
+        'CV destacado',
+        'Acesso a vagas premium',
+        'Subsídio de alimentação',
+        'Seguro de saúde'
       ],
       popular: false
     }

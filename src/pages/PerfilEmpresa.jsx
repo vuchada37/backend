@@ -1,5 +1,5 @@
 import { useAuth } from '../context/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 export default function PerfilEmpresa() {
@@ -26,18 +26,75 @@ export default function PerfilEmpresa() {
     capitalSocial: '5000000',
     moedaCapital: 'MT'
   })
+  const [showSuccess, setShowSuccess] = useState(false); // Novo estado para toast
   const navigate = useNavigate()
 
   // Mock de busca por id
-  const mockEmpresas = {
-    '10': { nome: 'Empresa XPTO', email: 'contato@xpto.com', tipo: 'empresa' }
+  let mockEmpresas = {
+    '10': { id: '10', nome: 'TechMoç', email: 'empresa@email.com', tipo: 'empresa', descricao: 'Empresa de tecnologia focada em soluções digitais inovadoras para o mercado moçambicano.', setor: 'Tecnologia', funcionarios: '50-100', localizacao: 'Maputo, Moçambique', fundacao: '2018', website: 'www.techmoc.co.mz' }
   }
-  const empresaExibida = id ? mockEmpresas[id] : null;
+  // Se usuário logado for empresa, cria um mock dinâmico para ela
+  if (user && user.tipo === 'empresa') {
+    mockEmpresas['me'] = {
+      id: 'me',
+      nome: user.nome || 'Minha Empresa',
+      email: user.email,
+      tipo: 'empresa',
+      descricao: 'Perfil da sua empresa. Edite suas informações aqui.',
+      setor: 'Tecnologia',
+      funcionarios: 'N/D',
+      localizacao: 'Moçambique',
+      fundacao: '2023',
+      website: 'www.suaempresa.co.mz'
+    }
+  }
+  const empresaExibida = id ? mockEmpresas[id] : (user && user.tipo === 'empresa' ? mockEmpresas['me'] : null);
+
+  // Verifica se o usuário logado é o dono do perfil
+  const isDono = user && user.tipo === 'empresa' && empresaExibida && (user.email === empresaExibida.email);
+
+  // Redireciona empresa logada para seu próprio perfil se não houver id
+  useEffect(() => {
+    if (!id && user && user.tipo === 'empresa') {
+      navigate('/perfil-empresa/me', { replace: true })
+    }
+  }, [id, user, navigate])
+
+  // Sincroniza formData com empresaExibida ao entrar no modo de edição, sem loop infinito
+  useEffect(() => {
+    if (editando && empresaExibida && isDono) {
+      setFormData(current => {
+        const novo = {
+          nomeFantasia: empresaExibida.nome || '',
+          razaoSocial: empresaExibida.razaoSocial || '',
+          nuit: empresaExibida.nuit || '',
+          email: empresaExibida.email || '',
+          telefone: empresaExibida.telefone || '',
+          endereco: empresaExibida.endereco || '',
+          descricao: empresaExibida.descricao || '',
+          setor: empresaExibida.setor || '',
+          tamanho: empresaExibida.funcionarios || '',
+          website: empresaExibida.website || '',
+          alvara: empresaExibida.alvara || '',
+          registroComercial: empresaExibida.registroComercial || '',
+          inscricaoFiscal: empresaExibida.inscricaoFiscal || '',
+          anoFundacao: empresaExibida.fundacao || '',
+          capitalSocial: empresaExibida.capitalSocial || '',
+          moedaCapital: empresaExibida.moedaCapital || ''
+        };
+        // Só atualiza se for diferente
+        if (JSON.stringify(current) !== JSON.stringify(novo)) return novo;
+        return current;
+      });
+    }
+    // eslint-disable-next-line
+  }, [editando]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    alert('Perfil atualizado com sucesso! (Funcionalidade mockada)')
+    setShowSuccess(true); // Mostrar toast
     setEditando(false)
+    setTimeout(() => setShowSuccess(false), 2500); // Esconder toast após 2.5s
   }
 
   const handleChange = (e) => {
@@ -49,366 +106,168 @@ export default function PerfilEmpresa() {
 
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 pb-24 md:pb-6">
-      {id && empresaExibida && (
-        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg text-center text-sm">
-          <strong>Perfil de outra empresa:</strong><br/>
-          Nome: {empresaExibida.nome}<br/>
-          Email: {empresaExibida.email}<br/>
-          Tipo: {empresaExibida.tipo}
+      {/* Toast visual de sucesso */}
+      {showSuccess && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-100" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium">
+                ✅ Perfil atualizado com sucesso!
+              </p>
+              <p className="text-xs mt-1 opacity-90">
+                As informações da empresa foram salvas.
+              </p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="text-green-100 hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       )}
+      {/* Empresa não encontrada */}
       {id && !empresaExibida && (
         <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg text-center text-sm">
-          Empresa não encontrada!
+          Empresa não encontrada!<br/>
+          <button onClick={() => navigate(-1)} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded">Voltar</button>
         </div>
       )}
-      
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">Perfil da Empresa</h1>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-        >
-          {editando ? '❌ Cancelar' : '✏️ Editar Perfil'}
-        </button>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Informações principais */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-6">Informações da Empresa</h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nome Fantasia *
-                  </label>
-                  <input
-                    type="text"
-                    name="nomeFantasia"
-                    value={formData.nomeFantasia}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Razão Social
-                  </label>
-                  <input
-                    type="text"
-                    name="razaoSocial"
-                    value={formData.razaoSocial}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    NUIT
-                  </label>
-                  <input
-                    type="text"
-                    name="nuit"
-                    value={formData.nuit}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Alvará
-                  </label>
-                  <input
-                    type="text"
-                    name="alvara"
-                    value={formData.alvara}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Registo Comercial
-                  </label>
-                  <input
-                    type="text"
-                    name="registroComercial"
-                    value={formData.registroComercial}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Inscrição Fiscal
-                  </label>
-                  <input
-                    type="text"
-                    name="inscricaoFiscal"
-                    value={formData.inscricaoFiscal}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    E-mail *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Telefone
-                  </label>
-                  <input
-                    type="text"
-                    name="telefone"
-                    value={formData.telefone}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Website
-                  </label>
-                  <input
-                    type="url"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Endereço
-                </label>
-                <input
-                  type="text"
-                  name="endereco"
-                  value={formData.endereco}
-                  onChange={handleChange}
-                  disabled={!editando}
-                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Setor
-                  </label>
-                  <select
-                    name="setor"
-                    value={formData.setor}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  >
-                    <option value="Tecnologia">Tecnologia</option>
-                    <option value="Saúde">Saúde</option>
-                    <option value="Educação">Educação</option>
-                    <option value="Financeiro">Financeiro</option>
-                    <option value="Varejo">Varejo</option>
-                    <option value="Indústria">Indústria</option>
-                    <option value="Agricultura">Agricultura</option>
-                    <option value="Mineração">Mineração</option>
-                    <option value="Turismo">Turismo</option>
-                    <option value="Outros">Outros</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tamanho da Empresa
-                  </label>
-                  <select
-                    name="tamanho"
-                    value={formData.tamanho}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  >
-                    <option value="1-10 funcionários">1-10 funcionários</option>
-                    <option value="11-50 funcionários">11-50 funcionários</option>
-                    <option value="50-100 funcionários">50-100 funcionários</option>
-                    <option value="100-500 funcionários">100-500 funcionários</option>
-                    <option value="500+ funcionários">500+ funcionários</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ano de Fundação
-                  </label>
-                  <input
-                    type="number"
-                    name="anoFundacao"
-                    value={formData.anoFundacao}
-                    onChange={handleChange}
-                    disabled={!editando}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Capital Social
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      name="capitalSocial"
-                      value={formData.capitalSocial}
-                      onChange={handleChange}
-                      disabled={!editando}
-                      className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                    />
-                    <select
-                      name="moedaCapital"
-                      value={formData.moedaCapital}
-                      onChange={handleChange}
-                      disabled={!editando}
-                      className="w-20 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                    >
-                      <option value="MT">MT</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Descrição da Empresa
-                </label>
-                <textarea
-                  name="descricao"
-                  value={formData.descricao}
-                  onChange={handleChange}
-                  disabled={!editando}
-                  rows={4}
-                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 resize-none"
-                />
-              </div>
-
-              {editando && (
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-                  <button
-                    type="submit"
-                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                  >
-                    💾 Salvar Alterações
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditando(false)}
-                    className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
-                  >
-                    ❌ Cancelar
-                  </button>
-                </div>
-              )}
-            </form>
+      {/* Visualização pública para candidatos/visitantes ou empresas diferentes */}
+      {id && empresaExibida && !isDono && (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-2">
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center border border-blue-100">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center mb-5 shadow-lg border-4 border-white">
+              <span className="text-5xl text-blue-700 font-extrabold select-none">{empresaExibida.nome.charAt(0)}</span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-blue-800 mb-1 text-center tracking-tight">{empresaExibida.nome}</h1>
+            <p className="text-gray-500 text-center mb-6 text-lg font-medium">{empresaExibida.descricao}</p>
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-blue-600 text-xl">🏢</span> <span className="font-semibold">Setor:</span> {empresaExibida.setor}</div>
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-green-600 text-xl">👥</span> <span className="font-semibold">Funcionários:</span> {empresaExibida.funcionarios}</div>
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-purple-600 text-xl">📍</span> <span className="font-semibold">Localização:</span> {empresaExibida.localizacao}</div>
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-yellow-600 text-xl">📅</span> <span className="font-semibold">Fundada em:</span> {empresaExibida.fundacao}</div>
+              <div className="flex items-center gap-2 text-gray-700 col-span-1 sm:col-span-2"><span className="text-indigo-600 text-xl">🌐</span> <span className="font-semibold">Website:</span> <a href={`https://${empresaExibida.website}`} target="_blank" rel="noopener noreferrer" className="underline text-blue-700 break-all hover:text-blue-900 transition">{empresaExibida.website}</a></div>
+            </div>
+            <button onClick={() => navigate(-1)} className="mt-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow hover:bg-blue-700 transition w-full sm:w-auto text-lg">Voltar</button>
           </div>
         </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Logo da empresa */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Logo da Empresa</h3>
-            <div className="text-center">
-              <div className="w-24 h-24 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <span className="text-3xl">🏢</span>
-              </div>
-              {editando && (
-                <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
-                  📁 Alterar Logo
-                </button>
-              )}
+      )}
+      {/* Visualização do próprio perfil (empresa logada, não editando) */}
+      {id && empresaExibida && isDono && !editando && (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-2">
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center border border-blue-100">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center mb-5 shadow-lg border-4 border-white">
+              <span className="text-5xl text-blue-700 font-extrabold select-none">{empresaExibida.nome.charAt(0)}</span>
             </div>
-          </div>
-
-          {/* Estatísticas */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Estatísticas</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Vagas publicadas</span>
-                <span className="font-semibold text-blue-600">5</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Candidaturas recebidas</span>
-                <span className="font-semibold text-green-600">12</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Vagas ativas</span>
-                <span className="font-semibold text-orange-600">3</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Visualizações</span>
-                <span className="font-semibold text-purple-600">45</span>
-              </div>
+            <h1 className="text-3xl font-extrabold text-blue-800 mb-1 text-center tracking-tight">{empresaExibida.nome}</h1>
+            <p className="text-gray-500 text-center mb-6 text-lg font-medium">{empresaExibida.descricao}</p>
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-blue-600 text-xl">🏢</span> <span className="font-semibold">Setor:</span> {empresaExibida.setor}</div>
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-green-600 text-xl">👥</span> <span className="font-semibold">Funcionários:</span> {empresaExibida.funcionarios}</div>
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-purple-600 text-xl">📍</span> <span className="font-semibold">Localização:</span> {empresaExibida.localizacao}</div>
+              <div className="flex items-center gap-2 text-gray-700"><span className="text-yellow-600 text-xl">📅</span> <span className="font-semibold">Fundada em:</span> {empresaExibida.fundacao}</div>
+              <div className="flex items-center gap-2 text-gray-700 col-span-1 sm:col-span-2"><span className="text-indigo-600 text-xl">🌐</span> <span className="font-semibold">Website:</span> <a href={`https://${empresaExibida.website}`} target="_blank" rel="noopener noreferrer" className="underline text-blue-700 break-all hover:text-blue-900 transition">{empresaExibida.website}</a></div>
             </div>
-          </div>
-
-          {/* Ações rápidas */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Ações Rápidas</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => navigate('/publicar-vaga')}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-              >
-                📢 Publicar Nova Vaga
-              </button>
-              <button
-                onClick={() => navigate('/vagas-publicadas')}
-                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
-              >
-                📋 Ver Vagas Publicadas
-              </button>
-              <button
-                onClick={() => navigate('/candidaturas')}
-                className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-medium"
-              >
-                👥 Ver Candidaturas
-              </button>
-            </div>
+            <button
+              onClick={() => setEditando(true)}
+              className="mt-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow hover:bg-blue-700 transition w-full sm:w-auto text-lg"
+            >
+              ✏️ Editar Perfil
+            </button>
           </div>
         </div>
-      </div>
+      )}
+      {/* Edição do próprio perfil (empresa logada, editando) */}
+      {id && empresaExibida && isDono && editando && (
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-2xl p-8 space-y-8 max-w-3xl mx-auto w-full border border-blue-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Nome Fantasia</label>
+              <input type="text" name="nomeFantasia" value={formData.nomeFantasia} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Razão Social</label>
+              <input type="text" name="razaoSocial" value={formData.razaoSocial} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Nuit</label>
+              <input type="text" name="nuit" value={formData.nuit} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">E-mail</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Telefone</label>
+              <input type="text" name="telefone" value={formData.telefone} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Endereço</label>
+              <input type="text" name="endereco" value={formData.endereco} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-base font-semibold text-gray-700 mb-2">Descrição</label>
+              <textarea name="descricao" value={formData.descricao} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg resize-none" rows={2} />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Setor</label>
+              <input type="text" name="setor" value={formData.setor} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Funcionários</label>
+              <input type="text" name="tamanho" value={formData.tamanho} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Website</label>
+              <input type="text" name="website" value={formData.website} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Alvará</label>
+              <input type="text" name="alvara" value={formData.alvara} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Registro Comercial</label>
+              <input type="text" name="registroComercial" value={formData.registroComercial} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Inscrição Fiscal</label>
+              <input type="text" name="inscricaoFiscal" value={formData.inscricaoFiscal} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Ano Fundação</label>
+              <input type="text" name="anoFundacao" value={formData.anoFundacao} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Capital Social</label>
+              <input type="text" name="capitalSocial" value={formData.capitalSocial} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Moeda do Capital</label>
+              <input type="text" name="moedaCapital" value={formData.moedaCapital} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+          </div>
+          <div className="flex justify-end mt-8">
+            <button type="submit" className="px-10 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:bg-blue-700 transition w-full md:w-auto">Salvar</button>
+          </div>
+        </form>
+      )}
+      {/* Caso não haja id (acesso direto), pode mostrar um aviso ou redirecionar */}
+      {!id && (!user || user.tipo !== 'empresa') && (
+        <div className="mb-4 p-3 bg-yellow-50 text-yellow-900 rounded-lg text-center text-sm">
+          Selecione uma empresa para visualizar o perfil.
+        </div>
+      )}
     </div>
   )
 } 

@@ -12,6 +12,7 @@ export default function Candidaturas() {
   const [modalDetalhes, setModalDetalhes] = useState(false)
   const [vagaSelecionada, setVagaSelecionada] = useState(null)
   const [feedbackCancelamento, setFeedbackCancelamento] = useState(null)
+  const [showToast, setShowToast] = useState(null); // { type, message }
 
   const isEmpresa = user && user.tipo === 'empresa'
 
@@ -239,7 +240,17 @@ export default function Candidaturas() {
   }
 
   const alterarStatus = (id, novoStatus) => {
-    alert(`Status alterado para ${novoStatus}! (Funcionalidade mockada)`)
+    let statusLabel = '';
+    let toastColor = 'bg-blue-500';
+    switch (novoStatus) {
+      case 'aprovada': statusLabel = 'Aprovada'; toastColor = 'bg-green-500'; break;
+      case 'entrevista': statusLabel = 'Entrevista'; toastColor = 'bg-blue-500'; break;
+      case 'rejeitada': statusLabel = 'Rejeitada'; toastColor = 'bg-red-500'; break;
+      case 'pendente': statusLabel = 'Pendente'; toastColor = 'bg-yellow-500'; break;
+      default: statusLabel = novoStatus; toastColor = 'bg-blue-500';
+    }
+    setShowToast({ type: 'success', message: `Status alterado para ${statusLabel}!`, color: toastColor });
+    setTimeout(() => setShowToast(null), 2200);
   }
 
   const verVaga = (empresa) => {
@@ -659,6 +670,12 @@ export default function Candidaturas() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {/* Toast visual para status */}
+      {showToast && (
+        <div className={`fixed bottom-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg text-white ${showToast.color || 'bg-green-500'}`}>
+          {showToast.message}
         </div>
       )}
     </div>

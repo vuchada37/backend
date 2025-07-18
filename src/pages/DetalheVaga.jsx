@@ -13,6 +13,16 @@ export default function DetalheVaga() {
     disponibilidade: '',
     cartaApresentacao: ''
   })
+  const [showToast, setShowToast] = useState(null); // { type, message }
+  const [favorito, setFavorito] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [candidatado, setCandidatado] = useState(false);
+
+  // Checar favorito no localStorage
+  useState(() => {
+    const favs = JSON.parse(localStorage.getItem('favoritosVagas') || '[]');
+    setFavorito(favs.includes(id));
+  }, [id]);
 
   // Mock de detalhes da vaga
   const vaga = {
@@ -87,10 +97,58 @@ export default function DetalheVaga() {
   }
 
   const enviarCandidatura = () => {
-    alert('Candidatura enviada com sucesso! (Funcionalidade mockada)')
-    setModalCandidatura(false)
-    setCandidatura({ cartaApresentacao: '', salarioPretendido: '', disponibilidade: '' })
+    setEnviando(true);
+    setTimeout(() => {
+      setEnviando(false);
+      setCandidatado(true);
+      setShowToast({ type: 'success', message: 'Candidatura enviada com sucesso!' });
+      setModalCandidatura(false);
+      setCandidatura({ cartaApresentacao: '', salarioPretendido: '', disponibilidade: '' });
+      setTimeout(() => setShowToast(null), 2200);
+    }, 1800);
   }
+
+  // Favoritar
+  const handleFavoritar = () => {
+    let favs = JSON.parse(localStorage.getItem('favoritosVagas') || '[]');
+    if (favorito) {
+      favs = favs.filter(vid => vid !== id);
+      setShowToast({ type: 'info', message: 'Removido dos favoritos.' });
+    } else {
+      favs.push(id);
+      setShowToast({ type: 'success', message: 'Adicionado aos favoritos!' });
+    }
+    localStorage.setItem('favoritosVagas', JSON.stringify(favs));
+    setFavorito(!favorito);
+    setTimeout(() => setShowToast(null), 1800);
+  };
+
+  // Compartilhar
+  const handleCompartilhar = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: vaga.titulo, url });
+        setShowToast({ type: 'success', message: 'Vaga compartilhada!' });
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          setShowToast({ type: 'info', message: 'Compartilhamento cancelado.' });
+        } else {
+          setShowToast({ type: 'error', message: 'Não foi possível compartilhar.' });
+        }
+      }
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShowToast({ type: 'success', message: 'Link copiado para área de transferência!' });
+      } catch (err) {
+        setShowToast({ type: 'error', message: 'Erro ao copiar o link. Copie manualmente.' });
+      }
+    } else {
+      setShowToast({ type: 'info', message: 'Não foi possível compartilhar.' });
+    }
+    setTimeout(() => setShowToast(null), 2200);
+  };
 
   return (
     <div className="max-w-6xl mx-auto py-6 px-4 pb-20 md:pb-6">
@@ -239,18 +297,25 @@ export default function DetalheVaga() {
             <div className="space-y-3">
               <button
                 onClick={() => setModalCandidatura(true)}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className={`w-full px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 ${candidatado ? 'bg-green-500 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                disabled={candidatado}
               >
-                Candidatar-se
+                {candidatado ? 'Candidatado!' : 'Candidatar-se'}
               </button>
-              <button className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
-                <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              <button
+                onClick={handleFavoritar}
+                className={`w-full px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 active:scale-95 flex items-center justify-center gap-2 ${favorito ? 'bg-yellow-100 text-yellow-800 border border-yellow-400' : 'bg-gray-600 text-white hover:bg-gray-700'}`}
+              >
+                <svg className={`w-5 h-5 transition-all duration-200 ${favorito ? 'fill-yellow-400' : 'fill-none stroke-current'}`} viewBox="0 0 24 24">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" strokeWidth="2" />
                 </svg>
-                Favoritar
+                {favorito ? 'Remover dos Favoritos' : 'Favoritar'}
               </button>
-              <button className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
-                <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button
+                onClick={handleCompartilhar}
+                className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 active:scale-95 flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                 </svg>
                 Compartilhar
@@ -259,6 +324,13 @@ export default function DetalheVaga() {
           </div>
         </div>
       </div>
+
+      {/* Toast visual */}
+      {showToast && (
+        <div className={`fixed bottom-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg text-white ${showToast.type === 'success' ? 'bg-green-500' : showToast.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`}>
+          {showToast.message}
+        </div>
+      )}
 
       {/* Modal de Candidatura */}
       <Modal
@@ -331,13 +403,14 @@ export default function DetalheVaga() {
           <div className="flex space-x-3 pt-4">
             <button
               onClick={enviarCandidatura}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 ${enviando ? 'opacity-60 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              disabled={enviando}
             >
-              Enviar Candidatura
+              {enviando ? 'Enviando...' : 'Enviar Candidatura'}
             </button>
             <button
               onClick={() => setModalCandidatura(false)}
-              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 active:scale-95"
             >
               Cancelar
             </button>

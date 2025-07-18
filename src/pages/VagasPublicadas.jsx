@@ -1,67 +1,27 @@
 import { useAuth } from '../context/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+// Funções utilitárias para localStorage
+const STORAGE_KEY = 'vagas';
+function getVagas() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : {};
+}
 
 export default function VagasPublicadas() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [filtroStatus, setFiltroStatus] = useState('todas')
+  const [vagas, setVagas] = useState([])
 
-  // Mock de vagas publicadas
-  const vagas = [
-    {
-      id: 1,
-      titulo: 'Desenvolvedor Frontend',
-      empresa: user?.nome || 'Empresa Exemplo',
-      localizacao: 'Beira, Moçambique',
-      tipo: 'Efetivo',
-      salario: 'MT 4.000 - 6.000',
-      dataPublicacao: '2024-01-10',
-      dataExpiracao: '2024-02-10',
-      status: 'ativa',
-      candidaturas: 5,
-      descricao: 'Desenvolvedor frontend com experiência em React, TypeScript e CSS moderno.'
-    },
-    {
-      id: 2,
-      titulo: 'Designer UX/UI',
-      empresa: user?.nome || 'Empresa Exemplo',
-      localizacao: 'Remoto',
-      tipo: 'Prestador',
-      salario: 'MT 5.000 - 7.000',
-      dataPublicacao: '2024-01-08',
-      dataExpiracao: '2024-02-08',
-      status: 'ativa',
-      candidaturas: 3,
-      descricao: 'Designer com foco em experiência do usuário e interfaces intuitivas.'
-    },
-    {
-      id: 3,
-      titulo: 'Desenvolvedor Backend',
-      empresa: user?.nome || 'Empresa Exemplo',
-      localizacao: 'Maputo, Moçambique',
-      tipo: 'Efetivo',
-      salario: 'MT 6.000 - 8.000',
-      dataPublicacao: '2024-01-05',
-      dataExpiracao: '2024-02-05',
-      status: 'expirada',
-      candidaturas: 8,
-      descricao: 'Desenvolvedor backend com experiência em Node.js, Python e bancos de dados.'
-    },
-    {
-      id: 4,
-      titulo: 'Analista de Marketing',
-      empresa: user?.nome || 'Empresa Exemplo',
-      localizacao: 'Moçambique, Maputo',
-      tipo: 'Efetivo',
-      salario: 'MT 3.500 - 5.000',
-      dataPublicacao: '2024-01-12',
-      dataExpiracao: '2024-02-12',
-      status: 'pausada',
-      candidaturas: 2,
-      descricao: 'Analista de marketing digital com experiência em campanhas online.'
-    }
-  ]
+  // Carregar vagas do localStorage ao montar
+  useEffect(() => {
+    const vagasObj = getVagas();
+    // Converter objeto para array e adicionar o id
+    const vagasArr = Object.entries(vagasObj).map(([id, vaga]) => ({ ...vaga, id }));
+    setVagas(vagasArr);
+  }, [])
 
   const vagasFiltradas = vagas.filter(vaga => {
     if (filtroStatus === 'todas') return true
@@ -87,11 +47,18 @@ export default function VagasPublicadas() {
   }
 
   const editarVaga = (id) => {
-    alert(`Editando vaga ${id}... (Funcionalidade mockada)`)
+    navigate(`/publicar-vaga/${id}`)
   }
 
   const alterarStatus = (id, novoStatus) => {
-    alert(`Status da vaga ${id} alterado para ${novoStatus}! (Funcionalidade mockada)`)
+    // Atualizar status no localStorage
+    const vagasObj = getVagas();
+    if (vagasObj[id]) {
+      vagasObj[id].status = novoStatus;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(vagasObj));
+      // Atualizar estado local
+      setVagas(Object.entries(vagasObj).map(([id, vaga]) => ({ ...vaga, id })));
+    }
   }
 
   const verCandidaturas = (id) => {
@@ -99,6 +66,7 @@ export default function VagasPublicadas() {
   }
 
   const calcularDiasRestantes = (dataExpiracao) => {
+    if (!dataExpiracao) return '-';
     const hoje = new Date()
     const expiracao = new Date(dataExpiracao)
     const diffTime = expiracao - hoje

@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
+// Funções utilitárias para localStorage
+const STORAGE_KEY = 'vagas';
+function getVagas() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : {};
+}
+function saveVagas(vagas) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(vagas));
+}
 
 const PublicarVaga = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     titulo: '',
     empresa: '',
@@ -17,8 +28,19 @@ const PublicarVaga = () => {
     area: '',
     prazoInscricao: ''
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showToast, setShowToast] = useState(null);
+  const isEditando = Boolean(id);
+
+  // Carregar vaga do localStorage se for edição
+  useEffect(() => {
+    if (isEditando) {
+      const vagas = getVagas();
+      if (vagas[id]) {
+        setFormData(vagas[id]);
+      }
+    }
+  }, [id, isEditando]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,13 +53,23 @@ const PublicarVaga = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simular envio
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    // Salvar ou atualizar vaga no localStorage
+    const vagas = getVagas();
+    let vagaId = id;
+    if (isEditando) {
+      // Atualizar vaga existente
+      vagas[vagaId] = formData;
+    } else {
+      // Criar nova vaga com ID único
+      vagaId = Date.now().toString();
+      vagas[vagaId] = formData;
+    }
+    saveVagas(vagas);
     setIsSubmitting(false);
-    alert('Vaga publicada com sucesso!');
-    navigate('/empresa-home');
+    setShowToast({ type: 'success', message: isEditando ? 'Vaga editada com sucesso!' : 'Vaga publicada com sucesso!' });
+    setTimeout(() => setShowToast(null), 2200);
+    setTimeout(() => navigate('/empresa-home'), 2300);
   };
 
   return (
@@ -279,6 +311,14 @@ const PublicarVaga = () => {
           </form>
         </div>
       </div>
+      {/* Toast visual */}
+      {showToast && (
+        <div className={`fixed bottom-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg text-white ${showToast.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`}
+          style={{ fontSize: '1rem', maxWidth: '90vw', left: '50%', right: 'auto', transform: 'translateX(-50%)', bottom: '1.5rem', zIndex: 9999 }}
+        >
+          {showToast.message}
+        </div>
+      )}
     </div>
   );
 };

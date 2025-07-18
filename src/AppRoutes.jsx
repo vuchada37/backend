@@ -83,6 +83,7 @@ export default function AppRoutes() {
             <Route path="/perfil-empresa/:id" element={<PerfilEmpresa />} />
             <Route path="/vagas-publicadas" element={<VagasPublicadas />} />
             <Route path="/publicar-vaga" element={<PublicarVaga />} />
+            <Route path="/publicar-vaga/:id" element={<PublicarVaga />} />
             <Route path="/mensagens" element={<Mensagens />} />
             <Route path="/monetizacao" element={<Monetizacao />} />
             <Route path="/assinaturas" element={<Assinaturas />} />

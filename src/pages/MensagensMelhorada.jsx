@@ -3,6 +3,26 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
 
+// Funções utilitárias para persistência das conversas
+const STORAGE_KEY_MSGS = 'mensagens_chat';
+function saveMensagensToStorage(mensagens) {
+  localStorage.setItem(STORAGE_KEY_MSGS, JSON.stringify(mensagens));
+}
+function loadMensagensFromStorage() {
+  const data = localStorage.getItem(STORAGE_KEY_MSGS);
+  return data ? JSON.parse(data) : null;
+}
+
+// Funções utilitárias para persistência do histórico de mensagens
+const STORAGE_KEY_HIST = 'historico_mensagens_chat';
+function saveHistoricoToStorage(historico) {
+  localStorage.setItem(STORAGE_KEY_HIST, JSON.stringify(historico));
+}
+function loadHistoricoFromStorage() {
+  const data = localStorage.getItem(STORAGE_KEY_HIST);
+  return data ? JSON.parse(data) : null;
+}
+
 export default function MensagensMelhorada() {
   const { user } = useAuth()
   const [mensagemSelecionada, setMensagemSelecionada] = useState(null)
@@ -22,146 +42,161 @@ export default function MensagensMelhorada() {
   const [usuariosDisponiveis, setUsuariosDisponiveis] = useState([])
   const [buscaUsuario, setBuscaUsuario] = useState('')
   const navigate = useNavigate()
+  const [toast, setToast] = useState(null);
 
-  // Mock de mensagens mais realista
-  const [mensagens, setMensagens] = useState([
-    // Candidatos
-    {
-      id: 1,
-      candidato: 'João Silva',
-      empresa: 'TechCorp',
-      email: 'joao@email.com',
-      telefone: '+258 84 123 4567',
-      vaga: 'Desenvolvedor Frontend',
-      data: '2024-01-15',
-      ultimaMensagem: 'Olá! Gostaria de saber mais sobre a vaga...',
-      lida: false,
-      status: 'ativo',
-      tipo: 'candidato',
-      online: true,
-      ultimaAtividade: 'Agora',
-      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      prioridade: 'alta'
-    },
-    {
-      id: 2,
-      candidato: 'Maria Santos',
-      empresa: 'DesignStudio',
-      email: 'maria@email.com',
-      telefone: '+258 85 987 6543',
-      vaga: 'Designer UX/UI',
-      data: '2024-01-14',
-      ultimaMensagem: 'Obrigada pelo retorno! Quando posso agendar uma entrevista?',
-      lida: true,
-      status: 'ativo',
-      tipo: 'candidato',
-      online: false,
-      ultimaAtividade: 'Há 5 min',
-      foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      prioridade: 'media'
-    },
-    {
-      id: 3,
-      candidato: 'Pedro Costa',
-      empresa: 'DataTech',
-      email: 'pedro@email.com',
-      telefone: '+258 86 555 1234',
-      vaga: 'Desenvolvedor Backend',
-      data: '2024-01-13',
-      ultimaMensagem: 'Tenho interesse na vaga. Posso enviar meu portfólio?',
-      lida: true,
-      status: 'ativo',
-      tipo: 'candidato',
-      online: true,
-      ultimaAtividade: 'Agora',
-      foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      prioridade: 'baixa'
-    },
-    // Empresas
-    {
-      id: 10,
-      candidato: 'Empresa XPTO',
-      empresa: 'Empresa XPTO',
-      email: 'contato@xpto.com',
-      telefone: '+55 11 99999-9999',
-      vaga: 'Vaga para Dev',
-      data: '2024-01-20',
-      ultimaMensagem: 'Olá, temos interesse no seu perfil!',
-      lida: false,
-      status: 'ativo',
-      tipo: 'empresa',
-      online: true,
-      ultimaAtividade: 'Agora',
-      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      prioridade: 'alta'
-    },
-    {
-      id: 11,
-      candidato: 'Neotrix',
-      empresa: 'Neotrix',
-      email: 'neotrixtecnologias37@gmail.com',
-      telefone: '872664074',
-      vaga: 'Parceria em tecnologia',
-      data: '2024-01-22',
-      ultimaMensagem: 'Tecnologias ao seu alcance!',
-      lida: false,
-      status: 'ativo',
-      tipo: 'empresa',
-      online: true,
-      ultimaAtividade: 'Agora',
-      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      prioridade: 'alta',
-      localizacao: 'Gurue, Moçambique',
-      slogan: 'Tecnologias ao seu alcance'
-    },
-    // Chamado (suporte)
-    {
-      id: 20,
-      candidato: 'Suporte Nevú',
-      empresa: 'Nevú',
-      email: 'suporte@nevu.com',
-      telefone: '',
-      vaga: 'Suporte',
-      data: '2024-01-22',
-      ultimaMensagem: 'Seu chamado foi recebido!',
-      lida: true,
-      status: 'ativo',
-      tipo: 'chamado',
-      online: false,
-      ultimaAtividade: 'Há 1h',
-      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      prioridade: 'media'
-    },
-  ])
+  const [mensagens, setMensagens] = useState(() => {
+    const persisted = loadMensagensFromStorage();
+    if (persisted) return persisted;
+    // Mocks iniciais
+    return [
+      {
+        id: 1,
+        candidato: 'João Silva',
+        empresa: 'TechCorp',
+        email: 'joao@email.com',
+        telefone: '+258 84 123 4567',
+        vaga: 'Desenvolvedor Frontend',
+        data: '2024-01-15',
+        ultimaMensagem: 'Olá! Gostaria de saber mais sobre a vaga...',
+        lida: false,
+        status: 'ativo',
+        tipo: 'candidato',
+        online: true,
+        ultimaAtividade: 'Agora',
+        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        prioridade: 'alta'
+      },
+      {
+        id: 2,
+        candidato: 'Maria Santos',
+        empresa: 'DesignStudio',
+        email: 'maria@email.com',
+        telefone: '+258 85 987 6543',
+        vaga: 'Designer UX/UI',
+        data: '2024-01-14',
+        ultimaMensagem: 'Obrigada pelo retorno! Quando posso agendar uma entrevista?',
+        lida: true,
+        status: 'ativo',
+        tipo: 'candidato',
+        online: false,
+        ultimaAtividade: 'Há 5 min',
+        foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+        prioridade: 'media'
+      },
+      {
+        id: 3,
+        candidato: 'Pedro Costa',
+        empresa: 'DataTech',
+        email: 'pedro@email.com',
+        telefone: '+258 86 555 1234',
+        vaga: 'Desenvolvedor Backend',
+        data: '2024-01-13',
+        ultimaMensagem: 'Tenho interesse na vaga. Posso enviar meu portfólio?',
+        lida: true,
+        status: 'ativo',
+        tipo: 'candidato',
+        online: true,
+        ultimaAtividade: 'Agora',
+        foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        prioridade: 'baixa'
+      },
+      {
+        id: 10,
+        candidato: 'Empresa XPTO',
+        empresa: 'Empresa XPTO',
+        email: 'contato@xpto.com',
+        telefone: '+55 11 99999-9999',
+        vaga: 'Vaga para Dev',
+        data: '2024-01-20',
+        ultimaMensagem: 'Olá, temos interesse no seu perfil!',
+        lida: false,
+        status: 'ativo',
+        tipo: 'empresa',
+        online: true,
+        ultimaAtividade: 'Agora',
+        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        prioridade: 'alta'
+      },
+      {
+        id: 11,
+        candidato: 'Neotrix',
+        empresa: 'Neotrix',
+        email: 'neotrixtecnologias37@gmail.com',
+        telefone: '872664074',
+        vaga: 'Parceria em tecnologia',
+        data: '2024-01-22',
+        ultimaMensagem: 'Tecnologias ao seu alcance!',
+        lida: false,
+        status: 'ativo',
+        tipo: 'empresa',
+        online: true,
+        ultimaAtividade: 'Agora',
+        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        prioridade: 'alta',
+        localizacao: 'Gurue, Moçambique',
+        slogan: 'Tecnologias ao seu alcance'
+      },
+      {
+        id: 20,
+        candidato: 'Suporte Nevú',
+        empresa: 'Nevú',
+        email: 'suporte@nevu.com',
+        telefone: '',
+        vaga: 'Suporte',
+        data: '2024-01-22',
+        ultimaMensagem: 'Seu chamado foi recebido!',
+        lida: true,
+        status: 'ativo',
+        tipo: 'chamado',
+        online: false,
+        ultimaAtividade: 'Há 1h',
+        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        prioridade: 'media'
+      },
+    ];
+  })
+
+  // Persistir mensagens no localStorage sempre que mudarem
+  useEffect(() => {
+    saveMensagensToStorage(mensagens);
+  }, [mensagens]);
 
   // Mock de histórico de mensagens mais realista
-  const [historicoMensagens, setHistoricoMensagens] = useState({
-    1: [
-      { id: 1, remetente: 'candidato', texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', data: '2024-01-15 14:30', tipo: 'texto', lida: true },
-      { id: 2, remetente: 'empresa', texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', data: '2024-01-15 15:00', tipo: 'texto', lida: true },
-      { id: 3, remetente: 'candidato', texto: 'Sim, tenho 3 anos de experiência com React e 1 ano com TypeScript. Posso enviar meu portfólio?', data: '2024-01-15 15:30', tipo: 'texto', lida: false },
-      { id: 4, remetente: 'candidato', texto: 'portfolio-joao-silva.pdf', data: '2024-01-15 15:35', tipo: 'arquivo', arquivo: { nome: 'portfolio-joao-silva.pdf', tamanho: '2.5 MB', tipo: 'pdf' }, lida: false }
-    ],
-    2: [
-      { id: 1, remetente: 'candidato', texto: 'Olá, gostaria de saber mais sobre a vaga de Designer.', data: '2024-01-14 10:00', tipo: 'texto', lida: true },
-      { id: 2, remetente: 'empresa', texto: 'Olá Maria! A vaga é para UI/UX com foco em mobile. Tem interesse?', data: '2024-01-14 10:10', tipo: 'texto', lida: true },
-      { id: 3, remetente: 'candidato', texto: 'Sim, tenho interesse! Quando posso agendar uma entrevista?', data: '2024-01-14 10:15', tipo: 'texto', lida: false }
-    ],
-    10: [
-      { id: 1, remetente: 'empresa', texto: 'Olá! Vimos seu perfil e achamos interessante para nossa vaga.', data: '2024-01-20 09:00', tipo: 'texto', lida: true },
-      { id: 2, remetente: 'candidato', texto: 'Obrigado! Gostaria de saber mais sobre a empresa XPTO.', data: '2024-01-20 09:05', tipo: 'texto', lida: true },
-      { id: 3, remetente: 'empresa', texto: 'Claro! Somos referência em tecnologia e inovação.', data: '2024-01-20 09:10', tipo: 'texto', lida: false }
-    ],
-    11: [
-      { id: 1, remetente: 'empresa', texto: 'Bem-vindo à Neotrix! Tecnologias ao seu alcance.', data: '2024-01-22 08:00', tipo: 'texto', lida: true },
-      { id: 2, remetente: 'candidato', texto: 'Olá Neotrix! Gostaria de saber mais sobre seus serviços.', data: '2024-01-22 08:05', tipo: 'texto', lida: true },
-      { id: 3, remetente: 'empresa', texto: 'Atuamos em Moçambique com soluções inovadoras. Podemos marcar uma reunião?', data: '2024-01-22 08:10', tipo: 'texto', lida: false }
-    ],
-    20: [
-      { id: 1, remetente: 'chamado', texto: 'Olá, preciso de suporte com minha conta.', data: '2024-01-22 07:00', tipo: 'texto', lida: true },
-      { id: 2, remetente: 'empresa', texto: 'Olá! Seu chamado foi recebido. Em breve entraremos em contato.', data: '2024-01-22 07:05', tipo: 'texto', lida: true }
-    ]
+  const [historicoMensagens, setHistoricoMensagens] = useState(() => {
+    const persisted = loadHistoricoFromStorage();
+    if (persisted) return persisted;
+    return {
+      1: [
+        { id: 1, remetente: 'candidato', texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', data: '2024-01-15 14:30', tipo: 'texto', lida: true },
+        { id: 2, remetente: 'empresa', texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', data: '2024-01-15 15:00', tipo: 'texto', lida: true },
+        { id: 3, remetente: 'candidato', texto: 'Sim, tenho 3 anos de experiência com React e 1 ano com TypeScript. Posso enviar meu portfólio?', data: '2024-01-15 15:30', tipo: 'texto', lida: false },
+        { id: 4, remetente: 'candidato', texto: 'portfolio-joao-silva.pdf', data: '2024-01-15 15:35', tipo: 'arquivo', arquivo: { nome: 'portfolio-joao-silva.pdf', tamanho: '2.5 MB', tipo: 'pdf' }, lida: false }
+      ],
+      2: [
+        { id: 1, remetente: 'candidato', texto: 'Olá, gostaria de saber mais sobre a vaga de Designer.', data: '2024-01-14 10:00', tipo: 'texto', lida: true },
+        { id: 2, remetente: 'empresa', texto: 'Olá Maria! A vaga é para UI/UX com foco em mobile. Tem interesse?', data: '2024-01-14 10:10', tipo: 'texto', lida: true },
+        { id: 3, remetente: 'candidato', texto: 'Sim, tenho interesse! Quando posso agendar uma entrevista?', data: '2024-01-14 10:15', tipo: 'texto', lida: false }
+      ],
+      10: [
+        { id: 1, remetente: 'empresa', texto: 'Olá! Vimos seu perfil e achamos interessante para nossa vaga.', data: '2024-01-20 09:00', tipo: 'texto', lida: true },
+        { id: 2, remetente: 'candidato', texto: 'Obrigado! Gostaria de saber mais sobre a empresa XPTO.', data: '2024-01-20 09:05', tipo: 'texto', lida: true },
+        { id: 3, remetente: 'empresa', texto: 'Claro! Somos referência em tecnologia e inovação.', data: '2024-01-20 09:10', tipo: 'texto', lida: false }
+      ],
+      11: [
+        { id: 1, remetente: 'empresa', texto: 'Bem-vindo à Neotrix! Tecnologias ao seu alcance.', data: '2024-01-22 08:00', tipo: 'texto', lida: true },
+        { id: 2, remetente: 'candidato', texto: 'Olá Neotrix! Gostaria de saber mais sobre seus serviços.', data: '2024-01-22 08:05', tipo: 'texto', lida: true },
+        { id: 3, remetente: 'empresa', texto: 'Atuamos em Moçambique com soluções inovadoras. Podemos marcar uma reunião?', data: '2024-01-22 08:10', tipo: 'texto', lida: false }
+      ],
+      20: [
+        { id: 1, remetente: 'chamado', texto: 'Olá, preciso de suporte com minha conta.', data: '2024-01-22 07:00', tipo: 'texto', lida: true },
+        { id: 2, remetente: 'empresa', texto: 'Olá! Seu chamado foi recebido. Em breve entraremos em contato.', data: '2024-01-22 07:05', tipo: 'texto', lida: true }
+      ]
+    };
   });
+  // Persistir histórico no localStorage sempre que mudar
+  useEffect(() => {
+    saveHistoricoToStorage(historicoMensagens);
+  }, [historicoMensagens]);
 
   // Emojis populares
   const emojis = ['😊', '👍', '👋', '🎉', '💼', '📝', '✅', '❌', '🤝', '💡', '🚀', '⭐', '💪', '🎯', '📞', '📧']
@@ -452,7 +487,7 @@ export default function MensagensMelhorada() {
   // Simular notificações em tempo real
   useEffect(() => {
     const interval = setInterval(() => {
-      const mensagensNaoLidas = mensagens.filter(m => !m.lida)
+      const mensagensNaoLidas = mensagens.filter(m => !m.lida && !m.silenciada)
       if (mensagensNaoLidas.length > 0) {
         const novaNotificacao = {
           id: Date.now(),
@@ -530,6 +565,59 @@ export default function MensagensMelhorada() {
     }
   }, [mensagemSelecionada, isMobile]);
 
+  // Função para silenciar conversa
+  const silenciarConversa = (id) => {
+    setMensagens(prevMensagens => {
+      const silenciadaAgora = !prevMensagens.find(m => m.id === id)?.silenciada;
+      const novo = prevMensagens.map(msg =>
+        msg.id === id ? { ...msg, silenciada: silenciadaAgora } : msg
+      );
+      saveMensagensToStorage(novo);
+      setToast({ type: 'info', message: silenciadaAgora ? 'Conversa silenciada.' : 'Conversa reativada.' });
+      return novo;
+    });
+  }
+
+  // Função para apagar conversa
+  const apagarConversa = (id) => {
+    setMensagens(prevMensagens => {
+      const novo = prevMensagens.filter(msg => msg.id !== id);
+      saveMensagensToStorage(novo);
+      return novo;
+    });
+    setHistoricoMensagens(prev => {
+      const novo = { ...prev }
+      delete novo[id]
+      return novo
+    })
+    setMensagemSelecionada(null)
+    setToast({ type: 'success', message: 'Conversa apagada.' });
+  }
+
+  // Função para bloquear usuário
+  const bloquearUsuario = (id) => {
+    setMensagens(prevMensagens => {
+      const bloqueadaAgora = !prevMensagens.find(m => m.id === id)?.bloqueada;
+      const novo = prevMensagens.map(msg =>
+        msg.id === id ? { ...msg, bloqueada: bloqueadaAgora } : msg
+      );
+      saveMensagensToStorage(novo);
+      setToast({ type: 'warning', message: bloqueadaAgora ? 'Usuário bloqueado.' : 'Usuário desbloqueado.' });
+      return novo;
+    });
+    if (mensagemSelecionada && mensagemSelecionada.id === id) {
+      setMensagemSelecionada(null)
+    }
+  }
+
+  // Toast auto-hide
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   // Função para renderizar o header do chat
   function ChatHeader() {
     if (!mensagemSelecionada) return null
@@ -582,9 +670,15 @@ export default function MensagensMelhorada() {
                   navigate(`/perfil/${mensagemSelecionada.id}`);
                 }
               }}>Ver perfil</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); alert('Silenciar conversa'); }}>Silenciar conversa</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); alert('Apagar conversa'); }}>Apagar conversa</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600" onClick={() => { setShowMenu(false); alert('Bloquear usuário'); }}>Bloquear usuário</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); silenciarConversa(mensagemSelecionada.id); }}>
+                {mensagemSelecionada?.silenciada ? 'Desativar silêncio' : 'Silenciar conversa'}
+              </button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); apagarConversa(mensagemSelecionada.id); }}>
+                Apagar conversa
+              </button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600" onClick={() => { setShowMenu(false); bloquearUsuario(mensagemSelecionada.id); }}>
+                {mensagemSelecionada?.bloqueada ? 'Desbloquear usuário' : 'Bloquear usuário'}
+              </button>
             </div>
           )}
         </div>
@@ -595,6 +689,9 @@ export default function MensagensMelhorada() {
   // Função para renderizar balões de mensagem
   function ChatBaloes() {
     if (!mensagemSelecionada) return null
+    if (mensagemSelecionada.bloqueada) {
+      return <div className="text-center text-red-500 py-8">Usuário bloqueado. Você não pode enviar ou receber mensagens nesta conversa.</div>
+    }
     const msgs = historicoMensagens[mensagemSelecionada.id] || []
     return (
       <div className="p-4 lg:p-6" ref={chatRef} onClick={() => inputRef.current && inputRef.current.focus()}>
@@ -629,6 +726,7 @@ export default function MensagensMelhorada() {
   // Função para renderizar o campo de digitação
   function ChatInput() {
     if (!mensagemSelecionada) return null
+    if (mensagemSelecionada.bloqueada) return null
     
     const handleInputChange = useCallback((e) => {
       setNovaMensagem(e.target.value)
@@ -654,10 +752,13 @@ export default function MensagensMelhorada() {
     
     return (
       <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t bg-white flex items-center gap-2 lg:gap-3 shadow-md px-2 sm:px-4 py-2`} style={{boxShadow: '0 2px 12px #0001', marginBottom: isMobile ? 12 : 20}}>
-        <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
-          {/* SVG emoji */}
-          <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
-        </button>
+        {/* Remover emoji no mobile */}
+        {!isMobile && (
+          <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
+            {/* SVG emoji */}
+            <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+          </button>
+        )}
         <input
           ref={inputRef}
           type="text"
@@ -708,6 +809,14 @@ export default function MensagensMelhorada() {
   // Renderização condicional
   return (
     <div className="relative bg-gray-50 h-screen overflow-hidden">
+      {/* Toast visual */}
+      {toast && (
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 max-w-sm px-6 py-3 rounded-lg shadow-lg text-white text-base font-medium transition-all duration-300 ${toast.type === 'success' ? 'bg-green-600' : toast.type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'}`}
+          style={{ fontSize: '1rem', maxWidth: '90vw', minWidth: '200px' }}
+        >
+          {toast.message}
+        </div>
+      )}
       {/* Header fixo principal */}
       <header className={`fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 flex items-center justify-between px-4 ${isMobile ? 'py-0' : 'py-4'} shadow-sm`}>
         {/* Botão voltar no mobile quando chat não está aberto */}
@@ -779,6 +888,9 @@ export default function MensagensMelhorada() {
                       {/* Badge não lida */}
                       {!msg.lida && <span className="ml-1 w-2 h-2 lg:w-3 lg:h-3 bg-blue-600 rounded-full inline-block" />}
                     </div>
+                    {msg.silenciada && (
+                      <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-gray-200 text-gray-600">Silenciada</span>
+                    )}
                   </div>
                   {/* Horário */}
                   <div className="flex flex-col items-end min-w-[56px] lg:min-w-[64px]">

@@ -299,11 +299,8 @@ export default function Candidaturas() {
 
   const verPerfilCandidato = (candidato) => {
     setModalDetalhes(false)
-    // Navegar para o perfil do candidato
-    if (candidato) {
-      // Mock: usar ID 1 para o candidato (em um sistema real, seria o ID real do candidato)
-      navigate(`/perfil/1`)
-    }
+    // Navegar para a página de funcionalidade em produção
+    navigate('/em-producao')
   }
 
   const irParaMensagens = () => {

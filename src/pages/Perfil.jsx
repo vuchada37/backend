@@ -53,41 +53,16 @@ export default function Perfil() {
     foto: user?.perfil?.foto || '',
   })
 
-  // Atualizar formData quando user mudar
+  // Atualizar formData e idiomas quando user mudar
   useEffect(() => {
     if (user) {
       setFormData({
         ...formData,
-        nome: user.nome || '',
-        email: user.email || '',
-        telefone: user.perfil?.telefone || '',
-        dataNascimento: user.perfil?.dataNascimento || '',
-        endereco: user.perfil?.endereco || '',
-        bio: user.perfil?.bio || '',
-        formacao: user.perfil?.formacao || '',
-        experiencia: user.perfil?.experiencia || '',
-        habilidades: user.perfil?.habilidades?.join(', ') || '',
-        linkedin: user.perfil?.linkedin || '',
-        github: user.perfil?.github || '',
-        portfolio: user.perfil?.portfolio || '',
-        behance: user.perfil?.behance || '',
-        instagram: user.perfil?.instagram || '',
-        twitter: user.perfil?.twitter || '',
-        tipoTrabalho: user.perfil?.tipoTrabalho || 'remoto',
-        faixaSalarial: user.perfil?.faixaSalarial || '15000-25000',
-        localizacaoPreferida: user.perfil?.localizacaoPreferida || 'Maputo',
-        disponibilidade: user.perfil?.disponibilidade || 'imediata',
-        cv: user.perfil?.cv || '',
-        perfilPublico: user.perfil?.perfilPublico !== undefined ? user.perfil.perfilPublico : true,
-        mostrarTelefone: user.perfil?.mostrarTelefone !== undefined ? user.perfil.mostrarTelefone : false,
-        mostrarEndereco: user.perfil?.mostrarEndereco !== undefined ? user.perfil.mostrarEndereco : false,
-        alertasVagas: user.perfil?.alertasVagas !== undefined ? user.perfil.alertasVagas : true,
-        frequenciaAlertas: user.perfil?.frequenciaAlertas || 'diario',
-        vagasInteresse: user.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react'],
         foto: user.perfil?.foto || '',
-      })
+      });
+      setIdiomas(user.perfil?.idiomas || []);
     }
-  }, [user])
+  }, [user]);
 
   // Dados mockados para certificações
   const [certificacoes, setCertificacoes] = useState([
@@ -96,11 +71,9 @@ export default function Perfil() {
   ])
 
   // Dados mockados para idiomas
-  const [idiomas, setIdiomas] = useState([
-    { id: 1, idioma: 'Português', nivel: 'nativo' },
-    { id: 2, idioma: 'Inglês', nivel: 'avançado' },
-    { id: 3, idioma: 'Espanhol', nivel: 'intermediário' }
-  ])
+  const [idiomas, setIdiomas] = useState(user?.perfil?.idiomas || []);
+  // Remover declaração duplicada de novoIdioma e setNovoIdioma
+  // const [novoIdioma, setNovoIdioma] = useState({ idioma: '', nivel: 'básico' });
 
   // Dados mockados para projetos
   const [projetos, setProjetos] = useState([
@@ -145,7 +118,6 @@ export default function Perfil() {
 
   // Estados dos formulários
   const [novaCert, setNovaCert] = useState({ nome: '', instituicao: '', data: '', link: '', arquivo: null, arquivoUrl: '' })
-  const [novoIdioma, setNovoIdioma] = useState({ idioma: '', nivel: 'básico' })
   const [novoProjeto, setNovoProjeto] = useState({ nome: '', descricao: '', tecnologias: '', link: '', imagem: '', imagemFile: null, imagemUrl: '' })
 
   // Funções para adicionar
@@ -158,12 +130,10 @@ export default function Perfil() {
     setModalCert(false)
   }
   const adicionarIdioma = () => {
-    setIdiomas(prev => [
-      ...prev,
-      { id: Date.now(), ...novoIdioma }
-    ])
-    setNovoIdioma({ idioma: '', nivel: 'básico' })
-    setModalIdioma(false)
+    if (!novoIdioma.idioma) return;
+    const novos = [...idiomas, { ...novoIdioma, id: Date.now() }];
+    setIdiomas(novos);
+    setNovoIdioma({ idioma: '', nivel: 'básico' });
   }
   const adicionarProjeto = () => {
     setProjetos(prev => [
@@ -172,6 +142,16 @@ export default function Perfil() {
     ])
     setNovoProjeto({ nome: '', descricao: '', tecnologias: '', link: '', imagem: '', imagemFile: null, imagemUrl: '' })
     setModalProjeto(false)
+  }
+
+  // Remover idioma
+  function removerIdioma(id) {
+    setIdiomas(idiomas.filter(i => i.id !== id));
+  }
+
+  // Remover foto
+  function removerFoto() {
+    setFormData({ ...formData, foto: '' });
   }
 
   const handleSubmit = (e) => {
@@ -205,13 +185,14 @@ export default function Perfil() {
         frequenciaAlertas: formData.frequenciaAlertas,
         vagasInteresse: formData.vagasInteresse,
         foto: formData.foto, // Adicionar foto ao dadosParaSalvar
+        idiomas: idiomas,
       }
 
       // Atualizar perfil no localStorage
       updateProfile(dadosParaSalvar)
       
       setSucesso('Perfil atualizado com sucesso!')
-      setEditando(false)
+    setEditando(false)
       
       // Limpar mensagem de sucesso após 3 segundos
       setTimeout(() => setSucesso(''), 3000)
@@ -278,13 +259,16 @@ export default function Perfil() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-4 mb-4">
           <img
-            src={formData.foto || '/nevu.png'}
+            src={formData.foto || user.perfil?.foto || '/nevu.png'}
             alt="Foto de perfil"
             className="w-20 h-20 rounded-full object-cover border-2 border-blue-200 shadow"
           />
           {editando && (
-            <div>
+            <div className="flex flex-col gap-2">
               <input type="file" accept="image/*" onChange={handleFotoChange} />
+              {formData.foto && (
+                <button type="button" onClick={removerFoto} className="text-red-600 text-xs underline">Remover foto</button>
+              )}
             </div>
           )}
         </div>
@@ -721,18 +705,40 @@ export default function Perfil() {
           </div>
         </div>
       </Modal>
-      <div className="space-y-4">
-        {idiomas.map((idioma) => (
-          <div key={idioma.id} className="flex justify-between items-center border rounded-lg p-4">
-            <div>
-              <h3 className="font-semibold text-gray-800">{idioma.idioma}</h3>
-              <p className="text-sm text-gray-600 capitalize">{idioma.nivel}</p>
-            </div>
-            <button className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition">
-              Remover
-            </button>
+      <div className="mb-6">
+        <h2 className="text-lg font-bold text-gray-800 mb-2">Idiomas</h2>
+        <ul className="mb-2">
+          {idiomas.map(i => (
+            <li key={i.id} className="flex items-center gap-2 mb-1">
+              <span>{i.idioma} ({i.nivel})</span>
+              {editando && (
+                <button type="button" onClick={() => removerIdioma(i.id)} className="text-red-500 text-xs ml-2">Remover</button>
+              )}
+            </li>
+          ))}
+        </ul>
+        {editando && (
+          <div className="flex gap-2 items-end">
+            <input
+              type="text"
+              placeholder="Idioma"
+              value={novoIdioma.idioma}
+              onChange={e => setNovoIdioma({ ...novoIdioma, idioma: e.target.value })}
+              className="border p-2 rounded"
+            />
+            <select
+              value={novoIdioma.nivel}
+              onChange={e => setNovoIdioma({ ...novoIdioma, nivel: e.target.value })}
+              className="border p-2 rounded"
+            >
+              <option value="básico">Básico</option>
+              <option value="intermediário">Intermediário</option>
+              <option value="avançado">Avançado</option>
+              <option value="nativo">Nativo</option>
+            </select>
+            <button type="button" onClick={adicionarIdioma} className="bg-blue-600 text-white px-3 py-1 rounded">Adicionar</button>
           </div>
-        ))}
+        )}
       </div>
     </div>
   )
@@ -989,11 +995,21 @@ export default function Perfil() {
       {/* Foto de perfil */}
       <div className="flex flex-col items-center mb-8">
         <div className="relative">
+          {formData.foto || user.perfil?.foto ? (
           <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(formData.nome)}&background=0D8ABC&color=fff`}
+              src={formData.foto || user.perfil?.foto}
             alt="Foto de perfil"
             className="w-28 h-28 rounded-full object-cover border-4 border-blue-200 shadow"
           />
+          ) : (
+            <div className="w-28 h-28 rounded-full bg-blue-200 flex items-center justify-center border-4 border-blue-200 shadow">
+              <span className="text-4xl font-bold text-blue-800 select-none">
+                {formData.nome
+                  ? formData.nome.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+                  : 'U'}
+              </span>
+            </div>
+          )}
           <button
             onClick={() => navigate('/em-producao')}
             className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 shadow hover:bg-blue-700 transition"

@@ -116,7 +116,7 @@ export default function AppRoutes() {
               </ProtectedRoute>
             } />
             <Route path="/chamado/:id" element={
-              <ProtectedRoute allowedTypes={['usuario']}>
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
                 <DetalheChamado />
               </ProtectedRoute>
             } />

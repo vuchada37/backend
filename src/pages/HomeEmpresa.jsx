@@ -21,7 +21,7 @@ export default function HomeEmpresa() {
   ]
 
   // Mock de dados da empresa
-  const logoEmpresa = '/nevu.png'
+  const logoEmpresa = user?.perfil?.logo || '/nevu.png'
   const nomeFantasia = user?.nome || 'Empresa Exemplo'
   const nuit = '123456789'
   const emailEmpresa = user?.email || 'empresa@email.com'
@@ -31,8 +31,8 @@ export default function HomeEmpresa() {
       {/* Header com logo e dados da empresa */}
       <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 lg:p-8 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 lg:gap-6">
-          <div className="flex-shrink-0">
-            <img src={logoEmpresa} alt="Logo da empresa" className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full object-contain border-2 border-blue-200 shadow-sm" />
+          <div className="flex-shrink-0 flex items-center justify-center">
+            <img src={logoEmpresa} alt="Logo da empresa" className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
           </div>
           <div className="text-center sm:text-left flex-1">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-700 mb-2">{nomeFantasia}</h1>

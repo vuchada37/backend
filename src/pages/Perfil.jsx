@@ -49,7 +49,8 @@ export default function Perfil() {
     // Notificações
     alertasVagas: user?.perfil?.alertasVagas !== undefined ? user.perfil.alertasVagas : true,
     frequenciaAlertas: user?.perfil?.frequenciaAlertas || 'diario',
-    vagasInteresse: user?.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react']
+    vagasInteresse: user?.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react'],
+    foto: user?.perfil?.foto || '',
   })
 
   // Atualizar formData quando user mudar
@@ -82,7 +83,8 @@ export default function Perfil() {
         mostrarEndereco: user.perfil?.mostrarEndereco !== undefined ? user.perfil.mostrarEndereco : false,
         alertasVagas: user.perfil?.alertasVagas !== undefined ? user.perfil.alertasVagas : true,
         frequenciaAlertas: user.perfil?.frequenciaAlertas || 'diario',
-        vagasInteresse: user.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react']
+        vagasInteresse: user.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react'],
+        foto: user.perfil?.foto || '',
       })
     }
   }, [user])
@@ -201,7 +203,8 @@ export default function Perfil() {
         mostrarEndereco: formData.mostrarEndereco,
         alertasVagas: formData.alertasVagas,
         frequenciaAlertas: formData.frequenciaAlertas,
-        vagasInteresse: formData.vagasInteresse
+        vagasInteresse: formData.vagasInteresse,
+        foto: formData.foto, // Adicionar foto ao dadosParaSalvar
       }
 
       // Atualizar perfil no localStorage
@@ -234,6 +237,17 @@ export default function Perfil() {
     }
   }
 
+  function handleFotoChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setFormData({ ...formData, foto: ev.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   // Se não houver usuário logado, mostrar mensagem de acesso restrito
   if (!user) {
     return (
@@ -262,6 +276,18 @@ export default function Perfil() {
       )}
       
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-4 mb-4">
+          <img
+            src={formData.foto || '/nevu.png'}
+            alt="Foto de perfil"
+            className="w-20 h-20 rounded-full object-cover border-2 border-blue-200 shadow"
+          />
+          {editando && (
+            <div>
+              <input type="file" accept="image/*" onChange={handleFotoChange} />
+            </div>
+          )}
+        </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>

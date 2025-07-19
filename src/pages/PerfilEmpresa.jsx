@@ -3,31 +3,50 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 export default function PerfilEmpresa() {
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const { id } = useParams()
   const [editando, setEditando] = useState(false)
+  const [sucesso, setSucesso] = useState('')
   const [formData, setFormData] = useState({
-    nomeFantasia: user?.nome || 'Empresa Exemplo',
-    razaoSocial: 'Empresa Exemplo Lda',
-    nuit: '123456789',
-    email: user?.email || 'empresa@email.com',
-    telefone: '(258) 84 123 4567',
-    endereco: 'Avenida 25 de Setembro, 123 - Maputo',
-    descricao: 'Empresa líder no setor de tecnologia, focada em inovação e desenvolvimento de soluções digitais.',
-    setor: 'Tecnologia',
-    tamanho: '50-100 funcionários',
-    website: 'www.empresaexemplo.co.mz',
+    nomeFantasia: user?.nome || '',
+    razaoSocial: '',
+    nuit: '',
+    email: user?.email || '',
+    telefone: user?.perfil?.telefone || '',
+    endereco: user?.perfil?.endereco || '',
+    descricao: user?.perfil?.descricao || '',
+    setor: user?.perfil?.setor || '',
+    tamanho: user?.perfil?.tamanho || '',
+    website: user?.perfil?.website || '',
+    cnpj: user?.perfil?.cnpj || '',
     // Documentos moçambicanos
-    alvara: 'ALV-2024-001',
-    registroComercial: 'RC-2024-001',
-    inscricaoFiscal: 'IF-2024-001',
+    alvara: '',
+    registroComercial: '',
+    inscricaoFiscal: '',
     // Informações adicionais
-    anoFundacao: '2020',
-    capitalSocial: '5000000',
+    anoFundacao: '',
+    capitalSocial: '',
     moedaCapital: 'MT'
   })
-  const [showSuccess, setShowSuccess] = useState(false); // Novo estado para toast
   const navigate = useNavigate()
+
+  // Atualizar formData quando user mudar
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        ...formData,
+        nomeFantasia: user.nome || '',
+        email: user.email || '',
+        telefone: user.perfil?.telefone || '',
+        endereco: user.perfil?.endereco || '',
+        descricao: user.perfil?.descricao || '',
+        setor: user.perfil?.setor || '',
+        tamanho: user.perfil?.tamanho || '',
+        website: user.perfil?.website || '',
+        cnpj: user.perfil?.cnpj || '',
+      })
+    }
+  }, [user])
 
   // Mock de busca por id
   let mockEmpresas = {
@@ -40,12 +59,12 @@ export default function PerfilEmpresa() {
       nome: user.nome || 'Minha Empresa',
       email: user.email,
       tipo: 'empresa',
-      descricao: 'Perfil da sua empresa. Edite suas informações aqui.',
-      setor: 'Tecnologia',
-      funcionarios: 'N/D',
-      localizacao: 'Moçambique',
+      descricao: user.perfil?.descricao || 'Perfil da sua empresa. Edite suas informações aqui.',
+      setor: user.perfil?.setor || 'Tecnologia',
+      funcionarios: user.perfil?.tamanho || 'N/D',
+      localizacao: user.perfil?.endereco || 'Moçambique',
       fundacao: '2023',
-      website: 'www.suaempresa.co.mz'
+      website: user.perfil?.website || 'www.suaempresa.co.mz'
     }
   }
   const empresaExibida = id ? mockEmpresas[id] : (user && user.tipo === 'empresa' ? mockEmpresas['me'] : null);
@@ -53,48 +72,34 @@ export default function PerfilEmpresa() {
   // Verifica se o usuário logado é o dono do perfil
   const isDono = user && user.tipo === 'empresa' && empresaExibida && (user.email === empresaExibida.email);
 
-  // Redireciona empresa logada para seu próprio perfil se não houver id
-  useEffect(() => {
-    if (!id && user && user.tipo === 'empresa') {
-      navigate('/perfil-empresa/me', { replace: true })
-    }
-  }, [id, user, navigate])
-
-  // Sincroniza formData com empresaExibida ao entrar no modo de edição, sem loop infinito
-  useEffect(() => {
-    if (editando && empresaExibida && isDono) {
-      setFormData(current => {
-        const novo = {
-          nomeFantasia: empresaExibida.nome || '',
-          razaoSocial: empresaExibida.razaoSocial || '',
-          nuit: empresaExibida.nuit || '',
-          email: empresaExibida.email || '',
-          telefone: empresaExibida.telefone || '',
-          endereco: empresaExibida.endereco || '',
-          descricao: empresaExibida.descricao || '',
-          setor: empresaExibida.setor || '',
-          tamanho: empresaExibida.funcionarios || '',
-          website: empresaExibida.website || '',
-          alvara: empresaExibida.alvara || '',
-          registroComercial: empresaExibida.registroComercial || '',
-          inscricaoFiscal: empresaExibida.inscricaoFiscal || '',
-          anoFundacao: empresaExibida.fundacao || '',
-          capitalSocial: empresaExibida.capitalSocial || '',
-          moedaCapital: empresaExibida.moedaCapital || ''
-        };
-        // Só atualiza se for diferente
-        if (JSON.stringify(current) !== JSON.stringify(novo)) return novo;
-        return current;
-      });
-    }
-    // eslint-disable-next-line
-  }, [editando]);
-
   const handleSubmit = (e) => {
     e.preventDefault()
-    setShowSuccess(true); // Mostrar toast
-    setEditando(false)
-    setTimeout(() => setShowSuccess(false), 2500); // Esconder toast após 2.5s
+    
+    try {
+      // Preparar dados para salvar
+      const dadosParaSalvar = {
+        telefone: formData.telefone,
+        endereco: formData.endereco,
+        descricao: formData.descricao,
+        setor: formData.setor,
+        tamanho: formData.tamanho,
+        website: formData.website,
+        cnpj: formData.cnpj,
+      }
+
+      // Atualizar perfil no localStorage
+      updateProfile(dadosParaSalvar)
+      
+      setSucesso('Perfil da empresa atualizado com sucesso!')
+      setEditando(false)
+      
+      // Limpar mensagem de sucesso após 3 segundos
+      setTimeout(() => setSucesso(''), 3000)
+      
+    } catch (error) {
+      console.error('Erro ao atualizar perfil da empresa:', error)
+      alert('Erro ao atualizar perfil da empresa. Tente novamente.')
+    }
   }
 
   const handleChange = (e) => {
@@ -107,7 +112,7 @@ export default function PerfilEmpresa() {
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 pb-24 md:pb-6">
       {/* Toast visual de sucesso */}
-      {showSuccess && (
+      {sucesso && (
         <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in">
           <div className="flex items-start">
             <div className="flex-shrink-0">
@@ -117,15 +122,12 @@ export default function PerfilEmpresa() {
             </div>
             <div className="ml-3">
               <p className="text-sm font-medium">
-                ✅ Perfil atualizado com sucesso!
-              </p>
-              <p className="text-xs mt-1 opacity-90">
-                As informações da empresa foram salvas.
+                ✅ {sucesso}
               </p>
             </div>
             <div className="ml-auto pl-3">
               <button
-                onClick={() => setShowSuccess(false)}
+                onClick={() => setSucesso('')}
                 className="text-green-100 hover:text-white"
               >
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -136,6 +138,7 @@ export default function PerfilEmpresa() {
           </div>
         </div>
       )}
+      
       {/* Empresa não encontrada */}
       {id && !empresaExibida && (
         <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg text-center text-sm">
@@ -143,6 +146,7 @@ export default function PerfilEmpresa() {
           <button onClick={() => navigate(-1)} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded">Voltar</button>
         </div>
       )}
+      
       {/* Visualização pública para candidatos/visitantes ou empresas diferentes */}
       {id && empresaExibida && !isDono && (
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-2">
@@ -163,6 +167,7 @@ export default function PerfilEmpresa() {
           </div>
         </div>
       )}
+      
       {/* Visualização do próprio perfil (empresa logada, não editando) */}
       {id && empresaExibida && isDono && !editando && (
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-2">
@@ -188,6 +193,7 @@ export default function PerfilEmpresa() {
           </div>
         </div>
       )}
+      
       {/* Edição do próprio perfil (empresa logada, editando) */}
       {id && empresaExibida && isDono && editando && (
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-2xl p-8 space-y-8 max-w-3xl mx-auto w-full border border-blue-100">
@@ -254,19 +260,30 @@ export default function PerfilEmpresa() {
             </div>
             <div>
               <label className="block text-base font-semibold text-gray-700 mb-2">Moeda do Capital</label>
-              <input type="text" name="moedaCapital" value={formData.moedaCapital} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" />
+              <select name="moedaCapital" value={formData.moedaCapital} onChange={handleChange} className="w-full p-4 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+                <option value="MT">Meticais (MT)</option>
+                <option value="USD">Dólares (USD)</option>
+                <option value="EUR">Euros (EUR)</option>
+              </select>
             </div>
           </div>
-          <div className="flex justify-end mt-8">
-            <button type="submit" className="px-10 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:bg-blue-700 transition w-full md:w-auto">Salvar</button>
+          
+          <div className="flex gap-4 pt-4">
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition text-lg"
+            >
+              Salvar Alterações
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditando(false)}
+              className="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-400 transition text-lg"
+            >
+              Cancelar
+            </button>
           </div>
         </form>
-      )}
-      {/* Caso não haja id (acesso direto), pode mostrar um aviso ou redirecionar */}
-      {!id && (!user || user.tipo !== 'empresa') && (
-        <div className="mb-4 p-3 bg-yellow-50 text-yellow-900 rounded-lg text-center text-sm">
-          Selecione uma empresa para visualizar o perfil.
-        </div>
       )}
     </div>
   )

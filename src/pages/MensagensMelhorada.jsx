@@ -49,110 +49,110 @@ export default function MensagensMelhorada() {
     if (persisted) return persisted;
     // Mocks iniciais
     return [
-      {
-        id: 1,
-        candidato: 'João Silva',
-        empresa: 'TechCorp',
-        email: 'joao@email.com',
-        telefone: '+258 84 123 4567',
-        vaga: 'Desenvolvedor Frontend',
-        data: '2024-01-15',
-        ultimaMensagem: 'Olá! Gostaria de saber mais sobre a vaga...',
-        lida: false,
-        status: 'ativo',
-        tipo: 'candidato',
-        online: true,
-        ultimaAtividade: 'Agora',
-        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-        prioridade: 'alta'
-      },
-      {
-        id: 2,
-        candidato: 'Maria Santos',
-        empresa: 'DesignStudio',
-        email: 'maria@email.com',
-        telefone: '+258 85 987 6543',
-        vaga: 'Designer UX/UI',
-        data: '2024-01-14',
-        ultimaMensagem: 'Obrigada pelo retorno! Quando posso agendar uma entrevista?',
-        lida: true,
-        status: 'ativo',
-        tipo: 'candidato',
-        online: false,
-        ultimaAtividade: 'Há 5 min',
-        foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-        prioridade: 'media'
-      },
-      {
-        id: 3,
-        candidato: 'Pedro Costa',
-        empresa: 'DataTech',
-        email: 'pedro@email.com',
-        telefone: '+258 86 555 1234',
-        vaga: 'Desenvolvedor Backend',
-        data: '2024-01-13',
-        ultimaMensagem: 'Tenho interesse na vaga. Posso enviar meu portfólio?',
-        lida: true,
-        status: 'ativo',
-        tipo: 'candidato',
-        online: true,
-        ultimaAtividade: 'Agora',
-        foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-        prioridade: 'baixa'
-      },
-      {
-        id: 10,
-        candidato: 'Empresa XPTO',
-        empresa: 'Empresa XPTO',
-        email: 'contato@xpto.com',
-        telefone: '+55 11 99999-9999',
-        vaga: 'Vaga para Dev',
-        data: '2024-01-20',
-        ultimaMensagem: 'Olá, temos interesse no seu perfil!',
-        lida: false,
-        status: 'ativo',
-        tipo: 'empresa',
-        online: true,
-        ultimaAtividade: 'Agora',
-        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-        prioridade: 'alta'
-      },
-      {
-        id: 11,
-        candidato: 'Neotrix',
-        empresa: 'Neotrix',
-        email: 'neotrixtecnologias37@gmail.com',
-        telefone: '872664074',
-        vaga: 'Parceria em tecnologia',
-        data: '2024-01-22',
-        ultimaMensagem: 'Tecnologias ao seu alcance!',
-        lida: false,
-        status: 'ativo',
-        tipo: 'empresa',
-        online: true,
-        ultimaAtividade: 'Agora',
-        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-        prioridade: 'alta',
-        localizacao: 'Gurue, Moçambique',
-        slogan: 'Tecnologias ao seu alcance'
-      },
-      {
-        id: 20,
-        candidato: 'Suporte Nevú',
-        empresa: 'Nevú',
-        email: 'suporte@nevu.com',
-        telefone: '',
-        vaga: 'Suporte',
-        data: '2024-01-22',
-        ultimaMensagem: 'Seu chamado foi recebido!',
-        lida: true,
-        status: 'ativo',
-        tipo: 'chamado',
-        online: false,
-        ultimaAtividade: 'Há 1h',
-        foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-        prioridade: 'media'
-      },
+    {
+      id: 1,
+      candidato: 'João Silva',
+      empresa: 'TechCorp',
+      email: 'joao@email.com',
+      telefone: '+258 84 123 4567',
+      vaga: 'Desenvolvedor Frontend',
+      data: '2024-01-15',
+      ultimaMensagem: 'Olá! Gostaria de saber mais sobre a vaga...',
+      lida: false,
+      status: 'ativo',
+      tipo: 'candidato',
+      online: true,
+      ultimaAtividade: 'Agora',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'alta'
+    },
+    {
+      id: 2,
+      candidato: 'Maria Santos',
+      empresa: 'DesignStudio',
+      email: 'maria@email.com',
+      telefone: '+258 85 987 6543',
+      vaga: 'Designer UX/UI',
+      data: '2024-01-14',
+      ultimaMensagem: 'Obrigada pelo retorno! Quando posso agendar uma entrevista?',
+      lida: true,
+      status: 'ativo',
+      tipo: 'candidato',
+      online: false,
+      ultimaAtividade: 'Há 5 min',
+      foto: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'media'
+    },
+    {
+      id: 3,
+      candidato: 'Pedro Costa',
+      empresa: 'DataTech',
+      email: 'pedro@email.com',
+      telefone: '+258 86 555 1234',
+      vaga: 'Desenvolvedor Backend',
+      data: '2024-01-13',
+      ultimaMensagem: 'Tenho interesse na vaga. Posso enviar meu portfólio?',
+      lida: true,
+      status: 'ativo',
+      tipo: 'candidato',
+      online: true,
+      ultimaAtividade: 'Agora',
+      foto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'baixa'
+    },
+    {
+      id: 10,
+      candidato: 'Empresa XPTO',
+      empresa: 'Empresa XPTO',
+      email: 'contato@xpto.com',
+      telefone: '+55 11 99999-9999',
+      vaga: 'Vaga para Dev',
+      data: '2024-01-20',
+      ultimaMensagem: 'Olá, temos interesse no seu perfil!',
+      lida: false,
+      status: 'ativo',
+      tipo: 'empresa',
+      online: true,
+      ultimaAtividade: 'Agora',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'alta'
+    },
+    {
+      id: 11,
+      candidato: 'Neotrix',
+      empresa: 'Neotrix',
+      email: 'neotrixtecnologias37@gmail.com',
+      telefone: '872664074',
+      vaga: 'Parceria em tecnologia',
+      data: '2024-01-22',
+      ultimaMensagem: 'Tecnologias ao seu alcance!',
+      lida: false,
+      status: 'ativo',
+      tipo: 'empresa',
+      online: true,
+      ultimaAtividade: 'Agora',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'alta',
+      localizacao: 'Gurue, Moçambique',
+      slogan: 'Tecnologias ao seu alcance'
+    },
+    {
+      id: 20,
+      candidato: 'Suporte Nevú',
+      empresa: 'Nevú',
+      email: 'suporte@nevu.com',
+      telefone: '',
+      vaga: 'Suporte',
+      data: '2024-01-22',
+      ultimaMensagem: 'Seu chamado foi recebido!',
+      lida: true,
+      status: 'ativo',
+      tipo: 'chamado',
+      online: false,
+      ultimaAtividade: 'Há 1h',
+      foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      prioridade: 'media'
+    },
     ];
   })
 
@@ -166,31 +166,31 @@ export default function MensagensMelhorada() {
     const persisted = loadHistoricoFromStorage();
     if (persisted) return persisted;
     return {
-      1: [
-        { id: 1, remetente: 'candidato', texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', data: '2024-01-15 14:30', tipo: 'texto', lida: true },
-        { id: 2, remetente: 'empresa', texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', data: '2024-01-15 15:00', tipo: 'texto', lida: true },
-        { id: 3, remetente: 'candidato', texto: 'Sim, tenho 3 anos de experiência com React e 1 ano com TypeScript. Posso enviar meu portfólio?', data: '2024-01-15 15:30', tipo: 'texto', lida: false },
-        { id: 4, remetente: 'candidato', texto: 'portfolio-joao-silva.pdf', data: '2024-01-15 15:35', tipo: 'arquivo', arquivo: { nome: 'portfolio-joao-silva.pdf', tamanho: '2.5 MB', tipo: 'pdf' }, lida: false }
-      ],
-      2: [
-        { id: 1, remetente: 'candidato', texto: 'Olá, gostaria de saber mais sobre a vaga de Designer.', data: '2024-01-14 10:00', tipo: 'texto', lida: true },
-        { id: 2, remetente: 'empresa', texto: 'Olá Maria! A vaga é para UI/UX com foco em mobile. Tem interesse?', data: '2024-01-14 10:10', tipo: 'texto', lida: true },
-        { id: 3, remetente: 'candidato', texto: 'Sim, tenho interesse! Quando posso agendar uma entrevista?', data: '2024-01-14 10:15', tipo: 'texto', lida: false }
-      ],
-      10: [
-        { id: 1, remetente: 'empresa', texto: 'Olá! Vimos seu perfil e achamos interessante para nossa vaga.', data: '2024-01-20 09:00', tipo: 'texto', lida: true },
-        { id: 2, remetente: 'candidato', texto: 'Obrigado! Gostaria de saber mais sobre a empresa XPTO.', data: '2024-01-20 09:05', tipo: 'texto', lida: true },
-        { id: 3, remetente: 'empresa', texto: 'Claro! Somos referência em tecnologia e inovação.', data: '2024-01-20 09:10', tipo: 'texto', lida: false }
-      ],
-      11: [
-        { id: 1, remetente: 'empresa', texto: 'Bem-vindo à Neotrix! Tecnologias ao seu alcance.', data: '2024-01-22 08:00', tipo: 'texto', lida: true },
-        { id: 2, remetente: 'candidato', texto: 'Olá Neotrix! Gostaria de saber mais sobre seus serviços.', data: '2024-01-22 08:05', tipo: 'texto', lida: true },
-        { id: 3, remetente: 'empresa', texto: 'Atuamos em Moçambique com soluções inovadoras. Podemos marcar uma reunião?', data: '2024-01-22 08:10', tipo: 'texto', lida: false }
-      ],
-      20: [
-        { id: 1, remetente: 'chamado', texto: 'Olá, preciso de suporte com minha conta.', data: '2024-01-22 07:00', tipo: 'texto', lida: true },
-        { id: 2, remetente: 'empresa', texto: 'Olá! Seu chamado foi recebido. Em breve entraremos em contato.', data: '2024-01-22 07:05', tipo: 'texto', lida: true }
-      ]
+    1: [
+      { id: 1, remetente: 'candidato', texto: 'Olá! Gostaria de saber mais sobre a vaga de Desenvolvedor Frontend', data: '2024-01-15 14:30', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'empresa', texto: 'Olá João! Obrigada pelo interesse. A vaga é para trabalhar com React e TypeScript. Tem experiência com essas tecnologias?', data: '2024-01-15 15:00', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'candidato', texto: 'Sim, tenho 3 anos de experiência com React e 1 ano com TypeScript. Posso enviar meu portfólio?', data: '2024-01-15 15:30', tipo: 'texto', lida: false },
+      { id: 4, remetente: 'candidato', texto: 'portfolio-joao-silva.pdf', data: '2024-01-15 15:35', tipo: 'arquivo', arquivo: { nome: 'portfolio-joao-silva.pdf', tamanho: '2.5 MB', tipo: 'pdf' }, lida: false }
+    ],
+    2: [
+      { id: 1, remetente: 'candidato', texto: 'Olá, gostaria de saber mais sobre a vaga de Designer.', data: '2024-01-14 10:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'empresa', texto: 'Olá Maria! A vaga é para UI/UX com foco em mobile. Tem interesse?', data: '2024-01-14 10:10', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'candidato', texto: 'Sim, tenho interesse! Quando posso agendar uma entrevista?', data: '2024-01-14 10:15', tipo: 'texto', lida: false }
+    ],
+    10: [
+      { id: 1, remetente: 'empresa', texto: 'Olá! Vimos seu perfil e achamos interessante para nossa vaga.', data: '2024-01-20 09:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'candidato', texto: 'Obrigado! Gostaria de saber mais sobre a empresa XPTO.', data: '2024-01-20 09:05', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'empresa', texto: 'Claro! Somos referência em tecnologia e inovação.', data: '2024-01-20 09:10', tipo: 'texto', lida: false }
+    ],
+    11: [
+      { id: 1, remetente: 'empresa', texto: 'Bem-vindo à Neotrix! Tecnologias ao seu alcance.', data: '2024-01-22 08:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'candidato', texto: 'Olá Neotrix! Gostaria de saber mais sobre seus serviços.', data: '2024-01-22 08:05', tipo: 'texto', lida: true },
+      { id: 3, remetente: 'empresa', texto: 'Atuamos em Moçambique com soluções inovadoras. Podemos marcar uma reunião?', data: '2024-01-22 08:10', tipo: 'texto', lida: false }
+    ],
+    20: [
+      { id: 1, remetente: 'chamado', texto: 'Olá, preciso de suporte com minha conta.', data: '2024-01-22 07:00', tipo: 'texto', lida: true },
+      { id: 2, remetente: 'empresa', texto: 'Olá! Seu chamado foi recebido. Em breve entraremos em contato.', data: '2024-01-22 07:05', tipo: 'texto', lida: true }
+    ]
     };
   });
   // Persistir histórico no localStorage sempre que mudar
@@ -574,6 +574,10 @@ export default function MensagensMelhorada() {
       );
       saveMensagensToStorage(novo);
       setToast({ type: 'info', message: silenciadaAgora ? 'Conversa silenciada.' : 'Conversa reativada.' });
+      // Atualizar mensagemSelecionada se for a mesma
+      if (mensagemSelecionada && mensagemSelecionada.id === id) {
+        setMensagemSelecionada(novo.find(m => m.id === id));
+      }
       return novo;
     });
   }
@@ -603,6 +607,10 @@ export default function MensagensMelhorada() {
       );
       saveMensagensToStorage(novo);
       setToast({ type: 'warning', message: bloqueadaAgora ? 'Usuário bloqueado.' : 'Usuário desbloqueado.' });
+      // Atualizar mensagemSelecionada se for a mesma
+      if (mensagemSelecionada && mensagemSelecionada.id === id) {
+        setMensagemSelecionada(novo.find(m => m.id === id));
+      }
       return novo;
     });
     if (mensagemSelecionada && mensagemSelecionada.id === id) {
@@ -659,7 +667,6 @@ export default function MensagensMelhorada() {
           {showMenu && (
             <div className={`absolute right-0 w-48 bg-white border rounded-lg shadow-lg z-50 animate-fade-in`} style={mobile ? {marginTop: 72} : {marginTop: 8}}>
               <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => {
-                setShowMenu(false);
                 if (!mensagemSelecionada?.id) {
                   alert('Perfil não encontrado!');
                   return;
@@ -669,14 +676,24 @@ export default function MensagensMelhorada() {
                 } else {
                   navigate(`/perfil/${mensagemSelecionada.id}`);
                 }
+                setShowMenu(false);
               }}>Ver perfil</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); silenciarConversa(mensagemSelecionada.id); }}>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => {
+                silenciarConversa(mensagemSelecionada.id);
+                setShowMenu(false);
+              }}>
                 {mensagemSelecionada?.silenciada ? 'Desativar silêncio' : 'Silenciar conversa'}
               </button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setShowMenu(false); apagarConversa(mensagemSelecionada.id); }}>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => {
+                apagarConversa(mensagemSelecionada.id);
+                setShowMenu(false);
+              }}>
                 Apagar conversa
               </button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600" onClick={() => { setShowMenu(false); bloquearUsuario(mensagemSelecionada.id); }}>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600" onClick={() => {
+                bloquearUsuario(mensagemSelecionada.id);
+                setShowMenu(false);
+              }}>
                 {mensagemSelecionada?.bloqueada ? 'Desbloquear usuário' : 'Bloquear usuário'}
               </button>
             </div>
@@ -754,10 +771,10 @@ export default function MensagensMelhorada() {
       <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t bg-white flex items-center gap-2 lg:gap-3 shadow-md px-2 sm:px-4 py-2`} style={{boxShadow: '0 2px 12px #0001', marginBottom: isMobile ? 12 : 20}}>
         {/* Remover emoji no mobile */}
         {!isMobile && (
-          <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
-            {/* SVG emoji */}
-            <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
-          </button>
+        <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
+          {/* SVG emoji */}
+          <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+        </button>
         )}
         <input
           ref={inputRef}

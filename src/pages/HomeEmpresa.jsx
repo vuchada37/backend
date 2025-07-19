@@ -1,16 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useEffect } from 'react'
 
 export default function HomeEmpresa() {
   const { user } = useAuth()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    if (!user || user.tipo !== 'empresa') {
-      navigate('/')
-    }
-  }, [user, navigate])
 
   // Estatísticas mockadas
   const stats = [

@@ -165,6 +165,8 @@ export default function DetalheChamado() {
     }
   }
 
+  const navigate = useNavigate();
+
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 pb-20 md:pb-6">
       {/* Header */}
@@ -251,7 +253,7 @@ export default function DetalheChamado() {
                         </button>
                       </>
                     )}
-                    <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition">
+                    <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition" onClick={() => navigate('/em-producao')}>
                       Ver Perfil
                     </button>
                   </div>

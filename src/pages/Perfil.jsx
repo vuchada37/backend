@@ -1,55 +1,91 @@
 import { useAuth } from '../context/AuthContext'
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
 
 export default function Perfil() {
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const { id } = useParams()
+  const navigate = useNavigate();
   const [secaoAtiva, setSecaoAtiva] = useState('pessoal')
   const [editando, setEditando] = useState(false)
+  const [sucesso, setSucesso] = useState('')
   const [formData, setFormData] = useState({
     // Informações pessoais
-    nome: user?.nome || 'João Silva',
-    email: user?.email || 'joao@email.com',
-    telefone: '(258) 84 123 4567',
-    dataNascimento: '1990-05-15',
-    endereco: 'Avenida 25 de Setembro, 123 - Maputo',
+    nome: user?.nome || '',
+    email: user?.email || '',
+    telefone: user?.perfil?.telefone || '',
+    dataNascimento: user?.perfil?.dataNascimento || '',
+    endereco: user?.perfil?.endereco || '',
+    bio: user?.perfil?.bio || '',
     
     // Informações profissionais
-    formacao: 'Engenharia Informática',
-    instituicao: 'Universidade Eduardo Mondlane',
-    experiencia: '3 anos',
-    habilidades: 'React, JavaScript, TypeScript, Node.js, Python',
-    resumo: 'Desenvolvedor apaixonado por criar soluções inovadoras e interfaces intuitivas.',
+    formacao: user?.perfil?.formacao || '',
+    experiencia: user?.perfil?.experiencia || '',
+    habilidades: user?.perfil?.habilidades?.join(', ') || '',
     
     // Redes sociais
-    linkedin: 'linkedin.com/in/joaosilva',
-    github: 'github.com/joaosilva',
-    portfolio: 'joaosilva.dev',
-    behance: 'behance.net/joaosilva',
-    instagram: '@joaosilva.dev',
-    twitter: '@joaosilva_dev',
+    linkedin: user?.perfil?.linkedin || '',
+    github: user?.perfil?.github || '',
+    portfolio: user?.perfil?.portfolio || '',
+    behance: user?.perfil?.behance || '',
+    instagram: user?.perfil?.instagram || '',
+    twitter: user?.perfil?.twitter || '',
     
     // Preferências
-    tipoTrabalho: 'remoto',
-    faixaSalarial: '15000-25000',
-    localizacaoPreferida: 'Maputo',
-    disponibilidade: 'imediata',
+    tipoTrabalho: user?.perfil?.tipoTrabalho || 'remoto',
+    faixaSalarial: user?.perfil?.faixaSalarial || '15000-25000',
+    localizacaoPreferida: user?.perfil?.localizacaoPreferida || 'Maputo',
+    disponibilidade: user?.perfil?.disponibilidade || 'imediata',
     
     // CV
-    cv: 'joao_silva_cv.pdf',
+    cv: user?.perfil?.cv || '',
     
     // Privacidade
-    perfilPublico: true,
-    mostrarTelefone: false,
-    mostrarEndereco: false,
+    perfilPublico: user?.perfil?.perfilPublico !== undefined ? user.perfil.perfilPublico : true,
+    mostrarTelefone: user?.perfil?.mostrarTelefone !== undefined ? user.perfil.mostrarTelefone : false,
+    mostrarEndereco: user?.perfil?.mostrarEndereco !== undefined ? user.perfil.mostrarEndereco : false,
     
     // Notificações
-    alertasVagas: true,
-    frequenciaAlertas: 'diario',
-    vagasInteresse: ['desenvolvedor', 'frontend', 'react']
+    alertasVagas: user?.perfil?.alertasVagas !== undefined ? user.perfil.alertasVagas : true,
+    frequenciaAlertas: user?.perfil?.frequenciaAlertas || 'diario',
+    vagasInteresse: user?.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react']
   })
+
+  // Atualizar formData quando user mudar
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        ...formData,
+        nome: user.nome || '',
+        email: user.email || '',
+        telefone: user.perfil?.telefone || '',
+        dataNascimento: user.perfil?.dataNascimento || '',
+        endereco: user.perfil?.endereco || '',
+        bio: user.perfil?.bio || '',
+        formacao: user.perfil?.formacao || '',
+        experiencia: user.perfil?.experiencia || '',
+        habilidades: user.perfil?.habilidades?.join(', ') || '',
+        linkedin: user.perfil?.linkedin || '',
+        github: user.perfil?.github || '',
+        portfolio: user.perfil?.portfolio || '',
+        behance: user.perfil?.behance || '',
+        instagram: user.perfil?.instagram || '',
+        twitter: user.perfil?.twitter || '',
+        tipoTrabalho: user.perfil?.tipoTrabalho || 'remoto',
+        faixaSalarial: user.perfil?.faixaSalarial || '15000-25000',
+        localizacaoPreferida: user.perfil?.localizacaoPreferida || 'Maputo',
+        disponibilidade: user.perfil?.disponibilidade || 'imediata',
+        cv: user.perfil?.cv || '',
+        perfilPublico: user.perfil?.perfilPublico !== undefined ? user.perfil.perfilPublico : true,
+        mostrarTelefone: user.perfil?.mostrarTelefone !== undefined ? user.perfil.mostrarTelefone : false,
+        mostrarEndereco: user.perfil?.mostrarEndereco !== undefined ? user.perfil.mostrarEndereco : false,
+        alertasVagas: user.perfil?.alertasVagas !== undefined ? user.perfil.alertasVagas : true,
+        frequenciaAlertas: user.perfil?.frequenciaAlertas || 'diario',
+        vagasInteresse: user.perfil?.vagasInteresse || ['desenvolvedor', 'frontend', 'react']
+      })
+    }
+  }, [user])
 
   // Dados mockados para certificações
   const [certificacoes, setCertificacoes] = useState([
@@ -138,14 +174,56 @@ export default function Perfil() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    alert('Perfil atualizado com sucesso! (Funcionalidade mockada)')
-    setEditando(false)
+    
+    try {
+      // Preparar dados para salvar
+      const dadosParaSalvar = {
+        telefone: formData.telefone,
+        dataNascimento: formData.dataNascimento,
+        endereco: formData.endereco,
+        bio: formData.bio,
+        formacao: formData.formacao,
+        experiencia: formData.experiencia,
+        habilidades: formData.habilidades.split(',').map(h => h.trim()).filter(h => h),
+        linkedin: formData.linkedin,
+        github: formData.github,
+        portfolio: formData.portfolio,
+        behance: formData.behance,
+        instagram: formData.instagram,
+        twitter: formData.twitter,
+        tipoTrabalho: formData.tipoTrabalho,
+        faixaSalarial: formData.faixaSalarial,
+        localizacaoPreferida: formData.localizacaoPreferida,
+        disponibilidade: formData.disponibilidade,
+        cv: formData.cv,
+        perfilPublico: formData.perfilPublico,
+        mostrarTelefone: formData.mostrarTelefone,
+        mostrarEndereco: formData.mostrarEndereco,
+        alertasVagas: formData.alertasVagas,
+        frequenciaAlertas: formData.frequenciaAlertas,
+        vagasInteresse: formData.vagasInteresse
+      }
+
+      // Atualizar perfil no localStorage
+      updateProfile(dadosParaSalvar)
+      
+      setSucesso('Perfil atualizado com sucesso!')
+      setEditando(false)
+      
+      // Limpar mensagem de sucesso após 3 segundos
+      setTimeout(() => setSucesso(''), 3000)
+      
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error)
+      alert('Erro ao atualizar perfil. Tente novamente.')
+    }
   }
 
   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: type === 'checkbox' ? checked : value
     })
   }
 
@@ -176,6 +254,12 @@ export default function Perfil() {
           {editando ? 'Cancelar' : 'Editar'}
         </button>
       </div>
+      
+      {sucesso && (
+        <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+          {sucesso}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
@@ -885,7 +969,7 @@ export default function Perfil() {
             className="w-28 h-28 rounded-full object-cover border-4 border-blue-200 shadow"
           />
           <button
-            onClick={() => alert('Funcionalidade de trocar foto em breve!')}
+            onClick={() => navigate('/em-producao')}
             className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 shadow hover:bg-blue-700 transition"
             title="Trocar foto"
           >

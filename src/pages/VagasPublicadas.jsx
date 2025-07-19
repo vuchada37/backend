@@ -1,6 +1,8 @@
 import { useAuth } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Modal from '../components/Modal';
+import { useState as useToastState } from 'react';
 
 // Funções utilitárias para localStorage
 const STORAGE_KEY = 'vagas';
@@ -14,6 +16,9 @@ export default function VagasPublicadas() {
   const navigate = useNavigate()
   const [filtroStatus, setFiltroStatus] = useState('todas')
   const [vagas, setVagas] = useState([])
+  const [vagaParaExcluir, setVagaParaExcluir] = useState(null);
+  // Toast para feedback
+  const [toast, setToast] = useToastState(null);
 
   // Carregar vagas do localStorage ao montar
   useEffect(() => {
@@ -61,6 +66,24 @@ export default function VagasPublicadas() {
     }
   }
 
+  // Função para formatar datas
+  const formatarData = (data) => {
+    if (!data) return '-';
+    const d = new Date(data);
+    if (isNaN(d)) return '-';
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  const excluirVaga = (id) => {
+    console.log('Função excluirVaga chamada para id:', id);
+    const vagasObj = getVagas();
+    delete vagasObj[id];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(vagasObj));
+    setVagas(Object.entries(vagasObj).map(([id, vaga]) => ({ ...vaga, id })));
+    setVagaParaExcluir(null);
+    setToast({ type: 'success', message: 'Vaga excluída com sucesso!' });
+  }
+
   const verCandidaturas = (id) => {
     navigate('/candidaturas')
   }
@@ -73,6 +96,14 @@ export default function VagasPublicadas() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
   }
+
+  // Toast auto-hide
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4 pb-24 md:pb-8">
@@ -139,13 +170,15 @@ export default function VagasPublicadas() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-600">
                     <div>
                       <p><strong>Localização:</strong> {vaga.localizacao}</p>
-                      <p><strong>Tipo:</strong> {vaga.tipo}</p>
+                      <p><strong>Área:</strong> {vaga.area}</p>
+                      <p><strong>Tipo:</strong> {vaga.tipoContrato}</p>
+                      <p><strong>Nível:</strong> {vaga.nivelExperiencia}</p>
+                      <p><strong>Modalidade:</strong> {vaga.modalidade}</p>
                       <p><strong>Salário:</strong> {vaga.salario}</p>
                     </div>
                     <div>
-                      <p><strong>Publicada em:</strong> {vaga.dataPublicacao}</p>
-                      <p><strong>Expira em:</strong> {vaga.dataExpiracao}</p>
-                      <p><strong>Candidaturas:</strong> {vaga.candidaturas}</p>
+                      <p><strong>Publicada em:</strong> {formatarData(vaga.dataPublicacao)}</p>
+                      <p><strong>Expira em:</strong> {formatarData(vaga.dataExpiracao)}</p>
                     </div>
                   </div>
                   
@@ -183,7 +216,7 @@ export default function VagasPublicadas() {
                   </button>
                 )}
                 <button
-                  onClick={() => alterarStatus(vaga.id, 'expirada')}
+                  onClick={() => setVagaParaExcluir(vaga)}
                   className="flex-1 sm:flex-none px-3 py-2 bg-red-600 text-white rounded text-xs sm:text-sm hover:bg-red-700 transition"
                 >
                   🗑️ Excluir
@@ -199,6 +232,43 @@ export default function VagasPublicadas() {
           <span className="text-6xl mb-4 block">📄</span>
           <p className="text-xl">Nenhuma vaga encontrada</p>
           <p className="text-sm">Publique sua primeira vaga para começar!</p>
+        </div>
+      )}
+
+      {/* Modal de confirmação de exclusão */}
+      <Modal
+        isOpen={!!vagaParaExcluir}
+        title="Confirmar Exclusão"
+        onClose={() => setVagaParaExcluir(null)}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-700 text-base">Tem certeza que deseja excluir a vaga <span className="font-semibold">{vagaParaExcluir?.titulo}</span>? Esta ação não pode ser desfeita.</p>
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => setVagaParaExcluir(null)}
+              className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => {
+                console.log('Excluindo vaga:', vagaParaExcluir.id);
+                excluirVaga(vagaParaExcluir.id);
+              }}
+              className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition font-semibold"
+            >
+              Excluir
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Toast visual */}
+      {toast && (
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 max-w-sm px-6 py-3 rounded-lg shadow-lg text-white text-base font-medium transition-all duration-300 bg-green-600`}
+          style={{ fontSize: '1rem', maxWidth: '90vw', minWidth: '200px' }}
+        >
+          {toast.message}
         </div>
       )}
     </div>

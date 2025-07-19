@@ -256,7 +256,7 @@ export default function DetalheVaga() {
                 </div>
               </div>
               <button 
-                onClick={() => navigate(`/perfil-empresa/${vaga.empresaInfo.id || '1'}`)}
+                onClick={() => navigate('/em-producao')}
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
               >
                 Ver Perfil da Empresa

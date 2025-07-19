@@ -2,6 +2,8 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useRef, useEffect, useState } from 'react';
 import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 import Home from './pages/Home';
 import Vagas from './pages/Vagas';
 import Chamados from './pages/Chamados';
@@ -24,6 +26,7 @@ import Apoio from './pages/Apoio';
 import Termos from './pages/Termos';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import FAQ from './pages/FAQ';
+import FuncionalidadeEmProducao from './pages/FuncionalidadeEmProducao';
 import './App.css';
 
 export default function AppRoutes() {
@@ -66,32 +69,121 @@ export default function AppRoutes() {
           </div>
         ) : (
           <Routes location={location}>
+            {/* Rotas Públicas (não precisam de autenticação) */}
             <Route path="/" element={<Home />} />
-            <Route path="/vagas" element={<Vagas />} />
-            <Route path="/chamados" element={<Chamados />} />
-            <Route path="/novo-chamado" element={<NovoChamado />} />
-            <Route path="/chamado/:id" element={<DetalheChamado />} />
-            <Route path="/vaga/:id" element={<DetalheVaga />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/perfil" element={<Perfil />} />
-            <Route path="/perfil/:id" element={<Perfil />} />
-            <Route path="/candidaturas" element={<Candidaturas />} />
-            <Route path="/empresa-home" element={<HomeEmpresa />} />
-            <Route path="/empresa" element={<PainelEmpresa />} />
-            <Route path="/perfil-empresa" element={<PerfilEmpresa />} />
-            <Route path="/perfil-empresa/:id" element={<PerfilEmpresa />} />
-            <Route path="/vagas-publicadas" element={<VagasPublicadas />} />
-            <Route path="/publicar-vaga" element={<PublicarVaga />} />
-            <Route path="/publicar-vaga/:id" element={<PublicarVaga />} />
-            <Route path="/mensagens" element={<Mensagens />} />
-            <Route path="/monetizacao" element={<Monetizacao />} />
-            <Route path="/assinaturas" element={<Assinaturas />} />
-            <Route path="/apoio" element={<Apoio />} />
+            <Route path="/login" element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } />
+            <Route path="/cadastro" element={
+              <PublicRoute>
+                <Cadastro />
+              </PublicRoute>
+            } />
             <Route path="/termos" element={<Termos />} />
             <Route path="/privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/apoio" element={<Apoio />} />
+            <Route path="/em-producao" element={<FuncionalidadeEmProducao />} />
+
+            {/* Rotas Protegidas - Ambos os tipos para Candidaturas, Chamados e Mensagens */}
+            <Route path="/candidaturas" element={
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
+                <Candidaturas />
+              </ProtectedRoute>
+            } />
+            <Route path="/chamados" element={
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
+                <Chamados />
+              </ProtectedRoute>
+            } />
+            <Route path="/mensagens" element={
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
+                <Mensagens />
+              </ProtectedRoute>
+            } />
+            {/* Rotas Protegidas - Apenas Usuários */}
+            <Route path="/vagas" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <Vagas />
+              </ProtectedRoute>
+            } />
+            <Route path="/novo-chamado" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <NovoChamado />
+              </ProtectedRoute>
+            } />
+            <Route path="/chamado/:id" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <DetalheChamado />
+              </ProtectedRoute>
+            } />
+            <Route path="/vaga/:id" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <DetalheVaga />
+              </ProtectedRoute>
+            } />
+            <Route path="/perfil" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <Perfil />
+              </ProtectedRoute>
+            } />
+            <Route path="/perfil/:id" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <Perfil />
+              </ProtectedRoute>
+            } />
+
+            {/* Rotas Protegidas - Apenas Empresas */}
+            <Route path="/empresa-home" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <HomeEmpresa />
+              </ProtectedRoute>
+            } />
+            <Route path="/empresa" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <PainelEmpresa />
+              </ProtectedRoute>
+            } />
+            <Route path="/perfil-empresa" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <PerfilEmpresa />
+              </ProtectedRoute>
+            } />
+            <Route path="/perfil-empresa/:id" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <PerfilEmpresa />
+              </ProtectedRoute>
+            } />
+            <Route path="/vagas-publicadas" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <VagasPublicadas />
+              </ProtectedRoute>
+            } />
+            <Route path="/publicar-vaga" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <PublicarVaga />
+              </ProtectedRoute>
+            } />
+            <Route path="/publicar-vaga/:id" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <PublicarVaga />
+              </ProtectedRoute>
+            } />
+
+            {/* Rotas Protegidas - Ambos os tipos */}
+            <Route path="/monetizacao" element={
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
+                <Monetizacao />
+              </ProtectedRoute>
+            } />
+            <Route path="/assinaturas" element={
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
+                <Assinaturas />
+              </ProtectedRoute>
+            } />
           </Routes>
         )}
       </main>

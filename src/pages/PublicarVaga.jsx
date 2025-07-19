@@ -59,17 +59,25 @@ const PublicarVaga = () => {
     let vagaId = id;
     if (isEditando) {
       // Atualizar vaga existente
-      vagas[vagaId] = formData;
+      vagas[vagaId] = {
+        ...formData,
+        dataExpiracao: formData.prazoInscricao || formData.dataExpiracao || '',
+        dataPublicacao: vagas[vagaId].dataPublicacao || new Date().toISOString().split('T')[0],
+      };
     } else {
       // Criar nova vaga com ID único
       vagaId = Date.now().toString();
-      vagas[vagaId] = formData;
+      vagas[vagaId] = {
+        ...formData,
+        dataPublicacao: new Date().toISOString().split('T')[0],
+        dataExpiracao: formData.prazoInscricao || '',
+      };
     }
     saveVagas(vagas);
     setIsSubmitting(false);
     setShowToast({ type: 'success', message: isEditando ? 'Vaga editada com sucesso!' : 'Vaga publicada com sucesso!' });
     setTimeout(() => setShowToast(null), 2200);
-    setTimeout(() => navigate('/empresa-home'), 2300);
+    setTimeout(() => navigate('/vagas-publicadas'), 2300);
   };
 
   return (
@@ -285,7 +293,7 @@ const PublicarVaga = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => navigate('/empresa-home')}
+                onClick={() => navigate('/vagas-publicadas')}
                 className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancelar

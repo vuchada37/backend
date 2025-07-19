@@ -27,6 +27,8 @@ import Termos from './pages/Termos';
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade';
 import FAQ from './pages/FAQ';
 import FuncionalidadeEmProducao from './pages/FuncionalidadeEmProducao';
+import RelatoriosEmpresa from './pages/RelatoriosEmpresa';
+import FiltrosAvancadosEmpresa from './pages/FiltrosAvancadosEmpresa';
 import './App.css';
 
 export default function AppRoutes() {
@@ -170,6 +172,16 @@ export default function AppRoutes() {
             <Route path="/publicar-vaga/:id" element={
               <ProtectedRoute allowedTypes={['empresa']}>
                 <PublicarVaga />
+              </ProtectedRoute>
+            } />
+            <Route path="/relatorios" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <RelatoriosEmpresa />
+              </ProtectedRoute>
+            } />
+            <Route path="/filtros-avancados" element={
+              <ProtectedRoute allowedTypes={['empresa']}>
+                <FiltrosAvancadosEmpresa />
               </ProtectedRoute>
             } />
 

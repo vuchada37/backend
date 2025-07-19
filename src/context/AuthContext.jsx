@@ -99,6 +99,11 @@ export function AuthProvider({ children }) {
           setor: '',
           tamanho: '',
           website: ''
+        },
+        assinatura: {
+          plano: 'gratuito',
+          nome: 'Gratuito',
+          preco: 0
         }
       };
 
@@ -141,6 +146,10 @@ export function AuthProvider({ children }) {
 
       // Remover senha do objeto antes de salvar na sessão
       const { senha: _, ...companyWithoutPassword } = company;
+      // Garante assinatura default se não existir
+      if (!companyWithoutPassword.assinatura) {
+        companyWithoutPassword.assinatura = { plano: 'gratuito', nome: 'Gratuito', preco: 0 };
+      }
       setUser(companyWithoutPassword);
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(companyWithoutPassword));
       return companyWithoutPassword;
@@ -174,6 +183,27 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Função para upgrade de plano (empresa)
+  function upgradePlano(novoPlano) {
+    if (!user) return;
+    if (user.tipo === 'empresa') {
+      const companies = getCompanies();
+      const empresa = companies[user.email];
+      if (!empresa.assinatura) empresa.assinatura = {};
+      empresa.assinatura.plano = novoPlano.id;
+      empresa.assinatura.nome = novoPlano.nome;
+      empresa.assinatura.preco = novoPlano.preco;
+      // Outros campos do plano, se desejar
+      companies[user.email] = empresa;
+      saveCompanies(companies);
+      // Atualiza usuário logado
+      const updatedUser = { ...user, assinatura: { ...empresa.assinatura } };
+      setUser(updatedUser);
+      localStorage.setItem('nevu_current_user', JSON.stringify(updatedUser));
+    }
+    // (Opcional: implementar para candidatos também)
+  }
+
   function logout() {
     setUser(null);
     localStorage.removeItem(CURRENT_USER_KEY);
@@ -187,7 +217,8 @@ export function AuthProvider({ children }) {
       register, 
       updateProfile,
       isAuthenticated: !!user,
-      loading 
+      loading,
+      upgradePlano, // exporta função
     }}>
       {children}
     </AuthContext.Provider>

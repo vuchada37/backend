@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useMonetizacao } from '../context/MonetizacaoContext'
+import { Link } from 'react-router-dom';
 
 export default function Monetizacao() {
   const { user } = useAuth()
   const { planosCandidato, planos, loading } = useMonetizacao()
+  const { upgradePlano } = useAuth()
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('mpesa')
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Determinar se é candidato ou empresa
   const isEmpresa = user && user.tipo === 'empresa'
@@ -57,23 +60,27 @@ export default function Monetizacao() {
     empresarial: 'border-orange-500',
   }
 
-  const handleSelectPlan = (plan) => {
-    setSelectedPlan(plan)
-    setShowPaymentModal(true)
+  function handleEscolherPlano(plano) {
+    setSelectedPlan(plano);
+    setShowPaymentModal(true);
   }
 
-  const handlePayment = async () => {
-    setPaymentLoading(true)
-    setPaymentSuccess(false)
-    // Simular processamento
+  function handleConfirmarPagamento() {
+    setPaymentLoading(true);
     setTimeout(() => {
-      setPaymentLoading(false)
-      setPaymentSuccess(true)
-      setTimeout(() => {
-        setShowPaymentModal(false)
-        setPaymentSuccess(false)
-      }, 1800)
-    }, 2000)
+      upgradePlano(selectedPlan);
+      setPaymentLoading(false);
+      setPaymentSuccess(true);
+      setShowPaymentModal(false);
+      setSuccessMessage('Plano alterado com sucesso!');
+      setTimeout(() => setSuccessMessage(''), 2500);
+    }, 1200);
+  }
+
+  // Remove subsídio de alimentação dos recursos exibidos
+  function recursosFiltrados(plano) {
+    if (!plano.recursos) return [];
+    return plano.recursos.filter(r => !r.toLowerCase().includes('subsídio de alimentação'));
   }
 
   // Loading state
@@ -103,6 +110,21 @@ export default function Monetizacao() {
               : 'Escolha um plano para se destacar, candidatar-se a mais oportunidades e acessar benefícios exclusivos.'}
           </p>
         </div>
+        {successMessage && (
+          <div className="mb-6 text-center">
+            <span className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded font-semibold shadow">
+              {successMessage}
+            </span>
+          </div>
+        )}
+
+        {/* Botões de acesso às funcionalidades exclusivas */}
+        {isEmpresa && (
+          <div className="flex flex-wrap gap-4 justify-center mb-10">
+            <Link to="/relatorios" className="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition text-sm">Acessar Relatórios</Link>
+            <Link to="/filtros-avancados" className="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition text-sm">Filtros Avançados</Link>
+          </div>
+        )}
 
         {/* Planos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 mb-12">
@@ -127,7 +149,7 @@ export default function Monetizacao() {
                   <div className="text-sm text-gray-500 mb-4 text-center">{isEmpresa ? plano.periodo : 'Mensal'}</div>
                   <ul className="text-sm text-gray-700 space-y-2 mb-6 w-full">
                     {isEmpresa
-                      ? plano.recursos && plano.recursos.slice(0, 8).map((recurso, index) => (
+                      ? recursosFiltrados(plano).slice(0, 8).map((recurso, index) => (
                           <li key={index} className="flex items-start text-gray-700">
                             <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -143,8 +165,8 @@ export default function Monetizacao() {
                             <span>{recurso}</span>
                       </li>
                         ))}
-                </ul>
-                  {plano.id === 'gratuito' ? (
+                  </ul>
+                  {user?.assinatura?.plano === plano.id ? (
                     <button
                       className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg cursor-not-allowed"
                       disabled
@@ -152,12 +174,12 @@ export default function Monetizacao() {
                       Plano Ativo
                     </button>
                   ) : (
-                <button
-                  onClick={() => handleSelectPlan(plano)}
+                    <button
+                      onClick={() => handleEscolherPlano(plano)}
                       className="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 transition"
                     >
                       Escolher Plano
-                </button>
+                    </button>
                   )}
                   {plano.id === 'gratuito' && (
                     <p className="text-xs text-gray-500 text-center mt-1">
@@ -397,7 +419,7 @@ export default function Monetizacao() {
                   Cancelar
                 </button>
                 <button
-                  onClick={handlePayment}
+                  onClick={handleConfirmarPagamento}
                   className={`flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${paymentLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                   disabled={paymentLoading || paymentSuccess}
                 >

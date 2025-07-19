@@ -310,7 +310,25 @@ export const MonetizacaoProvider = ({ children }) => {
     }
   }
 
-
+  // Helper para checar acesso a funcionalidades por plano
+  function temAcessoA(feature) {
+    if (!assinatura) return false;
+    const plano = planos[assinatura.plano];
+    switch (feature) {
+      case 'relatorios':
+        return plano.id === 'premium' || plano.id === 'empresarial';
+      case 'filtrosAvancados':
+        return plano.id === 'premium' || plano.id === 'empresarial';
+      case 'notificacoesPrioritarias':
+        return plano.id === 'premium' || plano.id === 'empresarial';
+      case 'api':
+      case 'gerenteConta':
+      case 'treinamento':
+        return plano.id === 'empresarial';
+      default:
+        return false;
+    }
+  }
 
   const value = {
     assinatura,
@@ -326,7 +344,8 @@ export const MonetizacaoProvider = ({ children }) => {
     podeCandidatar,
     podeEnviarMensagemCandidato,
     fazerUpgradeCandidato,
-    planosCandidato
+    planosCandidato,
+    temAcessoA, // exporta helper
   }
 
   return (

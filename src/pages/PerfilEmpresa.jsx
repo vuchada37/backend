@@ -107,13 +107,6 @@ export default function PerfilEmpresa() {
         )}
         <h1 className="text-3xl font-extrabold text-blue-800 mb-1 text-center tracking-tight">{formData.nomeFantasia || user.nome || 'Empresa'}</h1>
         <p className="text-gray-500 text-center mb-6 text-lg font-medium">{formData.descricao || 'Perfil da sua empresa. Edite suas informações aqui.'}</p>
-        {/* Link para denúncias */}
-        <button
-          onClick={() => navigate('/denuncias')}
-          className="mb-4 text-red-600 underline text-sm hover:text-red-800 transition"
-        >
-          Denunciar abuso ou problema
-        </button>
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="flex items-center gap-2 text-gray-700"><span className="text-blue-600 text-xl">🏢</span> <span className="font-semibold">Setor:</span> {formData.setor || 'N/D'}</div>
           <div className="flex items-center gap-2 text-gray-700"><span className="text-green-600 text-xl">👥</span> <span className="font-semibold">Funcionários:</span> {formData.tamanho || 'N/D'}</div>

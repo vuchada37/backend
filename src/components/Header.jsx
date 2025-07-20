@@ -70,6 +70,10 @@ export default function Header() {
                 <Link to="/monetizacao" className={`font-medium text-sm sm:text-base ${isActive('/monetizacao') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Planos</Link>
                 <Link to="/assinaturas" className={`font-medium text-sm sm:text-base ${isActive('/assinaturas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Assinatura</Link>
                 <Link to="/apoio" className={`font-medium text-sm sm:text-base ${isActive('/apoio') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Apoio</Link>
+                <Link to="/denuncias" className="font-medium text-sm sm:text-base text-red-600 hover:text-red-800 flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                  Denunciar
+                </Link>
                 <button 
                   onClick={() => { logout(); navigate('/'); window.location.reload(); }}
                   className="ml-2 px-3 py-1.5 rounded bg-red-100 text-red-700 font-semibold shadow hover:bg-red-200 transition text-sm flex items-center gap-1"
@@ -101,6 +105,10 @@ export default function Header() {
               <Link to="/monetizacao" className={`font-medium text-sm sm:text-base ${isActive('/monetizacao') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Planos</Link>
               <Link to="/assinaturas" className={`font-medium text-sm sm:text-base ${isActive('/assinaturas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Assinatura</Link>
               <Link to="/apoio" className={`font-medium text-sm sm:text-base ${isActive('/apoio') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Apoio</Link>
+              <Link to="/denuncias" className="font-medium text-sm sm:text-base text-red-600 hover:text-red-800 flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                Denunciar
+              </Link>
               <button 
                 onClick={() => { logout(); navigate('/'); }}
                 className="ml-2 px-3 py-1.5 rounded bg-red-100 text-red-700 font-semibold shadow hover:bg-red-200 transition text-sm flex items-center gap-1"

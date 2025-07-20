@@ -4,8 +4,8 @@ import { useMonetizacao } from '../context/MonetizacaoContext'
 import { Link } from 'react-router-dom';
 
 export default function Monetizacao() {
-  const { user } = useAuth()
-  const { planosCandidato, planos, loading } = useMonetizacao()
+  const { user, login, setUser } = useAuth()
+  const { planosCandidato, planos, loading, fazerUpgradeCandidato } = useMonetizacao()
   const { upgradePlano } = useAuth()
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
@@ -65,10 +65,26 @@ export default function Monetizacao() {
     setShowPaymentModal(true);
   }
 
-  function handleConfirmarPagamento() {
+  async function handleConfirmarPagamento() {
     setPaymentLoading(true);
-    setTimeout(() => {
-      upgradePlano(selectedPlan);
+    setTimeout(async () => {
+      if (user?.tipo === 'empresa') {
+        upgradePlano(selectedPlan);
+      } else {
+        // Candidato: upgrade e atualizar user no AuthContext/localStorage
+        await fazerUpgradeCandidato(selectedPlan.id);
+        // Atualizar user no AuthContext/localStorage
+        const updatedUser = { ...user, assinatura: { plano: selectedPlan.id, nome: selectedPlan.nome, preco: selectedPlan.preco, destaque: selectedPlan.destaque } };
+        // Atualiza também no objeto global de usuários
+        const users = JSON.parse(localStorage.getItem('nevu_users') || '{}');
+        if (users[user.email]) {
+          users[user.email].assinatura = updatedUser.assinatura;
+          localStorage.setItem('nevu_users', JSON.stringify(users));
+        }
+        localStorage.setItem('nevu_current_user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        // Removido window.location.reload();
+      }
       setPaymentLoading(false);
       setPaymentSuccess(true);
       setShowPaymentModal(false);
@@ -165,7 +181,7 @@ export default function Monetizacao() {
                             <span>{recurso}</span>
                       </li>
                         ))}
-                  </ul>
+                </ul>
                   {user?.assinatura?.plano === plano.id ? (
                     <button
                       className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg cursor-not-allowed"
@@ -174,12 +190,12 @@ export default function Monetizacao() {
                       Plano Ativo
                     </button>
                   ) : (
-                    <button
+                <button
                       onClick={() => handleEscolherPlano(plano)}
                       className="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 transition"
                     >
                       Escolher Plano
-                    </button>
+                </button>
                   )}
                   {plano.id === 'gratuito' && (
                     <p className="text-xs text-gray-500 text-center mt-1">

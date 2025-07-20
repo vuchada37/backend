@@ -69,6 +69,11 @@ export function AuthProvider({ children }) {
           formacao: '',
           habilidades: [],
           curriculo: null
+        },
+        assinatura: {
+          plano: 'gratuito',
+          nome: 'Gratuito',
+          preco: 0
         }
       };
 
@@ -129,6 +134,10 @@ export function AuthProvider({ children }) {
 
       // Remover senha do objeto antes de salvar na sessão
       const { senha: _, ...userWithoutPassword } = user;
+      // Garante assinatura default se não existir
+      if (!userWithoutPassword.assinatura) {
+        userWithoutPassword.assinatura = { plano: 'gratuito', nome: 'Gratuito', preco: 0 };
+      }
       setUser(userWithoutPassword);
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
       return userWithoutPassword;
@@ -212,6 +221,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ 
       user, 
+      setUser,
       login, 
       logout, 
       register, 

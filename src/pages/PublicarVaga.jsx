@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMonetizacao } from '../context/MonetizacaoContext';
 
 // Funções utilitárias para localStorage
 const STORAGE_KEY = 'vagas';
@@ -26,11 +27,14 @@ const PublicarVaga = () => {
     nivelExperiencia: 'JUNIOR',
     modalidade: 'PRESENCIAL',
     area: '',
-    prazoInscricao: ''
+    prazoInscricao: '',
+    premium: false // Novo campo
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(null);
   const isEditando = Boolean(id);
+  const { assinatura } = useMonetizacao();
+  const isPremiumEmpresa = assinatura?.plano === 'premium' || assinatura?.plano === 'empresarial';
 
   // Carregar vaga do localStorage se for edição
   useEffect(() => {
@@ -43,10 +47,10 @@ const PublicarVaga = () => {
   }, [id, isEditando]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -63,6 +67,7 @@ const PublicarVaga = () => {
         ...formData,
         dataExpiracao: formData.prazoInscricao || formData.dataExpiracao || '',
         dataPublicacao: vagas[vagaId].dataPublicacao || new Date().toISOString().split('T')[0],
+        premium: !!formData.premium // Garante boolean
       };
     } else {
       // Criar nova vaga com ID único
@@ -71,6 +76,7 @@ const PublicarVaga = () => {
         ...formData,
         dataPublicacao: new Date().toISOString().split('T')[0],
         dataExpiracao: formData.prazoInscricao || '',
+        premium: !!formData.premium // Garante boolean
       };
     }
     saveVagas(vagas);
@@ -210,6 +216,27 @@ const PublicarVaga = () => {
                   <option value="HIBRIDO">Híbrido</option>
                 </select>
               </div>
+            </div>
+
+            {/* Checkbox Vaga Premium */}
+            <div className="flex items-center mb-2">
+              <input
+                type="checkbox"
+                id="premium"
+                name="premium"
+                checked={formData.premium}
+                onChange={handleInputChange}
+                className="h-5 w-5 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded mr-2"
+                disabled={!isPremiumEmpresa}
+              />
+              <label htmlFor="premium" className="text-sm font-medium text-gray-700 select-none">
+                Tornar esta vaga <span className="font-bold text-yellow-600">Premium</span> (apenas candidatos premium poderão se candidatar)
+              </label>
+              {!isPremiumEmpresa && (
+                <span className="ml-2 text-xs text-gray-400" title="Disponível apenas para empresas com plano Premium ou Empresarial.">
+                  (Disponível apenas para empresas premium)
+                </span>
+              )}
             </div>
 
             {/* Salário e Prazo */}

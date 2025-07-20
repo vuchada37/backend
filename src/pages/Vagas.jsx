@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useMonetizacao } from '../context/MonetizacaoContext';
 
 export default function Vagas() {
+  const { assinatura } = useMonetizacao();
   const [filtroCategoria, setFiltroCategoria] = useState('todas')
   const [filtroLocalizacao, setFiltroLocalizacao] = useState('todas')
   const [filtroTipo, setFiltroTipo] = useState('todos')
@@ -22,7 +24,8 @@ export default function Vagas() {
       dataPublicacao: '2024-01-15',
       experiencia: '2-4 anos',
       modalidade: 'Híbrido',
-      prioridade: 'alta'
+      prioridade: 'alta',
+      premium: true // Vaga premium
     },
     { 
       id: 2, 
@@ -38,6 +41,7 @@ export default function Vagas() {
       experiencia: '1-3 anos',
       modalidade: 'Remoto',
       prioridade: 'media'
+      // premium: false
     },
     { 
       id: 3, 
@@ -53,6 +57,7 @@ export default function Vagas() {
       experiencia: '2-5 anos',
       modalidade: 'Presencial',
       prioridade: 'baixa'
+      // premium: false
     },
     { 
       id: 4, 
@@ -68,6 +73,7 @@ export default function Vagas() {
       experiencia: '3-6 anos',
       modalidade: 'Presencial',
       prioridade: 'media'
+      // premium: false
     }
   ]
 
@@ -93,13 +99,15 @@ export default function Vagas() {
     { id: 'Freelancer', nome: 'Freelancer' }
   ]
 
+  // Filtro de vagas premium
+  // const isPremium = assinatura?.plano === 'premium';
   const vagasFiltradas = vagas.filter(vaga => {
+    // Remover filtro de exibição de vagas premium
     const matchCategoria = filtroCategoria === 'todas' || vaga.categoria === filtroCategoria
     const matchLocalizacao = filtroLocalizacao === 'todas' || vaga.localizacao === filtroLocalizacao
     const matchTipo = filtroTipo === 'todos' || vaga.tipo === filtroTipo
     const matchBusca = vaga.titulo.toLowerCase().includes(busca.toLowerCase()) ||
                       vaga.empresa.toLowerCase().includes(busca.toLowerCase())
-    
     return matchCategoria && matchLocalizacao && matchTipo && matchBusca
   })
 
@@ -218,12 +226,9 @@ export default function Vagas() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPrioridadeColor(vaga.prioridade)}`}>
-                    {vaga.prioridade.toUpperCase()}
-                  </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getModalidadeColor(vaga.modalidade)}`}>
-                    {vaga.modalidade}
-                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPrioridadeColor(vaga.prioridade)}`}> {vaga.prioridade.toUpperCase()} </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getModalidadeColor(vaga.modalidade)}`}> {vaga.modalidade} </span>
+                  {/* Remover badge de vaga premium da listagem */}
                 </div>
               </div>
 

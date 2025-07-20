@@ -63,6 +63,7 @@ export default function Header() {
                 <Link to="/" className={`font-medium text-sm sm:text-base ${isActive('/') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Início</Link>
                 <Link to="/vagas" className={`font-medium text-sm sm:text-base ${isActive('/vagas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Vagas</Link>
                 <Link to="/candidaturas" className={`font-medium text-sm sm:text-base ${isActive('/candidaturas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Candidaturas</Link>
+                <Link to="/relatorios-candidato" className={`font-medium text-sm sm:text-base ${isActive('/relatorios-candidato') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Relatórios</Link>
                 <Link to="/mensagens" className={`font-medium text-sm sm:text-base ${isActive('/mensagens') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Mensagens</Link>
                 <Link to="/chamados" className={`font-medium text-sm sm:text-base ${isActive('/chamados') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Chamados</Link>
                 <Link to="/perfil" className={`font-medium text-sm sm:text-base ${isActive('/perfil') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Perfil</Link>
@@ -93,6 +94,7 @@ export default function Header() {
               <Link to="/publicar-vaga" className={`font-medium text-sm sm:text-base ${isActive('/publicar-vaga') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Publicar Vaga</Link>
               <Link to="/vagas-publicadas" className={`font-medium text-sm sm:text-base ${isActive('/vagas-publicadas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Minhas Vagas</Link>
               <Link to="/candidaturas" className={`font-medium text-sm sm:text-base ${isActive('/candidaturas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Candidaturas</Link>
+              <Link to="/relatorios-candidato" className={`font-medium text-sm sm:text-base ${isActive('/relatorios-candidato') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Relatórios</Link>
               <Link to="/mensagens" className={`font-medium text-sm sm:text-base ${isActive('/mensagens') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Mensagens</Link>
               <Link to="/chamados" className={`font-medium text-sm sm:text-base ${isActive('/chamados') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Chamados</Link>
               <Link to="/perfil-empresa" className={`font-medium text-sm sm:text-base ${isActive('/perfil-empresa') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Perfil</Link>
@@ -143,6 +145,7 @@ export default function Header() {
                         <Link to="/publicar-vaga" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Publicar Vaga</Link>
                         <Link to="/vagas-publicadas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Minhas Vagas</Link>
                         <Link to="/candidaturas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Candidaturas</Link>
+                        <Link to="/relatorios-candidato" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Relatórios</Link>
                         <Link to="/mensagens" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Mensagens</Link>
                         <Link to="/chamados" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Chamados</Link>
                         <Link to="/perfil-empresa" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Perfil</Link>
@@ -156,6 +159,7 @@ export default function Header() {
                         <Link to="/" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Início</Link>
                         <Link to="/vagas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Vagas</Link>
                         <Link to="/candidaturas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Candidaturas</Link>
+                        <Link to="/relatorios-candidato" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Relatórios</Link>
                         <Link to="/mensagens" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Mensagens</Link>
                         <Link to="/chamados" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Chamados</Link>
                         <Link to="/perfil" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Perfil</Link>

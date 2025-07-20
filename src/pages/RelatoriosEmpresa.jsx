@@ -16,7 +16,7 @@ export default function RelatoriosEmpresa() {
   const planoObj = planos[planoAtual] || planos['gratuito'];
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto mt-8">
+    <div className="bg-white rounded-xl shadow p-6 max-w-6xl w-full mx-auto mt-8">
       <h2 className="text-2xl font-bold text-blue-700 mb-4">Relatórios da Empresa</h2>
       <div className="mb-6">
         <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold text-sm">

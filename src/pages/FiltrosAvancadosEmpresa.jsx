@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import FuncionalidadeEmProducao from './FuncionalidadeEmProducao';
 import { useState, useEffect } from 'react';
+import Modal from '../components/Modal';
 
 export default function FiltrosAvancadosEmpresa() {
   const { user } = useAuth();
@@ -28,6 +29,13 @@ export default function FiltrosAvancadosEmpresa() {
 
   // Estado dos resultados (mock)
   const [resultados, setResultados] = useState([]);
+  const [showResultadosMobile, setShowResultadosMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Simulação de candidatos (mock)
   const candidatos = [
@@ -55,7 +63,7 @@ export default function FiltrosAvancadosEmpresa() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto mt-8">
+    <div className="bg-white rounded-xl shadow p-6 max-w-6xl mx-auto mt-8">
       <h2 className="text-2xl font-bold text-blue-700 mb-4">Filtros de Busca de Candidatos</h2>
       <div className="mb-6">
         <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold text-sm">
@@ -123,29 +131,54 @@ export default function FiltrosAvancadosEmpresa() {
                   <option>30 dias</option>
                 </select>
                 <button onClick={limparFiltros} className="mt-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold shadow hover:bg-gray-300 transition text-sm w-full">Limpar filtros</button>
+                {isMobile && (
+                  <button onClick={() => setShowResultadosMobile(true)} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition text-sm w-full">Buscar</button>
+                )}
               </div>
-              {/* Resultados à direita */}
-              <div className="md:w-2/3 w-full">
-                <div className="bg-white rounded-lg p-4 shadow h-full">
-                  <h3 className="font-semibold text-blue-800 mb-2">Resultados ({resultados.length})</h3>
-                  {resultados.length === 0 ? (
-                    <p className="text-gray-500">Nenhum candidato encontrado com os filtros atuais.</p>
-                  ) : (
-                    <ul className="divide-y divide-gray-100">
-                      {resultados.map((c, idx) => (
-                        <li key={idx} className="py-2 flex flex-col sm:flex-row sm:items-center gap-2">
-                          <span className="font-bold text-blue-700">{c.nome}</span>
-                          <span className="text-gray-600 text-sm">{c.area} - {c.localizacao}</span>
-                          <span className="text-xs text-gray-500">{c.experiencia}</span>
-                          <span className="text-xs text-gray-500">{c.idiomas}</span>
-                          <span className="text-xs text-gray-500">{c.disponibilidade}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+              {/* Resultados à direita (desktop) */}
+              {!isMobile && (
+                <div className="md:w-2/3 w-full">
+                  <div className="bg-white rounded-lg p-4 shadow h-full">
+                    <h3 className="font-semibold text-blue-800 mb-2">Resultados ({resultados.length})</h3>
+                    {resultados.length === 0 ? (
+                      <p className="text-gray-500">Nenhum candidato encontrado com os filtros atuais.</p>
+                    ) : (
+                      <ul className="divide-y divide-gray-100">
+                        {resultados.map((c, idx) => (
+                          <li key={idx} className="py-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                            <span className="font-bold text-blue-700">{c.nome}</span>
+                            <span className="text-gray-600 text-sm">{c.area} - {c.localizacao}</span>
+                            <span className="text-xs text-gray-500">{c.experiencia}</span>
+                            <span className="text-xs text-gray-500">{c.idiomas}</span>
+                            <span className="text-xs text-gray-500">{c.disponibilidade}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
+            {/* Modal de resultados no mobile */}
+            {isMobile && (
+              <Modal isOpen={showResultadosMobile} onClose={() => setShowResultadosMobile(false)} title={`Resultados (${resultados.length})`} size="md">
+                {resultados.length === 0 ? (
+                  <p className="text-gray-500">Nenhum candidato encontrado com os filtros atuais.</p>
+                ) : (
+                  <ul className="divide-y divide-gray-100">
+                    {resultados.map((c, idx) => (
+                      <li key={idx} className="py-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="font-bold text-blue-700">{c.nome}</span>
+                        <span className="text-gray-600 text-sm">{c.area} - {c.localizacao}</span>
+                        <span className="text-xs text-gray-500">{c.experiencia}</span>
+                        <span className="text-xs text-gray-500">{c.idiomas}</span>
+                        <span className="text-xs text-gray-500">{c.disponibilidade}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Modal>
+            )}
           </div>
           {planoAtual === 'premium' && (
             <div className="mt-4 text-center">

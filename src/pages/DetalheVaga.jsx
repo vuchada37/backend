@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
+import { useMonetizacao } from '../context/MonetizacaoContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function DetalheVaga() {
   const { id } = useParams()
@@ -17,6 +19,10 @@ export default function DetalheVaga() {
   const [favorito, setFavorito] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [candidatado, setCandidatado] = useState(false);
+  const { podeCandidatar, assinatura } = useMonetizacao();
+  // Estado para modal de upgrade
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { user } = useAuth();
 
   // Checar favorito no localStorage
   useState(() => {
@@ -74,7 +80,8 @@ export default function DetalheVaga() {
       website: 'www.techmoc.co.mz',
       fundacao: '2018',
       localizacao: 'Maputo, Moçambique'
-    }
+    },
+    premium: true, // Exemplo: vaga premium
   }
 
   const getPrioridadeColor = (prioridade) => {
@@ -105,6 +112,30 @@ export default function DetalheVaga() {
       setModalCandidatura(false);
       setCandidatura({ cartaApresentacao: '', salarioPretendido: '', disponibilidade: '' });
       setTimeout(() => setShowToast(null), 2200);
+      // Persistir candidatura por vaga
+      const candidaturaData = {
+        vagaId: vaga.id,
+        vagaTitulo: vaga.titulo,
+        empresa: vaga.empresa,
+        candidatoEmail: user?.email,
+        candidatoNome: user?.nome,
+        telefone: candidatura.telefone,
+        linkedin: candidatura.linkedin,
+        disponibilidade: candidatura.disponibilidade,
+        cartaApresentacao: candidatura.cartaApresentacao,
+        data: new Date().toISOString(),
+        status: 'Pendente',
+      };
+      // Por vaga
+      const keyVaga = `candidaturas_vaga_${vaga.id}`;
+      const candidaturasVaga = JSON.parse(localStorage.getItem(keyVaga) || '[]');
+      candidaturasVaga.push(candidaturaData);
+      localStorage.setItem(keyVaga, JSON.stringify(candidaturasVaga));
+      // Por usuário
+      const keyUsuario = `candidaturas_usuario_${user?.email}`;
+      const candidaturasUsuario = JSON.parse(localStorage.getItem(keyUsuario) || '[]');
+      candidaturasUsuario.push(candidaturaData);
+      localStorage.setItem(keyUsuario, JSON.stringify(candidaturasUsuario));
     }, 1800);
   }
 
@@ -160,7 +191,12 @@ export default function DetalheVaga() {
           </svg>
           Voltar às Vagas
         </Link>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{vaga.titulo}</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+          {vaga.titulo}
+          {vaga.premium && (
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-400 text-white border border-yellow-500 ml-2">Vaga Premium ⭐</span>
+          )}
+        </h1>
         <div className="flex flex-wrap gap-2 mb-4">
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPrioridadeColor(vaga.prioridade)}`}>
             {vaga.prioridade.toUpperCase()}
@@ -296,9 +332,20 @@ export default function DetalheVaga() {
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Ações</h2>
             <div className="space-y-3">
               <button
-                onClick={() => setModalCandidatura(true)}
-                className={`w-full px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 ${candidatado ? 'bg-green-500 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                disabled={candidatado}
+                onClick={() => {
+                  if (candidatado) return;
+                  if (vaga.premium && assinatura?.plano !== 'premium') {
+                    setShowUpgradeModal(true);
+                    return;
+                  }
+                  if (!podeCandidatar()) {
+                    setShowUpgradeModal(true);
+                    return;
+                  }
+                  setModalCandidatura(true);
+                }}
+                className={`w-full px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 active:scale-95 ${candidatado ? 'bg-green-500 text-white cursor-not-allowed' : (vaga.premium && assinatura?.plano !== 'premium') || !podeCandidatar() ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                disabled={candidatado || (vaga.premium && assinatura?.plano !== 'premium') || !podeCandidatar()}
               >
                 {candidatado ? 'Candidatado!' : 'Candidatar-se'}
               </button>
@@ -415,6 +462,34 @@ export default function DetalheVaga() {
               Cancelar
             </button>
           </div>
+        </div>
+      </Modal>
+
+      {/* Modal de upgrade de plano */}
+      <Modal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title={vaga.premium && assinatura?.plano !== 'premium' ? 'Vaga Premium' : 'Limite do Plano atingido'}
+        size="sm"
+      >
+        <div className="text-center space-y-4">
+          {vaga.premium && assinatura?.plano !== 'premium' ? (
+            <>
+              <p className="text-yellow-700 font-semibold">Esta vaga é exclusiva para assinantes Premium.</p>
+              <p className="text-gray-600">Faça upgrade para o plano <b>Premium</b> para visualizar e se candidatar a vagas exclusivas!</p>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-700">Você atingiu o limite de candidaturas do seu plano <b>{assinatura?.nome}</b>.</p>
+              <p className="text-gray-600">Faça upgrade para o plano <b>Básico</b> ou <b>Premium</b> para se candidatar a mais vagas!</p>
+            </>
+          )}
+          <button
+            onClick={() => navigate('/monetizacao')}
+            className="w-full bg-purple-600 text-white font-semibold py-2 rounded-lg hover:bg-purple-700 transition"
+          >
+            Ver Planos e Fazer Upgrade
+          </button>
         </div>
       </Modal>
     </div>

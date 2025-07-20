@@ -2,6 +2,7 @@ import { useAuth } from '../context/AuthContext'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
+import { useMonetizacao } from '../context/MonetizacaoContext';
 
 // Funções utilitárias para persistência das conversas
 const STORAGE_KEY_MSGS = 'mensagens_chat';
@@ -43,6 +44,7 @@ export default function MensagensMelhorada() {
   const [buscaUsuario, setBuscaUsuario] = useState('')
   const navigate = useNavigate()
   const [toast, setToast] = useState(null);
+  const { podeEnviarMensagemCandidato, podeEnviarMensagem, assinatura } = useMonetizacao();
 
   const [mensagens, setMensagens] = useState(() => {
     const persisted = loadMensagensFromStorage();
@@ -559,12 +561,6 @@ export default function MensagensMelhorada() {
     }
   }, [isMobile]);
 
-  useEffect(() => {
-    if (!isMobile && mensagemSelecionada) {
-      window.scrollTo(0, 0);
-    }
-  }, [mensagemSelecionada, isMobile]);
-
   // Função para silenciar conversa
   const silenciarConversa = (id) => {
     setMensagens(prevMensagens => {
@@ -744,6 +740,11 @@ export default function MensagensMelhorada() {
   function ChatInput() {
     if (!mensagemSelecionada) return null
     if (mensagemSelecionada.bloqueada) return null
+    // Estado para modal de upgrade
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    // Função correta de bloqueio
+    const isEmpresa = user?.tipo === 'empresa';
+    const podeEnviar = isEmpresa ? podeEnviarMensagem() : podeEnviarMensagemCandidato();
     
     const handleInputChange = useCallback((e) => {
       setNovaMensagem(e.target.value)
@@ -771,7 +772,7 @@ export default function MensagensMelhorada() {
       <div className={`${isMobile ? 'fixed bottom-16 left-0 right-0 z-50' : 'sticky bottom-0 z-20'} border-t bg-white flex items-center gap-2 lg:gap-3 shadow-md px-2 sm:px-4 py-2`} style={{boxShadow: '0 2px 12px #0001', marginBottom: isMobile ? 12 : 20}}>
         {/* Remover emoji no mobile */}
         {!isMobile && (
-        <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
+        <button onClick={handleEmojiClick} aria-label="Abrir emojis" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0" disabled={!podeEnviar}>
           {/* SVG emoji */}
           <svg width="24" height="24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
         </button>
@@ -781,34 +782,73 @@ export default function MensagensMelhorada() {
           type="text"
           value={novaMensagem}
           onChange={handleInputChange}
-          onFocus={handleFocus}
+          onFocus={e => {
+            if (!podeEnviar) {
+              setShowUpgradeModal(true);
+              e.target.blur();
+              return;
+            }
+            handleFocus();
+          }}
           onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          placeholder="Digite uma mensagem..."
+          onKeyDown={e => {
+            if (!podeEnviar) {
+              setShowUpgradeModal(true);
+              e.preventDefault();
+              return;
+            }
+            handleKeyDown(e);
+          }}
+          placeholder={!podeEnviar ? 'Limite de mensagens do plano atingido' : 'Digite uma mensagem...'}
           className="flex-1 px-4 py-2 rounded-full border text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
           style={{
             border: novaMensagem.trim() ? '1px solid #3b82f6' : '1px solid #d1d5db',
             boxShadow: novaMensagem.trim() ? '0 0 0 2px #3b82f6' : 'none'
           }}
           aria-label="Digite uma mensagem"
+          disabled={!podeEnviar}
         />
-        <button onClick={anexarArquivo} aria-label="Anexar arquivo" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0">
+        <button onClick={anexarArquivo} aria-label="Anexar arquivo" className="p-2 rounded-full hover:bg-blue-50 transition text-xl flex-shrink-0" disabled={!podeEnviar}>
           {/* SVG clipe */}
           <svg width="22" height="22" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3 3 0 114.24 4.24l-9.2 9.19a1 1 0 01-1.41-1.41l9.2-9.19"/></svg>
         </button>
         <button
-          onClick={enviarMensagem}
+          onClick={() => {
+            if (!podeEnviar) {
+              setShowUpgradeModal(true);
+              return;
+            }
+            enviarMensagem();
+          }}
           aria-label="Enviar mensagem"
           className={`p-2 sm:p-3 lg:p-4 rounded-full font-semibold transition-all duration-200 shadow-md flex-shrink-0 ${
-            novaMensagem.trim() ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 shadow-none'
+            novaMensagem.trim() && podeEnviar ? 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 shadow-none'
           }`}
           style={{marginRight: isMobile ? 8 : 24}}
-          disabled={!novaMensagem.trim()}
-          title={novaMensagem.trim() ? 'Enviar mensagem' : 'Digite uma mensagem para enviar'}
+          disabled={!novaMensagem.trim() || !podeEnviar}
+          title={podeEnviar ? (novaMensagem.trim() ? 'Enviar mensagem' : 'Digite uma mensagem para enviar') : 'Limite de mensagens do plano atingido'}
         >
           {/* SVG avião */}
           <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
+        {/* Modal de upgrade de plano */}
+        <Modal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          title="Limite do Plano atingido"
+          size="sm"
+        >
+          <div className="text-center space-y-4">
+            <p className="text-gray-700">Você atingiu o limite de mensagens do seu plano <b>{assinatura?.nome}</b>.</p>
+            <p className="text-gray-600">Faça upgrade para o plano <b>Básico</b> ou <b>Premium</b> para enviar mais mensagens!</p>
+            <button
+              onClick={() => { setShowUpgradeModal(false); navigate('/monetizacao'); }}
+              className="w-full bg-purple-600 text-white font-semibold py-2 rounded-lg hover:bg-purple-700 transition"
+            >
+              Ver Planos e Fazer Upgrade
+        </button>
+          </div>
+        </Modal>
       </div>
     )
   }

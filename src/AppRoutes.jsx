@@ -29,6 +29,7 @@ import FAQ from './pages/FAQ';
 import FuncionalidadeEmProducao from './pages/FuncionalidadeEmProducao';
 import RelatoriosEmpresa from './pages/RelatoriosEmpresa';
 import FiltrosAvancadosEmpresa from './pages/FiltrosAvancadosEmpresa';
+import RelatoriosCandidato from './pages/RelatoriosCandidato';
 import './App.css';
 
 export default function AppRoutes() {
@@ -135,6 +136,11 @@ export default function AppRoutes() {
             <Route path="/perfil/:id" element={
               <ProtectedRoute allowedTypes={['usuario']}>
                 <Perfil />
+              </ProtectedRoute>
+            } />
+            <Route path="/relatorios-candidato" element={
+              <ProtectedRoute allowedTypes={['usuario']}>
+                <RelatoriosCandidato />
               </ProtectedRoute>
             } />
 

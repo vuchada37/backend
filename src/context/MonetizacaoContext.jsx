@@ -31,9 +31,7 @@ export const MonetizacaoProvider = ({ children }) => {
         '50 mensagens por mês',
         'Acesso básico a candidatos',
         'Suporte por email',
-        'Perfil empresa básico',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Perfil empresa básico'
       ],
       popular: false,
       periodo: 'Mensal'
@@ -52,9 +50,7 @@ export const MonetizacaoProvider = ({ children }) => {
         'Suporte prioritário',
         'Perfil empresa destacado',
         'Relatórios básicos',
-        'Notificações avançadas',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Notificações avançadas'
       ],
       popular: true,
       periodo: 'Mensal'
@@ -75,9 +71,7 @@ export const MonetizacaoProvider = ({ children }) => {
         'Relatórios avançados',
         'Notificações prioritárias',
         'Filtros avançados',
-        'Integração com ATS',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Integração com ATS'
       ],
       popular: false,
       periodo: 'Mensal'
@@ -101,9 +95,7 @@ export const MonetizacaoProvider = ({ children }) => {
         'Integração com ATS',
         'API personalizada',
         'Gerente de conta',
-        'Treinamento da equipe',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Treinamento da equipe'
       ],
       popular: false,
       periodo: '2 meses'
@@ -124,9 +116,7 @@ export const MonetizacaoProvider = ({ children }) => {
         '10 mensagens por mês',
         'Perfil básico',
         'Acesso a vagas públicas',
-        'Suporte por email',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Suporte por email'
       ],
       popular: false
     },
@@ -144,9 +134,7 @@ export const MonetizacaoProvider = ({ children }) => {
         'Acesso a todas as vagas',
         'Suporte prioritário',
         'Notificações avançadas',
-        'Relatórios de candidatura',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Relatórios de candidatura'
       ],
       popular: true
     },
@@ -166,46 +154,23 @@ export const MonetizacaoProvider = ({ children }) => {
         'Notificações prioritárias',
         'Relatórios avançados',
         'CV destacado',
-        'Acesso a vagas premium',
-        'Subsídio de alimentação',
-        'Seguro de saúde'
+        'Acesso a vagas premium'
       ],
       popular: false
     }
   }
 
-  // Mock de dados da assinatura
+  // Sempre sincronizar assinatura com user.assinatura
   useEffect(() => {
     if (user) {
-      setTimeout(() => {
-        if (user.tipo === 'empresa') {
-          setAssinatura({
-            plano: 'basico',
-            nome: 'Básico',
-            preco: 2500,
-            dataInicio: '2024-01-01',
-            proximoPagamento: '2024-02-01',
-            status: 'ativa',
-            vagasUsadas: 3,
-            mensagensUsadas: 45
-          })
-        } else {
-          setAssinatura({
-            plano: 'gratuito',
-            nome: 'Gratuito',
-            preco: 0,
-            dataInicio: '2024-01-01',
-            proximoPagamento: '2024-02-01',
-            status: 'ativa',
-            candidaturasUsadas: 2,
-            mensagensUsadas: 3,
-            destaque: false
-          })
-        }
-        setLoading(false)
-      }, 1000)
+      if (user.tipo === 'empresa') {
+        setAssinatura(user.assinatura || { plano: 'gratuito', nome: 'Gratuito', preco: 0 });
+      } else {
+        setAssinatura(user.assinatura || { plano: 'gratuito', nome: 'Gratuito', preco: 0, destaque: false });
+      }
+      setLoading(false);
     }
-  }, [user])
+  }, [user]);
 
   // Verificar se o usuário pode publicar mais vagas
   const podePublicarVaga = () => {
@@ -242,7 +207,8 @@ export const MonetizacaoProvider = ({ children }) => {
         ...prev,
         plano: novoPlano,
         nome: planosCandidato[novoPlano].nome,
-        preco: planosCandidato[novoPlano].preco
+        preco: planosCandidato[novoPlano].preco,
+        destaque: planosCandidato[novoPlano].destaque // Corrige o campo destaque
       }))
       return { success: true }
     } catch (error) {

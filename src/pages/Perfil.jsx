@@ -2,9 +2,11 @@ import { useAuth } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
+import { useMonetizacao } from '../context/MonetizacaoContext';
 
 export default function Perfil() {
   const { user, updateProfile } = useAuth()
+  const { assinatura, planosCandidato } = useMonetizacao();
   const { id } = useParams()
   const navigate = useNavigate();
   const [secaoAtiva, setSecaoAtiva] = useState('pessoal')
@@ -241,7 +243,15 @@ export default function Perfil() {
   const renderSecaoPessoal = () => (
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
         <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
+          {/* Badge de destaque do plano */}
+          {assinatura && user?.tipo === 'usuario' && (
+            <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold border ${assinatura.plano === 'premium' ? 'bg-yellow-400 text-white border-yellow-500' : assinatura.plano === 'basico' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-100 text-gray-500 border-gray-300'}`}>
+              {assinatura.destaque ? (assinatura.plano === 'premium' ? 'Perfil Premium' : 'Perfil em Destaque') : 'Perfil Básico'}
+            </span>
+          )}
+        </div>
         <button
           onClick={() => setEditando(!editando)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"

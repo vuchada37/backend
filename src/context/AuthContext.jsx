@@ -25,6 +25,17 @@ function saveCompanies(companies) {
   localStorage.setItem(COMPANIES_KEY, JSON.stringify(companies));
 }
 
+// Função utilitária para adicionar meses corretamente
+function addMonths(date, months) {
+  const d = new Date(date);
+  const day = d.getDate();
+  d.setMonth(d.getMonth() + months);
+  if (d.getDate() < day) {
+    d.setDate(0);
+  }
+  return d;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -199,9 +210,19 @@ export function AuthProvider({ children }) {
       const companies = getCompanies();
       const empresa = companies[user.email];
       if (!empresa.assinatura) empresa.assinatura = {};
+      const hoje = new Date();
+      let proximo;
+      if (novoPlano.id === 'empresarial') {
+        proximo = addMonths(hoje, 2);
+      } else {
+        proximo = addMonths(hoje, 1);
+      }
       empresa.assinatura.plano = novoPlano.id;
       empresa.assinatura.nome = novoPlano.nome;
       empresa.assinatura.preco = novoPlano.preco;
+      empresa.assinatura.status = 'ativa';
+      empresa.assinatura.dataInicio = hoje.toISOString();
+      empresa.assinatura.proximoPagamento = proximo.toISOString();
       // Outros campos do plano, se desejar
       companies[user.email] = empresa;
       saveCompanies(companies);

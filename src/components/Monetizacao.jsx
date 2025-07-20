@@ -74,16 +74,27 @@ export default function Monetizacao() {
         // Candidato: upgrade e atualizar user no AuthContext/localStorage
         await fazerUpgradeCandidato(selectedPlan.id);
         // Atualizar user no AuthContext/localStorage
-        const updatedUser = { ...user, assinatura: { plano: selectedPlan.id, nome: selectedPlan.nome, preco: selectedPlan.preco, destaque: selectedPlan.destaque } };
+        const hoje = new Date();
+        const proximo = new Date();
+        proximo.setMonth(proximo.getMonth() + 1);
+        const updatedAssinatura = {
+          plano: selectedPlan.id,
+          nome: selectedPlan.nome,
+          preco: selectedPlan.preco,
+          destaque: selectedPlan.destaque,
+          status: 'ativa',
+          dataInicio: hoje.toISOString(),
+          proximoPagamento: proximo.toISOString()
+        };
+        const updatedUser = { ...user, assinatura: updatedAssinatura };
         // Atualiza também no objeto global de usuários
         const users = JSON.parse(localStorage.getItem('nevu_users') || '{}');
         if (users[user.email]) {
-          users[user.email].assinatura = updatedUser.assinatura;
+          users[user.email].assinatura = updatedAssinatura;
           localStorage.setItem('nevu_users', JSON.stringify(users));
         }
         localStorage.setItem('nevu_current_user', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        // Removido window.location.reload();
       }
       setPaymentLoading(false);
       setPaymentSuccess(true);
@@ -134,10 +145,9 @@ export default function Monetizacao() {
           </div>
         )}
 
-        {/* Botões de acesso às funcionalidades exclusivas */}
+        {/* Botão de Filtros Avançados para empresas */}
         {isEmpresa && (
           <div className="flex flex-wrap gap-4 justify-center mb-10">
-            <Link to="/relatorios" className="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition text-sm">Acessar Relatórios</Link>
             <Link to="/filtros-avancados" className="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition text-sm">Filtros Avançados</Link>
           </div>
         )}

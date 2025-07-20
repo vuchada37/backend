@@ -172,6 +172,23 @@ export default function Assinaturas() {
                     <p className="text-lg font-semibold text-gray-900">{planoAtual.limiteMensagens === -1 ? 'Ilimitadas' : planoAtual.limiteMensagens}</p>
                   </div>
                 </div>
+                {/* Exibir datas se existirem */}
+                {(assinaturaCtx.dataInicio || assinaturaCtx.proximoPagamento) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {assinaturaCtx.dataInicio && (
+                      <div>
+                        <p className="text-sm text-gray-600">Início da Assinatura</p>
+                        <p className="text-base font-semibold text-gray-900">{formatarData(assinaturaCtx.dataInicio)}</p>
+                      </div>
+                    )}
+                    {assinaturaCtx.proximoPagamento && (
+                      <div>
+                        <p className="text-sm text-gray-600">Próximo Pagamento</p>
+                        <p className="text-base font-semibold text-gray-900">{formatarData(assinaturaCtx.proximoPagamento)}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -278,7 +295,8 @@ export default function Assinaturas() {
 
   // --- INTERFACE PARA EMPRESA (mock) ---
   if (!isCandidato && user && user.assinatura) {
-    const planoAtual = user.assinatura.plano
+    const { planos } = useMonetizacao();
+    const planoObj = planos[user.assinatura.plano] || planos['gratuito'];
     return (
       <div className="min-h-screen bg-gray-50 py-8 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -297,7 +315,7 @@ export default function Assinaturas() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div className="mb-6 lg:mb-0">
                 <div className="flex items-center mb-4">
-                  <h2 className="text-2xl font-bold text-gray-900 mr-4">{planoAtual.nome}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mr-4">{planoObj.nome}</h2>
                   <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(user.assinatura.status)}`}>
                     {user.assinatura.status === 'ativa' ? 'Ativa' : 'Inativa'}
                   </span>
@@ -305,7 +323,7 @@ export default function Assinaturas() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Valor Mensal</p>
-                    <p className="text-lg font-semibold text-gray-900">{formatarMoeda(user.assinatura.preco)}</p>
+                    <p className="text-lg font-semibold text-gray-900">{planoObj.preco === 0 ? 'Grátis' : `${planoObj.preco.toLocaleString()} MT`}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Próximo Pagamento</p>
@@ -334,6 +352,16 @@ export default function Assinaturas() {
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Benefícios do Plano */}
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefícios do Plano {planoObj.nome}</h3>
+            <ul className="space-y-3 text-sm text-gray-600">
+              {planoObj.recursos && planoObj.recursos.map((r, i) => (
+                <li key={i} className="flex items-start"><span className="text-green-500 mr-2">✓</span>{r}</li>
+              ))}
+            </ul>
           </div>
 
           {/* Uso dos Recursos */}

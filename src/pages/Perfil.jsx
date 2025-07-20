@@ -244,11 +244,18 @@ export default function Perfil() {
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-        <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
+          <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
           {/* Badge de destaque do plano */}
           {assinatura && user?.tipo === 'usuario' && (
-            <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold border ${assinatura.plano === 'premium' ? 'bg-yellow-400 text-white border-yellow-500' : assinatura.plano === 'basico' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-100 text-gray-500 border-gray-300'}`}>
-              {assinatura.destaque ? (assinatura.plano === 'premium' ? 'Perfil Premium' : 'Perfil em Destaque') : 'Perfil Básico'}
+            <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-2
+              ${assinatura.plano === 'premium' ? 'bg-yellow-400 text-white border-yellow-500' :
+                assinatura.plano === 'basico' ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                'bg-gray-100 text-gray-500 border-gray-300'}`}
+            >
+              {assinatura.plano === 'premium' ? 'Perfil Premium' :
+                assinatura.plano === 'basico' ? 'Perfil em Destaque' :
+                'Perfil Gratuito'}
+              <span className="ml-2 text-green-600 font-bold">• Ativo</span>
             </span>
           )}
         </div>
@@ -1030,6 +1037,13 @@ export default function Perfil() {
         </div>
         <div className="mt-2 text-lg font-semibold text-blue-700">{formData.nome}</div>
         <div className="text-gray-500 text-sm">{formData.email}</div>
+        {/* Link para denúncias */}
+        <button
+          onClick={() => navigate('/denuncias')}
+          className="mt-2 text-red-600 underline text-sm hover:text-red-800 transition"
+        >
+          Denunciar abuso ou problema
+        </button>
       </div>
 
       {/* Botões de navegação */}

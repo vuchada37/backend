@@ -30,6 +30,7 @@ import FuncionalidadeEmProducao from './pages/FuncionalidadeEmProducao';
 import RelatoriosEmpresa from './pages/RelatoriosEmpresa';
 import FiltrosAvancadosEmpresa from './pages/FiltrosAvancadosEmpresa';
 import RelatoriosCandidato from './pages/RelatoriosCandidato';
+import Denuncias from './pages/Denuncias';
 import './App.css';
 
 export default function AppRoutes() {
@@ -90,6 +91,7 @@ export default function AppRoutes() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/apoio" element={<Apoio />} />
             <Route path="/em-producao" element={<FuncionalidadeEmProducao />} />
+            <Route path="/denuncias" element={<Denuncias />} />
 
             {/* Rotas Protegidas - Ambos os tipos para Candidaturas, Chamados e Mensagens */}
             <Route path="/candidaturas" element={

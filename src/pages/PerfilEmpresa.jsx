@@ -67,7 +67,7 @@ export default function PerfilEmpresa() {
   // Card de perfil da empresa
   const renderCard = () => (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-2">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center border border-blue-100">
+      <div className="w-full max-w-2xl md:max-w-3xl bg-white rounded-3xl shadow-2xl p-8 md:p-12 flex flex-col items-center border border-blue-100">
         <div className="relative mb-5">
           {formData.logo || user.perfil?.logo ? (
             <img
@@ -90,8 +90,30 @@ export default function PerfilEmpresa() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4zM7 17h.01M7 17a4 4 0 005.657 0M7 17a4 4 0 010-5.657M7 17H5a2 2 0 01-2-2v-2a2 2 0 012-2h2m0 0a4 4 0 015.657 0m0 0a4 4 0 010 5.657" /></svg>
               </button>
         </div>
+        {/* Badge de destaque do plano da empresa */}
+        {user.assinatura && (
+          <span className={`mb-2 px-3 py-1 rounded-full text-xs font-semibold border block
+            ${user.assinatura.plano === 'empresarial' ? 'bg-orange-100 text-orange-700 border-orange-300' :
+              user.assinatura.plano === 'premium' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
+              user.assinatura.plano === 'basico' ? 'bg-blue-100 text-blue-700 border-blue-300' :
+              'bg-gray-100 text-gray-500 border-gray-300'}`}
+          >
+            {user.assinatura.plano === 'empresarial' ? 'Empresa Empresarial' :
+              user.assinatura.plano === 'premium' ? 'Empresa Premium' :
+              user.assinatura.plano === 'basico' ? 'Empresa em Destaque' :
+              'Empresa Básica'}
+            <span className="ml-2 text-green-600 font-bold">• Ativo</span>
+          </span>
+        )}
         <h1 className="text-3xl font-extrabold text-blue-800 mb-1 text-center tracking-tight">{formData.nomeFantasia || user.nome || 'Empresa'}</h1>
         <p className="text-gray-500 text-center mb-6 text-lg font-medium">{formData.descricao || 'Perfil da sua empresa. Edite suas informações aqui.'}</p>
+        {/* Link para denúncias */}
+        <button
+          onClick={() => navigate('/denuncias')}
+          className="mb-4 text-red-600 underline text-sm hover:text-red-800 transition"
+        >
+          Denunciar abuso ou problema
+        </button>
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="flex items-center gap-2 text-gray-700"><span className="text-blue-600 text-xl">🏢</span> <span className="font-semibold">Setor:</span> {formData.setor || 'N/D'}</div>
           <div className="flex items-center gap-2 text-gray-700"><span className="text-green-600 text-xl">👥</span> <span className="font-semibold">Funcionários:</span> {formData.tamanho || 'N/D'}</div>

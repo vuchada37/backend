@@ -13,6 +13,8 @@ export default function Monetizacao() {
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState('');
+  // Novo estado para modal de sucesso detalhado
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Determinar se é candidato ou empresa
   const isEmpresa = user && user.tipo === 'empresa'
@@ -99,6 +101,7 @@ export default function Monetizacao() {
       setPaymentLoading(false);
       setPaymentSuccess(true);
       setShowPaymentModal(false);
+      setShowSuccessModal(true); // Exibe modal de sucesso detalhado
       setSuccessMessage('Plano alterado com sucesso!');
       setTimeout(() => setSuccessMessage(''), 2500);
     }, 1200);
@@ -452,6 +455,39 @@ export default function Monetizacao() {
                   {selectedPlan.preco === 0 ? 'Ativar Grátis' : paymentLoading ? 'Processando...' : 'Pagar Agora'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de sucesso detalhado */}
+      {showSuccessModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto animate__animated animate__fadeInDown">
+            <div className="p-6 flex flex-col items-center">
+              {/* Animação de sucesso */}
+              <div className="mb-4">
+                <svg className="w-16 h-16 text-green-500 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                  <path d="M8 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-green-700 mb-2">Upgrade realizado com sucesso!</h2>
+              <p className="text-gray-700 mb-4 text-center">Agora você está no plano <b>{selectedPlan.nome}</b>.<br/>Aproveite todos os benefícios do seu novo plano!</p>
+              <div className="w-full bg-gray-50 rounded-lg p-4 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Resumo do Plano</h3>
+                <ul className="text-sm text-gray-700 space-y-2">
+                  {selectedPlan.recursos && selectedPlan.recursos.map((r, i) => (
+                    <li key={i} className="flex items-start"><span className="text-green-500 mr-2">✓</span>{r}</li>
+                  ))}
+                </ul>
+              </div>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition mt-2"
+              >
+                Fechar
+              </button>
             </div>
           </div>
         </div>

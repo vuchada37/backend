@@ -84,7 +84,8 @@ export function AuthProvider({ children }) {
         assinatura: {
           plano: 'gratuito',
           nome: 'Gratuito',
-          preco: 0
+          preco: 0,
+          status: 'ativa'
         }
       };
 
@@ -119,7 +120,8 @@ export function AuthProvider({ children }) {
         assinatura: {
           plano: 'gratuito',
           nome: 'Gratuito',
-          preco: 0
+          preco: 0,
+          status: 'ativa'
         }
       };
 
@@ -207,6 +209,7 @@ export function AuthProvider({ children }) {
   function upgradePlano(novoPlano) {
     if (!user) return;
     if (user.tipo === 'empresa') {
+      
       const companies = getCompanies();
       const empresa = companies[user.email];
       if (!empresa.assinatura) empresa.assinatura = {};

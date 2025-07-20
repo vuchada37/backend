@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useMonetizacao } from '../context/MonetizacaoContext'
 import { Link } from 'react-router-dom';
+import confetti from 'canvas-confetti';
 
 export default function Monetizacao() {
   const { user, login, setUser } = useAuth()
@@ -15,6 +16,8 @@ export default function Monetizacao() {
   const [successMessage, setSuccessMessage] = useState('');
   // Novo estado para modal de sucesso detalhado
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState(1); // 1: checkout, 2: processando, 3: sucesso
+  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
 
   // Determinar se é candidato ou empresa
   const isEmpresa = user && user.tipo === 'empresa'
@@ -64,16 +67,17 @@ export default function Monetizacao() {
 
   function handleEscolherPlano(plano) {
     setSelectedPlan(plano);
+    setCheckoutStep(1);
     setShowPaymentModal(true);
   }
 
   async function handleConfirmarPagamento() {
+    setCheckoutStep(2); // processando
     setPaymentLoading(true);
     setTimeout(async () => {
       if (user?.tipo === 'empresa') {
         upgradePlano(selectedPlan);
       } else {
-        // Candidato: upgrade e atualizar user no AuthContext/localStorage
         await fazerUpgradeCandidato(selectedPlan.id);
         // Atualizar user no AuthContext/localStorage
         const hoje = new Date();
@@ -104,7 +108,8 @@ export default function Monetizacao() {
       setShowSuccessModal(true); // Exibe modal de sucesso detalhado
       setSuccessMessage('Plano alterado com sucesso!');
       setTimeout(() => setSuccessMessage(''), 2500);
-    }, 1200);
+      setCheckoutStep(1);
+    }, 2200);
   }
 
   // Remove subsídio de alimentação dos recursos exibidos
@@ -124,6 +129,16 @@ export default function Monetizacao() {
       </div>
     )
   }
+
+  useEffect(() => {
+    if (showSuccessModal) {
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+    }
+  }, [showSuccessModal]);
 
 
   return (
@@ -389,6 +404,8 @@ export default function Monetizacao() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-screen overflow-y-auto">
             <div className="p-4 sm:p-6">
+              {checkoutStep === 1 && (
+                <>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Finalizar Assinatura
               </h3>
@@ -426,19 +443,6 @@ export default function Monetizacao() {
                   ))}
                 </div>
               </div>
-              {/* Feedback visual de pagamento */}
-              {paymentLoading && (
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="text-blue-700 font-medium">Processando pagamento...</span>
-                </div>
-              )}
-              {paymentSuccess && (
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  <span className="text-green-700 font-medium">Pagamento realizado com sucesso!</span>
-                </div>
-              )}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowPaymentModal(false)}
@@ -448,13 +452,22 @@ export default function Monetizacao() {
                   Cancelar
                 </button>
                 <button
-                  onClick={handleConfirmarPagamento}
+                      onClick={handleConfirmarPagamento}
                   className={`flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${paymentLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                   disabled={paymentLoading || paymentSuccess}
                 >
-                  {selectedPlan.preco === 0 ? 'Ativar Grátis' : paymentLoading ? 'Processando...' : 'Pagar Agora'}
+                      {selectedPlan.preco === 0 ? 'Ativar Grátis' : 'Pagar Agora'}
                 </button>
-              </div>
+                  </div>
+                </>
+              )}
+              {checkoutStep === 2 && (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-6"></div>
+                  <h3 className="text-xl font-bold text-blue-700 mb-2">Processando pagamento...</h3>
+                  <p className="text-gray-600 mb-4">Aguarde enquanto confirmamos sua transação.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -472,8 +485,11 @@ export default function Monetizacao() {
                   <path d="M8 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-green-700 mb-2">Upgrade realizado com sucesso!</h2>
-              <p className="text-gray-700 mb-4 text-center">Agora você está no plano <b>{selectedPlan.nome}</b>.<br/>Aproveite todos os benefícios do seu novo plano!</p>
+              <h2 className="text-2xl font-bold text-green-700 mb-2 flex items-center gap-2">
+                🎉 Parabéns!
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ml-2 ${selectedPlan.id === 'premium' ? 'bg-yellow-400 text-white' : selectedPlan.id === 'basico' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'}`}>{selectedPlan.nome}</span>
+              </h2>
+              <p className="text-gray-700 mb-4 text-center">Seu upgrade foi realizado com sucesso.<br/>Agora você é <b>{selectedPlan.nome}</b>! Aproveite todos os benefícios do seu novo plano.</p>
               <div className="w-full bg-gray-50 rounded-lg p-4 mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Resumo do Plano</h3>
                 <ul className="text-sm text-gray-700 space-y-2">
@@ -485,6 +501,30 @@ export default function Monetizacao() {
               <button
                 onClick={() => setShowSuccessModal(false)}
                 className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition mt-2"
+              >
+                Concluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal detalhado de benefícios */}
+      {showBenefitsModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-screen overflow-y-auto animate__animated animate__fadeInDown">
+            <div className="p-8 flex flex-col items-center">
+              <h2 className="text-3xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+                Benefícios do Plano {selectedPlan.nome}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ml-2 ${selectedPlan.id === 'premium' ? 'bg-yellow-400 text-white' : selectedPlan.id === 'basico' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'}`}>{selectedPlan.nome}</span>
+              </h2>
+              <ul className="text-lg text-gray-800 space-y-3 mb-6 w-full max-w-md">
+                {selectedPlan.recursos && selectedPlan.recursos.map((r, i) => (
+                  <li key={i} className="flex items-start gap-2"><span className="text-green-500 text-xl">✓</span>{r}</li>
+                ))}
+              </ul>
+              <button
+                onClick={() => { setShowBenefitsModal(false); setShowSuccessModal(false); }}
+                className="w-full bg-gray-200 text-gray-800 font-semibold py-3 rounded-lg hover:bg-gray-300 transition mt-2"
               >
                 Fechar
               </button>

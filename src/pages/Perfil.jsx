@@ -117,6 +117,9 @@ export default function Perfil() {
   const [modalCert, setModalCert] = useState(false)
   const [modalIdioma, setModalIdioma] = useState(false)
   const [modalProjeto, setModalProjeto] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Estados dos formulários
   const [novaCert, setNovaCert] = useState({ nome: '', instituicao: '', data: '', link: '', arquivo: null, arquivoUrl: '' })
@@ -1152,9 +1155,8 @@ export default function Perfil() {
           Privacidade
         </button>
       </div>
-
       {/* Conteúdo da seção ativa */}
-      <div className="space-y-6">
+      <div className="mb-8">
         {secaoAtiva === 'pessoal' && renderSecaoPessoal()}
         {secaoAtiva === 'profissional' && renderSecaoProfissional()}
         {secaoAtiva === 'curriculo' && renderSecaoCurriculo()}
@@ -1167,6 +1169,64 @@ export default function Perfil() {
         {secaoAtiva === 'notificacoes' && renderSecaoNotificacoes()}
         {secaoAtiva === 'privacidade' && renderSecaoPrivacidade()}
       </div>
+      {/* Botão de excluir conta */}
+      <div className="flex justify-end mb-8">
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-semibold"
+        >
+          Excluir Conta
+        </button>
+      </div>
+      {/* Modal de confirmação de exclusão */}
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Excluir Conta">
+        <div className="space-y-4">
+          {!deleting ? (
+            <>
+              <p className="text-red-700 font-semibold">Tem certeza que deseja excluir sua conta? Esta ação é irreversível.</p>
+              <div className="flex gap-4 justify-end">
+                <button onClick={() => setShowDeleteModal(false)} className="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
+                <button
+                  onClick={() => {
+                    setDeleting(true);
+                    setProgress(0);
+                    let pct = 0;
+                    const interval = setInterval(() => {
+                      pct += 1;
+                      setProgress(pct);
+                      if (pct >= 100) {
+                        clearInterval(interval);
+                        // Remover usuário do localStorage
+                        const users = JSON.parse(localStorage.getItem('nevu_users') || '{}');
+                        if (users[user.email]) {
+                          delete users[user.email];
+                          localStorage.setItem('nevu_users', JSON.stringify(users));
+                        }
+                        localStorage.removeItem('nevu_current_user');
+                        window.location.href = '/';
+                      }
+                    }, 100);
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded font-bold hover:bg-red-700 transition"
+                >
+                  Excluir
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-4">
+              <span className="text-6xl animate-bounce">😭</span>
+              <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                <div
+                  className="bg-red-500 h-4 rounded-full transition-all duration-100"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <div className="text-center text-gray-700 font-semibold">Excluindo sua conta... ({progress}%)<br/>Sentiremos sua falta!</div>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 } 

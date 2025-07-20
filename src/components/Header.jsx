@@ -160,6 +160,10 @@ export default function Header() {
                         <Link to="/monetizacao" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Planos</Link>
                         <Link to="/assinaturas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Assinatura</Link>
                         <Link to="/apoio" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Apoio</Link>
+                        <Link to="/denuncias" className="py-2 px-3 rounded text-base font-medium flex items-center gap-1 text-red-600 hover:text-red-800" onClick={() => setDrawerOpen(false)}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                          Denunciar
+                        </Link>
                       </>
                     ) : (
                       <>
@@ -174,6 +178,10 @@ export default function Header() {
                         <Link to="/monetizacao" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Planos</Link>
                         <Link to="/assinaturas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Assinatura</Link>
                         <Link to="/apoio" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Apoio</Link>
+                        <Link to="/denuncias" className="py-2 px-3 rounded text-base font-medium flex items-center gap-1 text-red-600 hover:text-red-800" onClick={() => setDrawerOpen(false)}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                          Denunciar
+                        </Link>
                       </>
                     )}
                   </>

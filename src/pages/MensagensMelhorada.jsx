@@ -902,10 +902,9 @@ export default function MensagensMelhorada() {
             ref={listaConversasRef}
             className={`w-full md:w-1/4 lg:w-1/3 xl:w-1/4 border-r bg-gray-50 px-2 sm:px-0 ${isMobile ? 'overflow-y-auto pb-16' : 'rounded-l-xl pt-4 overflow-y-auto'}`}
             style={{
-              height: isMobile ? 'calc(100vh - 64px)' : '100%', // altura fixa para garantir scroll do container
+              ...(isMobile ? {} : { height: '100%' }),
               maxHeight: isMobile ? 'calc(100vh - 64px)' : '100%',
-              overflowY: 'auto',
-              ...((isMobile) ? {paddingTop: 0, marginTop: '-8px'} : {})
+              ...(isMobile ? { paddingTop: 0, marginTop: 0 } : {})
             }}
           >
             {mensagensFiltradas.length === 0 && (

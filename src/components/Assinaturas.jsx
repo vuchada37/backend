@@ -2,6 +2,89 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useMonetizacao } from '../context/MonetizacaoContext'
 import { useNavigate } from 'react-router-dom'
+import ApiEmpresarial from './ApiEmpresarial';
+
+// Componente mock de integração com ATS
+function IntegracaoATS() {
+  const [url, setUrl] = useState(() => localStorage.getItem('nevu_ats_url') || '');
+  const [integrado, setIntegrado] = useState(!!localStorage.getItem('nevu_ats_url'));
+  const [editando, setEditando] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  // Vagas mock simulando importação do ATS
+  const vagasMock = [
+    { id: 1, titulo: 'Desenvolvedor(a) Frontend', status: 'Aberta', data: '2024-06-01' },
+    { id: 2, titulo: 'Analista de RH', status: 'Em andamento', data: '2024-05-28' },
+    { id: 3, titulo: 'Gerente de Projetos', status: 'Fechada', data: '2024-05-15' },
+  ];
+
+  function handleIntegrar() {
+    if (url) {
+      localStorage.setItem('nevu_ats_url', url);
+      setIntegrado(true);
+      setEditando(false);
+      setToast('Integração com ATS realizada com sucesso!');
+      setTimeout(() => setToast(null), 2500);
+    }
+  }
+  function handleDesconectar() {
+    localStorage.removeItem('nevu_ats_url');
+    setUrl('');
+    setIntegrado(false);
+    setEditando(false);
+    setToast('Integração com ATS removida.');
+    setTimeout(() => setToast(null), 2000);
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 mt-8 border border-blue-200">
+      <h3 className="text-lg font-bold text-blue-800 mb-2 flex items-center gap-2">
+        Integração com ATS
+        <span className="ml-2 text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">Empresarial</span>
+      </h3>
+      <p className="text-gray-600 text-sm mb-2">
+        Conecte seu sistema de recrutamento (ATS) para automatizar o fluxo de vagas e candidatos.<br/>
+        <span className="text-blue-700 font-medium">Em breve:</span> importação automática de vagas, exportação de candidatos e sincronização de status!
+      </p>
+      {toast && (
+        <div className="mb-3 bg-green-100 border border-green-300 text-green-800 px-4 py-2 rounded">
+          {toast}
+        </div>
+      )}
+      {integrado ? (
+        <div>
+          <p className="text-green-700 mb-2">Integrado com: <b>{url}</b></p>
+          <button onClick={handleDesconectar} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mb-4">Desconectar</button>
+          <div className="mt-4">
+            <h4 className="font-semibold text-gray-900 mb-2">Vagas importadas do ATS (simulação):</h4>
+            <ul className="divide-y divide-gray-200">
+              {vagasMock.map(vaga => (
+                <li key={vaga.id} className="py-2 flex items-center justify-between">
+                  <span className="font-medium text-gray-800">{vaga.titulo}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ml-2 ${vaga.status === 'Aberta' ? 'bg-green-100 text-green-700' : vaga.status === 'Fechada' ? 'bg-gray-200 text-gray-600' : 'bg-yellow-100 text-yellow-700'}`}>{vaga.status}</span>
+                  <span className="ml-4 text-xs text-gray-500">{vaga.data}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-gray-500 mt-2">* Esta lista é apenas ilustrativa. Na integração real, as vagas seriam importadas automaticamente do seu ATS.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row gap-2 items-start">
+          <input
+            type="text"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            placeholder="URL do seu ATS (ex: https://empresa.gupy.io)"
+            className="p-2 border rounded w-full sm:w-80 mb-2"
+            disabled={integrado}
+          />
+          <button onClick={handleIntegrar} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simular Integração</button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Assinaturas() {
   const { user } = useAuth()
@@ -116,7 +199,7 @@ export default function Assinaturas() {
     setTimeout(() => {
       setCancelLoading(false)
       setCancelSuccess(true)
-      setAssinatura(prev => ({ ...prev, status: 'cancelada' }))
+      // setAssinatura(prev => ({ ...prev, status: 'cancelada' })) // This line was removed as per the edit hint
       setTimeout(() => setCancelSuccess(false), 1800)
     }, 2000)
   }
@@ -531,6 +614,13 @@ export default function Assinaturas() {
               </div>
             </div>
           </div>
+          {/* Adicionar API Empresarial e Integração ATS apenas para planos premium e empresarial */}
+          {(user.assinatura.plano === 'empresarial' || user.assinatura.plano === 'premium') && (
+            <>
+              <ApiEmpresarial />
+              <IntegracaoATS />
+            </>
+          )}
         </div>
 
         {/* Modal de confirmação de cancelamento */}

@@ -4,6 +4,143 @@ import Modal from '../components/Modal'
 import { useMonetizacao } from '../context/MonetizacaoContext';
 import { useAuth } from '../context/AuthContext';
 
+// Lista de vagas mockadas (copiada de Vagas.jsx)
+const vagasMock = [
+  {
+    id: 1,
+    titulo: 'Desenvolvedor Frontend',
+    empresa: 'TechMoç',
+    categoria: 'tecnologia',
+    prioridade: 'alta',
+    modalidade: 'Remoto',
+    descricao: 'Desenvolva interfaces modernas.',
+    localizacao: 'Maputo',
+    salario: '60.000 MT',
+    tipo: 'Tempo Integral',
+    experiencia: 'Pleno',
+    beneficios: ['Vale alimentação', 'Plano de saúde'],
+    premium: true,
+    dataPublicacao: '2024-06-01',
+    visualizacoes: 120,
+    candidatos: 8,
+    empresaInfo: { nome: 'TechMoç', descricao: 'Empresa de tecnologia', setor: 'TI', funcionarios: 50, localizacao: 'Maputo', fundacao: 2015 }
+  },
+  {
+    id: 2,
+    titulo: 'Designer UI/UX',
+    empresa: 'DesignPro',
+    categoria: 'design',
+    prioridade: 'media',
+    modalidade: 'Híbrido',
+    descricao: 'Crie experiências incríveis.',
+    localizacao: 'Matola',
+    salario: '45.000 MT',
+    tipo: 'Tempo Integral',
+    experiencia: 'Júnior',
+    beneficios: ['Vale transporte'],
+    premium: false,
+    dataPublicacao: '2024-06-02',
+    visualizacoes: 80,
+    candidatos: 5,
+    empresaInfo: { nome: 'DesignPro', descricao: 'Agência criativa', setor: 'Design', funcionarios: 20, localizacao: 'Matola', fundacao: 2018 }
+  },
+  {
+    id: 3,
+    titulo: 'Analista de Dados',
+    empresa: 'DataMoz',
+    categoria: 'tecnologia',
+    prioridade: 'alta',
+    modalidade: 'Remoto',
+    descricao: 'Analise grandes volumes de dados.',
+    localizacao: 'Maputo',
+    salario: '70.000 MT',
+    tipo: 'Tempo Integral',
+    experiencia: 'Sênior',
+    beneficios: ['Plano odontológico'],
+    premium: true,
+    dataPublicacao: '2024-06-03',
+    visualizacoes: 150,
+    candidatos: 12,
+    empresaInfo: { nome: 'DataMoz', descricao: 'Consultoria em dados', setor: 'TI', funcionarios: 30, localizacao: 'Maputo', fundacao: 2012 }
+  },
+  {
+    id: 4,
+    titulo: 'Gestor de Projetos',
+    empresa: 'Projeta',
+    categoria: 'administrativo',
+    prioridade: 'baixa',
+    modalidade: 'Presencial',
+    descricao: 'Gerencie projetos inovadores.',
+    localizacao: 'Beira',
+    salario: '55.000 MT',
+    tipo: 'Tempo Integral',
+    experiencia: 'Pleno',
+    beneficios: ['Seguro de vida'],
+    premium: true,
+    dataPublicacao: '2024-06-04',
+    visualizacoes: 60,
+    candidatos: 3,
+    empresaInfo: { nome: 'Projeta', descricao: 'Gestão de projetos', setor: 'Administração', funcionarios: 15, localizacao: 'Beira', fundacao: 2017 }
+  },
+  {
+    id: 5,
+    titulo: 'Assistente Administrativo',
+    empresa: 'OfficePlus',
+    categoria: 'administrativo',
+    prioridade: 'media',
+    modalidade: 'Presencial',
+    descricao: 'Auxilie nas rotinas administrativas.',
+    localizacao: 'Maputo',
+    salario: '30.000 MT',
+    tipo: 'Meio Período',
+    experiencia: 'Júnior',
+    beneficios: ['Vale refeição'],
+    premium: false,
+    dataPublicacao: '2024-06-05',
+    visualizacoes: 40,
+    candidatos: 2,
+    empresaInfo: { nome: 'OfficePlus', descricao: 'Serviços administrativos', setor: 'Administração', funcionarios: 10, localizacao: 'Maputo', fundacao: 2020 }
+  },
+  {
+    id: 6,
+    titulo: 'Engenheiro de Software Sênior',
+    empresa: 'SoftPlus',
+    categoria: 'tecnologia',
+    prioridade: 'alta',
+    modalidade: 'Remoto',
+    descricao: 'Lidere projetos de software inovadores.',
+    localizacao: 'Maputo',
+    salario: '120.000 MT',
+    tipo: 'Tempo Integral',
+    experiencia: 'Sênior',
+    beneficios: ['Bônus anual', 'Plano de saúde premium'],
+    premium: true,
+    dataPublicacao: '2024-06-06',
+    visualizacoes: 200,
+    candidatos: 4,
+    empresaInfo: { nome: 'SoftPlus', descricao: 'Desenvolvimento de software', setor: 'TI', funcionarios: 80, localizacao: 'Maputo', fundacao: 2010 }
+  },
+  {
+    id: 7,
+    titulo: 'Especialista em Segurança da Informação',
+    empresa: 'SecureIT',
+    categoria: 'tecnologia',
+    prioridade: 'media',
+    modalidade: 'Remoto',
+    descricao: 'Implemente políticas de segurança e proteja dados sensíveis.',
+    localizacao: 'Matola',
+    salario: '90.000 MT',
+    tipo: 'Tempo Integral',
+    experiencia: 'Pleno',
+    beneficios: ['Home office', 'Seguro de vida'],
+    premium: true,
+    dataPublicacao: '2024-06-07',
+    visualizacoes: 110,
+    candidatos: 6,
+    empresaInfo: { nome: 'SecureIT', descricao: 'Segurança digital', setor: 'TI', funcionarios: 40, localizacao: 'Matola', fundacao: 2016 }
+  }
+];
+
 export default function DetalheVaga() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -24,65 +161,23 @@ export default function DetalheVaga() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { user } = useAuth();
 
+  // Buscar vaga pelo id
+  const vaga = vagasMock.find(v => v.id === parseInt(id));
+  if (!vaga) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Vaga não encontrada</h2>
+        <p className="text-gray-700">A vaga que você tentou acessar não existe ou foi removida.</p>
+        <Link to="/vagas" className="mt-6 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">Voltar para Vagas</Link>
+      </div>
+    );
+  }
+
   // Checar favorito no localStorage
   useState(() => {
     const favs = JSON.parse(localStorage.getItem('favoritosVagas') || '[]');
     setFavorito(favs.includes(id));
   }, [id]);
-
-  // Mock de detalhes da vaga
-  const vaga = {
-    id: parseInt(id),
-    titulo: 'Desenvolvedor Frontend',
-    empresa: 'TechMoç',
-    localizacao: 'Maputo, Bairro Central',
-    categoria: 'tecnologia',
-    tipo: 'Efetivo',
-    salario: '15.000 - 25.000 MT',
-    descricao: 'Estamos procurando um desenvolvedor frontend apaixonado por criar interfaces modernas e responsivas. Você trabalhará com React, TypeScript e CSS moderno em projetos de grande escala.',
-    requisitos: [
-      'Experiência sólida com React e TypeScript',
-      'Conhecimento em CSS moderno (Flexbox, Grid)',
-      'Familiaridade com Git e controle de versão',
-      'Experiência com testes automatizados (Jest, Testing Library)',
-      'Boa comunicação e trabalho em equipe',
-      'Inglês intermediário para leitura de documentação'
-    ],
-    responsabilidades: [
-      'Desenvolver interfaces responsivas e acessíveis',
-      'Colaborar com designers e backend developers',
-      'Participar de code reviews e melhorias de código',
-      'Manter e otimizar performance das aplicações',
-      'Documentar componentes e processos'
-    ],
-    beneficios: [
-      'Seguro de saúde completo',
-      'Subsídio de alimentação',
-      'Acesso a ginásio',
-      'Horário flexível',
-      'Home office híbrido',
-      'Progressão de carreira',
-      'Participação em eventos e conferências',
-      'Acesso a cursos e certificações'
-    ],
-    dataPublicacao: '2024-01-15',
-    experiencia: '2-4 anos',
-    modalidade: 'Híbrido',
-    prioridade: 'alta',
-    candidatos: 12,
-    visualizacoes: 45,
-    empresaInfo: {
-      id: '10',
-      nome: 'TechMoç',
-      descricao: 'Empresa de tecnologia focada em soluções digitais inovadoras para o mercado moçambicano.',
-      funcionarios: '50-100',
-      setor: 'Tecnologia',
-      website: 'www.techmoc.co.mz',
-      fundacao: '2018',
-      localizacao: 'Maputo, Moçambique'
-    },
-    premium: true, // Exemplo: vaga premium
-  }
 
   const getPrioridadeColor = (prioridade) => {
     switch (prioridade) {
@@ -227,7 +322,7 @@ export default function DetalheVaga() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Responsabilidades</h3>
                 <ul className="space-y-1">
-                  {vaga.responsabilidades.map((resp, index) => (
+                  {(vaga.responsabilidades || []).map((resp, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-600">
                       <span className="text-blue-500 mr-2 mt-1">•</span>
                       {resp}
@@ -238,7 +333,7 @@ export default function DetalheVaga() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Requisitos</h3>
                 <ul className="space-y-1">
-                  {vaga.requisitos.map((req, index) => (
+                  {(vaga.requisitos || []).map((req, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-600">
                       <span className="text-green-500 mr-2 mt-1">✓</span>
                       {req}
@@ -253,7 +348,7 @@ export default function DetalheVaga() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Benefícios</h2>
             <div className="grid md:grid-cols-2 gap-3">
-              {vaga.beneficios.map((beneficio, index) => (
+              {(vaga.beneficios || []).map((beneficio, index) => (
                 <div key={index} className="flex items-center text-sm text-gray-600">
                   <span className="text-green-500 mr-2">🎁</span>
                   {beneficio}

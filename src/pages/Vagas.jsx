@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMonetizacao } from '../context/MonetizacaoContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Vagas() {
   const { assinatura } = useMonetizacao();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [filtroCategoria, setFiltroCategoria] = useState('todas')
   const [filtroLocalizacao, setFiltroLocalizacao] = useState('todas')
   const [filtroTipo, setFiltroTipo] = useState('todos')
@@ -293,13 +296,21 @@ export default function Vagas() {
              // Card de convite para upgrade
              return (
                <div key={vaga.id} className="bg-yellow-50 border-2 border-yellow-300 rounded-lg shadow p-6 flex flex-col items-center justify-center text-center relative">
-                 <span className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold bg-yellow-400 text-white">Exclusiva para Planos Superiores</span>
-                 <span className="text-4xl mb-2">⭐</span>
+                 <span className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-yellow-400 text-white shadow-md">
+                   <span>Exclusiva</span>
+                   <span className="text-base" title="Vaga Premium">⭐</span>
+                 </span>
                  <h3 className="font-bold text-yellow-700 text-lg mb-1">Vaga Premium</h3>
                  <p className="text-gray-700 mb-3">Esta vaga é exclusiva para assinantes <b>Premium</b> ou <b>Básico</b>.</p>
                  <button
-                   onClick={() => window.location.href = '/monetizacao'}
-                   className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-bold hover:bg-yellow-500 transition"
+                   className="mt-6 px-4 py-2 bg-yellow-400 text-white rounded-lg font-bold hover:bg-yellow-500 transition"
+                   onClick={() => {
+                     if (!user) {
+                       navigate('/login', { state: { redirectTo: '/monetizacao' } });
+                     } else {
+                       navigate('/monetizacao');
+                     }
+                   }}
                  >
                    Fazer Upgrade e Acessar
                  </button>

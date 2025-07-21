@@ -230,6 +230,8 @@ export default function Perfil() {
       const reader = new FileReader();
       reader.onload = (ev) => {
         setFormData({ ...formData, foto: ev.target.result });
+        setSucesso('Foto de perfil atualizada!');
+        setTimeout(() => setSucesso(''), 2500);
       };
       reader.readAsDataURL(file);
     }
@@ -251,9 +253,9 @@ export default function Perfil() {
 
   const renderSecaoPessoal = () => (
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3">
-        <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
           {/* Badge de destaque do plano */}
           {assinatura && user?.tipo === 'usuario' && (
             <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-2
@@ -268,12 +270,14 @@ export default function Perfil() {
             </span>
           )}
         </div>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-        >
-          {editando ? 'Cancelar' : 'Editar'}
-        </button>
+        {!editando && (
+          <button
+            onClick={() => setEditando(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm mt-2 sm:mt-0"
+          >
+            Editar
+          </button>
+        )}
       </div>
       
       {sucesso && (
@@ -385,12 +389,14 @@ export default function Perfil() {
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Informações Profissionais</h2>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-        >
-          {editando ? 'Cancelar' : 'Editar'}
-        </button>
+        {!editando && (
+          <button
+            onClick={() => setEditando(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+          >
+            Editar
+          </button>
+        )}
       </div>
       
       <div className="space-y-4">
@@ -457,6 +463,23 @@ export default function Perfil() {
           />
         </div>
       </div>
+      {editando && (
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Salvar
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditando(false)}
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
   )
 
@@ -501,12 +524,14 @@ export default function Perfil() {
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Redes Sociais</h2>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-        >
-          {editando ? 'Cancelar' : 'Editar'}
-        </button>
+        {!editando && (
+          <button
+            onClick={() => setEditando(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+          >
+            Editar
+          </button>
+        )}
       </div>
       
       <div className="grid md:grid-cols-2 gap-4">
@@ -582,6 +607,23 @@ export default function Perfil() {
           />
         </div>
       </div>
+      {editando && (
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Salvar
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditando(false)}
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
   )
 
@@ -589,12 +631,14 @@ export default function Perfil() {
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Preferências de Trabalho</h2>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-        >
-          {editando ? 'Cancelar' : 'Editar'}
-        </button>
+        {!editando && (
+          <button
+            onClick={() => setEditando(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+          >
+            Editar
+          </button>
+        )}
       </div>
       
       <div className="grid md:grid-cols-2 gap-4">
@@ -641,6 +685,23 @@ export default function Perfil() {
           </select>
         </div>
       </div>
+      {editando && (
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Salvar
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditando(false)}
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
   )
 
@@ -953,12 +1014,14 @@ export default function Perfil() {
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Privacidade</h2>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-        >
-          {editando ? 'Cancelar' : 'Editar'}
-        </button>
+        {!editando && (
+          <button
+            onClick={() => setEditando(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+          >
+            Editar
+          </button>
+        )}
       </div>
       
       <div className="space-y-4">
@@ -1013,6 +1076,23 @@ export default function Perfil() {
           </label>
         </div>
       </div>
+      {editando && (
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Salvar
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditando(false)}
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
   )
 

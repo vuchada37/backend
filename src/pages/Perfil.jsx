@@ -165,6 +165,10 @@ export default function Perfil() {
     
     try {
       // Preparar dados para salvar
+      let habilidadesArr = formData.habilidades;
+      if (typeof habilidadesArr === 'string') {
+        habilidadesArr = habilidadesArr.split(',').map(h => h.trim()).filter(h => h);
+      }
       const dadosParaSalvar = {
         telefone: formData.telefone,
         dataNascimento: formData.dataNascimento,
@@ -172,7 +176,7 @@ export default function Perfil() {
         bio: formData.bio,
         formacao: formData.formacao,
         experiencia: formData.experiencia,
-        habilidades: formData.habilidades.split(',').map(h => h.trim()).filter(h => h),
+        habilidades: habilidadesArr,
         linkedin: formData.linkedin,
         github: formData.github,
         portfolio: formData.portfolio,
@@ -296,6 +300,9 @@ export default function Perfil() {
           {editando && (
             <div className="flex flex-col gap-2">
               <input type="file" accept="image/*" onChange={handleFotoChange} />
+              {formData.foto && (
+                <span className="block max-w-xs truncate text-xs text-gray-500 bg-gray-100 rounded px-2 py-1 mt-1 overflow-x-auto">Foto selecionada</span>
+              )}
               {formData.foto && (
                 <button type="button" onClick={removerFoto} className="text-red-600 text-xs underline">Remover foto</button>
               )}

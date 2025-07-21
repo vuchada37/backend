@@ -121,6 +121,7 @@ export default function Perfil() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [erro, setErro] = useState('');
 
   // Estados dos formulários
   const [novaCert, setNovaCert] = useState({ nome: '', instituicao: '', data: '', link: '', arquivo: null, arquivoUrl: '' })
@@ -209,7 +210,8 @@ export default function Perfil() {
       
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error)
-      alert('Erro ao atualizar perfil. Tente novamente.')
+      setErro(error.message || 'Erro ao atualizar perfil. Tente novamente.');
+      setTimeout(() => setErro(''), 4000);
     }
   }
 
@@ -231,6 +233,11 @@ export default function Perfil() {
   function handleFotoChange(e) {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 200 * 1024) { // 200KB
+        setErro('A foto é muito grande. Escolha uma imagem de até 200KB.');
+        setTimeout(() => setErro(''), 4000);
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => {
         setFormData({ ...formData, foto: ev.target.result });
@@ -259,7 +266,7 @@ export default function Perfil() {
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
+        <h2 className="text-xl font-bold text-gray-800">Informações Pessoais</h2>
           {/* Badge de destaque do plano */}
           {assinatura && user?.tipo === 'usuario' && (
             <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-2
@@ -275,12 +282,12 @@ export default function Perfil() {
           )}
         </div>
         {!editando && (
-          <button
+        <button
             onClick={() => setEditando(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm mt-2 sm:mt-0"
-          >
+        >
             Editar
-          </button>
+        </button>
         )}
       </div>
       
@@ -397,12 +404,12 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Informações Profissionais</h2>
         {!editando && (
-          <button
+        <button
             onClick={() => setEditando(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-          >
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+        >
             Editar
-          </button>
+        </button>
         )}
       </div>
       
@@ -532,12 +539,12 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Redes Sociais</h2>
         {!editando && (
-          <button
+        <button
             onClick={() => setEditando(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-          >
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+        >
             Editar
-          </button>
+        </button>
         )}
       </div>
       
@@ -639,12 +646,12 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Preferências de Trabalho</h2>
         {!editando && (
-          <button
+        <button
             onClick={() => setEditando(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-          >
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+        >
             Editar
-          </button>
+        </button>
         )}
       </div>
       
@@ -1022,12 +1029,12 @@ export default function Perfil() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Privacidade</h2>
         {!editando && (
-          <button
+        <button
             onClick={() => setEditando(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-          >
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+        >
             Editar
-          </button>
+        </button>
         )}
       </div>
       
@@ -1333,6 +1340,11 @@ export default function Perfil() {
           )}
         </div>
       </Modal>
+      {erro && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg text-white bg-red-600 animate-fade-in">
+          {erro}
+        </div>
+      )}
     </div>
   )
 } 

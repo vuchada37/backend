@@ -40,15 +40,39 @@ export default function Apoio() {
         {/* Remover todo o código relacionado ao botão e modal de chamado prioritário */}
         {/* Formulário de contato - muda para prioritário se basico ou premium */}
         <div className="w-full bg-gray-50 rounded-lg p-3 sm:p-4 shadow-inner max-w-md mx-auto mb-4 sm:mb-6">
-          {(assinatura?.plano === 'premium' || assinatura?.plano === 'basico') ? (
+          {['basico', 'premium', 'empresarial'].includes(assinatura?.plano) ? (
             <>
               <div className="mb-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                <span className="text-green-700 font-semibold">Seu chamado será enviado como PRIORITÁRIO e receberá resposta mais rápida.</span>
+                <span className="text-green-700 font-semibold">Seu chamado será enviado como <b>PRIORITÁRIO</b> e receberá resposta mais rápida.</span>
               </div>
-              <input type="text" placeholder="Assunto" className="w-full p-2 border rounded mb-2" />
-              <textarea placeholder="Descreva seu problema" className="w-full p-2 border rounded mb-2" rows={4} />
-              <button className="w-full px-4 py-2 bg-green-600 text-white rounded font-bold hover:bg-green-700 transition mt-2">Enviar Chamado Prioritário</button>
+              <div className="mb-2 flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01" /></svg>
+                Tempo médio de resposta: <b>até 2h úteis</b>
+              </div>
+              {enviado ? (
+                <div className="flex flex-col items-center py-6 animate__animated animate__fadeIn">
+                  <div className="bg-green-100 rounded-full p-4 mb-3">
+                    <svg className="w-10 h-10 text-green-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><path d="M8 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                  </div>
+                  <div className="text-green-700 bg-green-100 border border-green-300 rounded p-4 text-center font-semibold">Chamado enviado com prioridade!<br/>Nossa equipe responderá em breve.</div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6" /></svg> Assunto</label>
+                    <input type="text" name="assunto" required className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: Problema de acesso" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6" /></svg> Descrição</label>
+                    <textarea required className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" rows={4} placeholder="Descreva seu problema ou dúvida"></textarea>
+                  </div>
+                  <button type="submit" className="w-full px-4 py-2 bg-green-600 text-white rounded font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 text-base">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                    Enviar Chamado Prioritário
+                  </button>
+                </form>
+              )}
             </>
           ) : (
             <>

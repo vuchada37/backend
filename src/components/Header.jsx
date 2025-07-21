@@ -2,6 +2,24 @@ import { Link, useNavigate, useLocation, matchPath } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useState, useRef, useEffect } from 'react'
 
+// Funções utilitárias para localStorage
+const NOTIFICACOES_KEY = 'nevu_notificacoes';
+function getNotificacoesLS() {
+  const data = localStorage.getItem(NOTIFICACOES_KEY);
+  if (data) return JSON.parse(data);
+  // Mock inicial
+  const mock = [
+    { id: 1, texto: 'Sua candidatura foi aprovada!', lida: false },
+    { id: 2, texto: 'Nova vaga: Desenvolvedor React', lida: true },
+    { id: 3, texto: 'Mensagem recebida de TechCorp', lida: false },
+  ];
+  localStorage.setItem(NOTIFICACOES_KEY, JSON.stringify(mock));
+  return mock;
+}
+function saveNotificacoesLS(nots) {
+  localStorage.setItem(NOTIFICACOES_KEY, JSON.stringify(nots));
+}
+
 export default function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -10,15 +28,24 @@ export default function Header() {
   const [drawerClosing, setDrawerClosing] = useState(false);
   const drawerTimeout = useRef(null);
 
-  // Notificações mockadas
+  // Notificações com localStorage
+  const [notificacoes, setNotificacoes] = useState(getNotificacoesLS());
   const [showNotificacoes, setShowNotificacoes] = useState(false);
-  const notificacoes = [
-    { id: 1, texto: 'Sua candidatura foi aprovada!', lida: false },
-    { id: 2, texto: 'Nova vaga: Desenvolvedor React', lida: true },
-    { id: 3, texto: 'Mensagem recebida de TechCorp', lida: false },
-  ];
-  const notificacoesNaoLidas = notificacoes.filter(n => !n.lida).length;
+  // Certifique-se de que notificacoesNaoLidas é sempre derivado do estado atual:
+  const notificacoesNaoLidas = (notificacoes || []).filter(n => !n.lida).length;
   const notificacoesRef = useRef();
+
+  // Atualizar localStorage sempre que notificacoes mudar
+  useEffect(() => {
+    saveNotificacoesLS(notificacoes);
+  }, [notificacoes]);
+
+  function marcarTodasComoLidas() {
+    setNotificacoes(nots => nots.map(n => ({ ...n, lida: true })));
+  }
+  function marcarComoLida(id) {
+    setNotificacoes(nots => nots.map(n => n.id === id ? { ...n, lida: true } : n));
+  }
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {
@@ -88,6 +115,14 @@ export default function Header() {
                 <div className="w-11/12 max-w-sm bg-white shadow-lg rounded-lg p-4 border border-gray-100 animate-fade-in" onClick={e => e.stopPropagation()}>
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-bold text-blue-700">Notificações</h4>
+                    {notificacoesNaoLidas > 0 && (
+                      <button
+                        onClick={marcarTodasComoLidas}
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        Marcar todas como lidas
+                      </button>
+                    )}
                     <button onClick={() => setShowNotificacoes(false)} className="text-gray-400 hover:text-gray-700 text-xl font-bold">×</button>
                   </div>
                   {notificacoes.length === 0 ? (
@@ -95,7 +130,11 @@ export default function Header() {
                   ) : (
                     <ul className="space-y-2 max-h-60 overflow-y-auto">
                       {notificacoes.map(n => (
-                        <li key={n.id} className={`text-sm flex items-center gap-2 ${n.lida ? 'text-gray-500' : 'text-blue-700 font-semibold'}`}>
+                        <li
+                          key={n.id}
+                          className={`text-sm flex items-center gap-2 cursor-pointer transition-colors ${n.lida ? 'text-gray-500' : 'text-blue-700 font-semibold hover:bg-blue-50'}`}
+                          onClick={() => marcarComoLida(n.id)}
+                        >
                           <span className="text-lg">🔔</span> {n.texto}
                         </li>
                       ))}
@@ -125,7 +164,12 @@ export default function Header() {
                 <Link to="/" className={`font-medium text-sm sm:text-base ${isActive('/') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Início</Link>
                 <Link to="/vagas" className={`font-medium text-sm sm:text-base ${isActive('/vagas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Vagas</Link>
                 <Link to="/candidaturas" className={`font-medium text-sm sm:text-base ${isActive('/candidaturas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Candidaturas</Link>
-                <Link to="/relatorios-candidato" className={`font-medium text-sm sm:text-base ${isActive('/relatorios-candidato') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Relatórios</Link>
+                <Link
+                  to={user?.tipo === 'empresa' ? '/relatorios' : '/relatorios-candidato'}
+                  className={`font-medium text-sm sm:text-base ${isActive(user?.tipo === 'empresa' ? '/relatorios' : '/relatorios-candidato') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}
+                >
+                  Relatórios
+                </Link>
                 <Link to="/mensagens" className={`font-medium text-sm sm:text-base ${isActive('/mensagens') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Mensagens</Link>
                 <Link to="/chamados" className={`font-medium text-sm sm:text-base ${isActive('/chamados') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Chamados</Link>
                 <Link to="/perfil" className={`font-medium text-sm sm:text-base ${isActive('/perfil') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Perfil</Link>
@@ -152,7 +196,18 @@ export default function Header() {
                   </button>
                   {showNotificacoes && (
                     <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg p-4 z-50 border border-gray-100 animate-fade-in">
-                      <h4 className="font-bold mb-2 text-blue-700">Notificações</h4>
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-bold text-blue-700">Notificações</h4>
+                        {notificacoesNaoLidas > 0 && (
+                          <button
+                            onClick={marcarTodasComoLidas}
+                            className="text-xs text-blue-600 hover:underline"
+                          >
+                            Marcar todas como lidas
+                          </button>
+                        )}
+                        <button onClick={() => setShowNotificacoes(false)} className="text-gray-400 hover:text-gray-700 text-xl font-bold">×</button>
+                      </div>
                       {notificacoes.length === 0 ? (
                         <div className="text-gray-500 text-sm">Nenhuma notificação</div>
                       ) : (
@@ -191,7 +246,7 @@ export default function Header() {
               <Link to="/publicar-vaga" className={`font-medium text-sm sm:text-base ${isActive('/publicar-vaga') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Publicar Vaga</Link>
               <Link to="/vagas-publicadas" className={`font-medium text-sm sm:text-base ${isActive('/vagas-publicadas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Minhas Vagas</Link>
               <Link to="/candidaturas" className={`font-medium text-sm sm:text-base ${isActive('/candidaturas') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Candidaturas</Link>
-              <Link to="/relatorios-candidato" className={`font-medium text-sm sm:text-base ${isActive('/relatorios-candidato') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Relatórios</Link>
+              <Link to="/relatorios" className={`font-medium text-sm sm:text-base ${isActive('/relatorios') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Relatórios</Link>
               <Link to="/mensagens" className={`font-medium text-sm sm:text-base ${isActive('/mensagens') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Mensagens</Link>
               <Link to="/chamados" className={`font-medium text-sm sm:text-base ${isActive('/chamados') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Chamados</Link>
               <Link to="/perfil-empresa" className={`font-medium text-sm sm:text-base ${isActive('/perfil-empresa') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Perfil</Link>
@@ -246,7 +301,7 @@ export default function Header() {
                         <Link to="/publicar-vaga" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Publicar Vaga</Link>
                         <Link to="/vagas-publicadas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Minhas Vagas</Link>
                         <Link to="/candidaturas" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Candidaturas</Link>
-                        <Link to="/relatorios-candidato" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Relatórios</Link>
+                        <Link to="/relatorios" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Relatórios</Link>
                         <Link to="/mensagens" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Mensagens</Link>
                         <Link to="/chamados" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Chamados</Link>
                         <Link to="/perfil-empresa" className="py-2 px-3 rounded text-base font-medium hover:bg-blue-50 text-gray-700" onClick={() => setDrawerOpen(false)}>Perfil</Link>

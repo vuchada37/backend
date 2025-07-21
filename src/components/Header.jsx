@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation, matchPath } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -9,6 +9,31 @@ export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerClosing, setDrawerClosing] = useState(false);
   const drawerTimeout = useRef(null);
+
+  // Notificações mockadas
+  const [showNotificacoes, setShowNotificacoes] = useState(false);
+  const notificacoes = [
+    { id: 1, texto: 'Sua candidatura foi aprovada!', lida: false },
+    { id: 2, texto: 'Nova vaga: Desenvolvedor React', lida: true },
+    { id: 3, texto: 'Mensagem recebida de TechCorp', lida: false },
+  ];
+  const notificacoesNaoLidas = notificacoes.filter(n => !n.lida).length;
+  const notificacoesRef = useRef();
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notificacoesRef.current && !notificacoesRef.current.contains(event.target)) {
+        setShowNotificacoes(false);
+      }
+    }
+    if (showNotificacoes) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotificacoes]);
 
   const openDrawer = () => {
     setDrawerOpen(true);
@@ -43,9 +68,46 @@ export default function Header() {
           </Link>
         </div>
         {/* Botão menu mobile à direita */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 md:hidden">
+          {/* Sino de notificações (mobile) */}
+          <div className="relative" ref={notificacoesRef}>
+            <button
+              onClick={() => setShowNotificacoes(v => !v)}
+              className="relative p-2 rounded hover:bg-gray-100 focus:outline-none"
+              aria-label="Notificações"
+            >
+              <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {notificacoesNaoLidas > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1.5 font-bold shadow">{notificacoesNaoLidas}</span>
+              )}
+            </button>
+            {showNotificacoes && (
+              <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-start justify-center pt-16" onClick={() => setShowNotificacoes(false)}>
+                <div className="w-11/12 max-w-sm bg-white shadow-lg rounded-lg p-4 border border-gray-100 animate-fade-in" onClick={e => e.stopPropagation()}>
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-bold text-blue-700">Notificações</h4>
+                    <button onClick={() => setShowNotificacoes(false)} className="text-gray-400 hover:text-gray-700 text-xl font-bold">×</button>
+                  </div>
+                  {notificacoes.length === 0 ? (
+                    <div className="text-gray-500 text-sm">Nenhuma notificação</div>
+                  ) : (
+                    <ul className="space-y-2 max-h-60 overflow-y-auto">
+                      {notificacoes.map(n => (
+                        <li key={n.id} className={`text-sm flex items-center gap-2 ${n.lida ? 'text-gray-500' : 'text-blue-700 font-semibold'}`}>
+                          <span className="text-lg">🔔</span> {n.texto}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Botão menu mobile */}
           <button
-            className="md:hidden p-2 rounded hover:bg-gray-100 focus:outline-none"
+            className="p-2 rounded hover:bg-gray-100 focus:outline-none"
             onClick={openDrawer}
             aria-label="Abrir menu"
           >
@@ -74,6 +136,37 @@ export default function Header() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
                   Denunciar
                 </Link>
+                {/* Sino de notificações para usuários logados */}
+                <div className="relative" ref={notificacoesRef}>
+                  <button
+                    onClick={() => setShowNotificacoes(v => !v)}
+                    className="relative p-2 rounded hover:bg-gray-100 focus:outline-none"
+                    aria-label="Notificações"
+                  >
+                    <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    {notificacoesNaoLidas > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1.5 font-bold shadow">{notificacoesNaoLidas}</span>
+                    )}
+                  </button>
+                  {showNotificacoes && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg p-4 z-50 border border-gray-100 animate-fade-in">
+                      <h4 className="font-bold mb-2 text-blue-700">Notificações</h4>
+                      {notificacoes.length === 0 ? (
+                        <div className="text-gray-500 text-sm">Nenhuma notificação</div>
+                      ) : (
+                        <ul className="space-y-2 max-h-60 overflow-y-auto">
+                          {notificacoes.map(n => (
+                            <li key={n.id} className={`text-sm flex items-center gap-2 ${n.lida ? 'text-gray-500' : 'text-blue-700 font-semibold'}`}>
+                              <span className="text-lg">🔔</span> {n.texto}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <button 
                   onClick={() => { logout(); navigate('/'); window.location.reload(); }}
                   className="ml-2 px-3 py-1.5 rounded bg-red-100 text-red-700 font-semibold shadow hover:bg-red-200 transition text-sm flex items-center gap-1"
@@ -228,6 +321,13 @@ export default function Header() {
         }
         .animate-drawer-fade-slide-out {
           animation: drawer-fade-slide-out 0.38s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.25s ease;
         }
       `}</style>
     </>

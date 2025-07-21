@@ -320,12 +320,36 @@ export default function Candidaturas() {
     }
   }
 
+  // Estatísticas de candidaturas por status (apenas para candidatos)
+  const stats = !isEmpresa ? [
+    { label: 'Ativas', value: candidaturasCandidato.filter(c => c.status === 'pendente' || c.status === 'entrevista').length, color: 'bg-blue-100 text-blue-700' },
+    { label: 'Aprovadas', value: candidaturasCandidato.filter(c => c.status === 'aprovada').length, color: 'bg-green-100 text-green-700' },
+    { label: 'Rejeitadas', value: candidaturasCandidato.filter(c => c.status === 'rejeitada').length, color: 'bg-red-100 text-red-700' },
+    { label: 'Total', value: candidaturasCandidato.length, color: 'bg-gray-100 text-gray-700' },
+  ] : [];
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-4">
-          {isEmpresa ? 'Candidaturas Recebidas' : 'Minhas Candidaturas'}
-        </h1>
+      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8">
+        {/* Topo com ícone e título grande */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 rounded-full p-3 shadow">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-4-4H7a4 4 0 00-4 4v10a4 4 0 004 4h4" /></svg>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">{isEmpresa ? 'Candidaturas Recebidas' : 'Minhas Candidaturas'}</h1>
+          </div>
+          {/* Estatísticas para candidatos */}
+          {!isEmpresa && (
+            <div className="flex gap-2 flex-wrap mt-2 sm:mt-0">
+              {stats.map(stat => (
+                <div key={stat.label} className={`px-3 py-1 rounded-full text-xs font-semibold ${stat.color} shadow-sm`}>
+                  {stat.label}: {stat.value}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Filtros */}
         <div className="bg-white rounded-lg shadow p-4 mb-4">
@@ -360,35 +384,47 @@ export default function Candidaturas() {
           <div className="max-h-[50vh] sm:max-h-[60vh] overflow-y-auto">
             {candidaturasFiltradas.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                <span className="text-4xl mb-4 block">📋</span>
-                <p className="text-lg font-medium">Nenhuma candidatura encontrada</p>
-                <p className="text-sm">Tente ajustar os filtros ou aguarde novas candidaturas</p>
+                <span className="text-6xl mb-4 block">🗂️</span>
+                <p className="text-lg font-medium">Você ainda não se candidatou a nenhuma vaga</p>
+                <p className="text-sm">Explore oportunidades e candidate-se às vagas do seu interesse!</p>
               </div>
             ) : (
               candidaturasFiltradas.map((candidatura) => (
                 <div
                   key={candidatura.id}
-                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer hover:bg-gray-50 transition border-b border-gray-100 last:border-b-0"
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer hover:bg-blue-50 transition border-b border-gray-100 last:border-b-0 group"
+                  style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.03)' }}
                 >
                   <div onClick={() => handleCandidaturaClick(candidatura)} className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg shadow">
                         {isEmpresa ? candidatura.candidato.charAt(0) : candidatura.empresa.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-800 text-base">
+                        <h3 className="font-semibold text-gray-800 text-base flex items-center gap-2">
                           {isEmpresa ? candidatura.candidato : candidatura.empresa}
+                          <span className="text-xs text-gray-400 font-normal">{candidatura.vaga}</span>
                         </h3>
-                        <p className="text-sm text-gray-600">{candidatura.vaga}</p>
+                        <div className="flex gap-2 mt-1 flex-wrap">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                            <svg className="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-3-3h-4a3 3 0 00-3 3v2h5z" /></svg>
+                            {candidatura.localizacao || 'Localização não informada'}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+                            💰 {candidatura.salario || '-'}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(candidatura.status)} border border-gray-200`}>
+                            {getStatusText(candidatura.status)}
+                          </span>
+                        </div>
                       </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(candidatura.status)}`}>{getStatusText(candidatura.status)}</span>
                   </div>
                   {/* Botão cancelar para o candidato logado */}
                   {!isEmpresa && user && user.tipo === 'candidato' && candidatura.email === user.email && podeCancelar(candidatura.status) && (
                     <button
                       onClick={() => cancelarCandidatura(candidatura.id)}
-                      className="mt-2 sm:mt-0 sm:ml-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-xs font-medium flex items-center gap-2"
+                      className="mt-2 sm:mt-0 sm:ml-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-xs font-medium flex items-center gap-2 group-hover:scale-105"
                     >
-                      ❌ Cancelar Minha Candidatura
+                      ❌ Cancelar
                     </button>
                   )}
                 </div>

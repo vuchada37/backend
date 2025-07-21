@@ -1,7 +1,70 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMonetizacao } from '../context/MonetizacaoContext';
 import Modal from '../components/Modal';
+
+// Funções utilitárias para localStorage
+const CHAMADOS_KEY = 'nevu_chamados';
+function getChamados() {
+  const data = localStorage.getItem(CHAMADOS_KEY);
+  if (data) return JSON.parse(data);
+  // Mock inicial completo, se não houver nada salvo
+  const mock = [
+    {
+      id: 1,
+      titulo: 'Problema no login',
+      descricao: 'Não consigo acessar minha conta, aparece erro de senha incorreta mesmo digitando corretamente.',
+      categoria: 'tecnologia',
+      localizacao: 'Maputo, Centro',
+      orcamento: '500 MT',
+      prazo: '2024-06-10',
+      prioridade: 'alta',
+      requisitos: ['Experiência com sistemas web', 'Suporte remoto'],
+      telefone: '82 123 4567',
+      email: 'cliente1@email.com',
+      status: 'aberto',
+      data: '2024-06-01',
+      respostas: []
+    },
+    {
+      id: 2,
+      titulo: 'Dúvida sobre candidatura',
+      descricao: 'Gostaria de saber se posso me candidatar a mais de uma vaga ao mesmo tempo.',
+      categoria: 'educacao',
+      localizacao: 'Beira',
+      orcamento: '',
+      prazo: '',
+      prioridade: 'baixa',
+      requisitos: [],
+      telefone: '84 222 3333',
+      email: 'cliente2@email.com',
+      status: 'fechado',
+      data: '2024-05-28',
+      respostas: []
+    },
+    {
+      id: 3,
+      titulo: 'Erro ao enviar mensagem',
+      descricao: 'Ao tentar enviar mensagem para uma empresa, aparece erro de conexão.',
+      categoria: 'tecnologia',
+      localizacao: 'Nampula',
+      orcamento: '300 MT',
+      prazo: '2024-06-12',
+      prioridade: 'media',
+      requisitos: ['Conhecimento em redes'],
+      telefone: '86 555 6666',
+      email: 'cliente3@email.com',
+      status: 'aberto',
+      data: '2024-06-02',
+      respostas: []
+    }
+  ];
+  localStorage.setItem(CHAMADOS_KEY, JSON.stringify(mock));
+  return mock;
+}
+function saveChamados(chamados) {
+  localStorage.setItem(CHAMADOS_KEY, JSON.stringify(chamados));
+}
 
 export default function Chamados() {
   const { assinatura } = useMonetizacao();
@@ -20,16 +83,103 @@ export default function Chamados() {
 
   const navigate = useNavigate();
   const [toast, setToast] = useState(null); // { msg: string, chamado: object }
-  // Mock de chamados
+  // Remover o carregamento do localStorage para evitar conflito
+  // const [chamados, setChamados] = useState([]);
+  // useEffect(() => {
+  //   setChamados(getChamados());
+  // }, []);
+
+  // Lista de chamados mockados (completa)
   const chamados = [
-    { id: 1, assunto: 'Problema no login', descricao: 'Não consigo acessar minha conta pelo site. Tentei recuperar a senha, mas mesmo após redefinir, o erro persiste. O navegador utilizado foi o Chrome no Windows 10. O erro aparece após clicar em "Entrar" na tela inicial.', status: 'aberto', prioridade: assinatura?.plano === 'premium' || assinatura?.plano === 'basico' ? 'prioritario' : 'normal', data: '2024-06-01' },
-    { id: 2, assunto: 'Dúvida sobre candidatura', descricao: 'Gostaria de saber se posso me candidatar a mais de uma vaga ao mesmo tempo. Já estou participando de um processo seletivo para Desenvolvedor Frontend e vi uma vaga de Analista de Dados que me interessa.', status: 'fechado', prioridade: 'normal', data: '2024-05-28' },
-    { id: 3, assunto: 'Erro ao enviar mensagem', descricao: 'Ao tentar enviar uma mensagem para a empresa "TechMoç" pela página de detalhes da vaga, aparece o erro "Falha ao conectar ao servidor". O problema ocorreu tanto no computador quanto no celular, usando redes diferentes.', status: 'aberto', prioridade: 'prioritario', data: '2024-06-02' },
-    { id: 4, assunto: 'Solicitação de exclusão de conta', descricao: 'Quero excluir minha conta e todos os meus dados da plataforma. Meu e-mail de cadastro é usuario@email.com. Solicito confirmação por e-mail após a exclusão.', status: 'aberto', prioridade: 'normal', data: '2024-06-03' },
-    { id: 5, assunto: 'Plano não foi atualizado', descricao: 'Realizei o pagamento do plano premium via M-Pesa no dia 03/06/2024, mas minha conta continua como gratuita. O comprovante foi enviado para o suporte. Preciso do acesso aos benefícios do plano premium.', status: 'aberto', prioridade: 'prioritario', data: '2024-06-04' },
+    {
+      id: 1,
+      titulo: 'Problema no login',
+      descricao: 'Não consigo acessar minha conta, aparece erro de senha incorreta mesmo digitando corretamente.',
+      categoria: 'tecnologia',
+      localizacao: 'Maputo, Centro',
+      orcamento: '500 MT',
+      prazo: '2024-06-10',
+      prioridade: 'alta',
+      requisitos: ['Experiência com sistemas web', 'Suporte remoto'],
+      telefone: '82 123 4567',
+      email: 'cliente1@email.com',
+      status: 'aberto',
+      data: '2024-06-01',
+      respostas: []
+    },
+    {
+      id: 2,
+      titulo: 'Dúvida sobre candidatura',
+      descricao: 'Gostaria de saber se posso me candidatar a mais de uma vaga ao mesmo tempo.',
+      categoria: 'educacao',
+      localizacao: 'Beira',
+      orcamento: '',
+      prazo: '',
+      prioridade: 'baixa',
+      requisitos: [],
+      telefone: '84 222 3333',
+      email: 'cliente2@email.com',
+      status: 'fechado',
+      data: '2024-05-28',
+      respostas: []
+    },
+    {
+      id: 3,
+      titulo: 'Erro ao enviar mensagem',
+      descricao: 'Ao tentar enviar mensagem para uma empresa, aparece erro de conexão.',
+      categoria: 'tecnologia',
+      localizacao: 'Nampula',
+      orcamento: '300 MT',
+      prazo: '2024-06-12',
+      prioridade: 'media',
+      requisitos: ['Conhecimento em redes'],
+      telefone: '86 555 6666',
+      email: 'cliente3@email.com',
+      status: 'aberto',
+      data: '2024-06-02',
+      respostas: []
+    },
+    {
+      id: 4,
+      titulo: 'Solicitação de exclusão de conta',
+      descricao: 'Quero excluir minha conta e todos os meus dados da plataforma.',
+      categoria: 'outros',
+      localizacao: 'Quelimane',
+      orcamento: '',
+      prazo: '',
+      prioridade: 'baixa',
+      requisitos: [],
+      telefone: '87 111 2222',
+      email: 'cliente4@email.com',
+      status: 'aberto',
+      data: '2024-06-03',
+      respostas: []
+    },
+    {
+      id: 5,
+      titulo: 'Plano não foi atualizado',
+      descricao: 'Realizei o pagamento do plano premium, mas minha conta continua como gratuita.',
+      categoria: 'tecnologia',
+      localizacao: 'Maputo',
+      orcamento: '',
+      prazo: '',
+      prioridade: 'alta',
+      requisitos: ['Experiência com pagamentos online'],
+      telefone: '82 999 8888',
+      email: 'cliente5@email.com',
+      status: 'aberto',
+      data: '2024-06-04',
+      respostas: []
+    }
   ];
+
   // Ordenar chamados: prioritários primeiro
-  const chamadosOrdenados = [...chamados].sort((a, b) => (b.prioridade === 'prioritario') - (a.prioridade === 'prioritario'));
+  const chamadosOrdenados = [...chamados].sort((a, b) => {
+    // Prioridade "alta" = prioritário para planos pagos
+    const aPrioritario = a.prioridade === 'alta';
+    const bPrioritario = b.prioridade === 'alta';
+    return (bPrioritario - aPrioritario);
+  });
 
   const categorias = [
     { id: 'todas', nome: 'Todas as Categorias' },
@@ -50,8 +200,8 @@ export default function Chamados() {
 
   // Filtro de busca seguro + filtro de prioridade por plano
   const chamadosFiltrados = chamadosOrdenados.filter(chamado =>
-    (chamado.assunto && chamado.assunto.toLowerCase().includes(busca.toLowerCase())) &&
-    (isPlanoPago || chamado.prioridade !== 'prioritario')
+    (chamado.titulo && chamado.titulo.toLowerCase().includes(busca.toLowerCase())) &&
+    (isPlanoPago || chamado.prioridade !== 'alta')
   );
 
   const getStatusColor = (status) => {
@@ -167,13 +317,13 @@ export default function Chamados() {
       {/* Lista de Chamados */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {chamadosFiltrados.map(chamado => {
-          const isPrioritario = chamado.prioridade === 'prioritario';
+          const isPrioritario = chamado.prioridade === 'alta';
           const isPlanoSuperior = assinatura?.plano === 'premium' || assinatura?.plano === 'basico';
           return (
             <div key={chamado.id} className={`p-4 rounded-lg shadow flex flex-col sm:flex-row sm:items-center justify-between ${isPrioritario ? 'border-l-4 border-green-500 bg-green-50' : 'border-l-4 border-gray-200 bg-white'}`}>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-gray-800">{chamado.assunto}</span>
+                  <span className="font-bold text-gray-800">{chamado.titulo}</span>
                   {isPrioritario && (
                     <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-green-500 text-white ml-2">Prioritário</span>
                   )}
@@ -218,13 +368,94 @@ export default function Chamados() {
       )}
       {/* Modal de detalhes do chamado */}
       {detalheChamado && (
-        <Modal isOpen={!!detalheChamado} onClose={() => setDetalheChamado(null)} title={`Detalhes do chamado: ${detalheChamado.assunto}`}>
-          <div className="space-y-3">
-            <div className="text-sm text-gray-700"><b>Assunto:</b> {detalheChamado.assunto}</div>
-            <div className="text-sm text-gray-700"><b>Descrição:</b> {detalheChamado.descricao}</div>
-            <div className="text-sm text-gray-700"><b>Status:</b> {detalheChamado.status === 'aberto' ? 'Aberto' : 'Fechado'}</div>
-            <div className="text-sm text-gray-700"><b>Prioridade:</b> {detalheChamado.prioridade === 'prioritario' ? 'Prioritário' : 'Normal'}</div>
-            <div className="text-sm text-gray-700"><b>Data:</b> {detalheChamado.data}</div>
+        <Modal isOpen={!!detalheChamado} onClose={() => setDetalheChamado(null)} title={null}>
+          <div className="space-y-4">
+            {/* Topo: Ícone e categoria */}
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-3xl">
+                {getCategoriaIcon && getCategoriaIcon(detalheChamado.categoria)}
+              </span>
+              <div>
+                <h2 className="text-2xl font-bold text-blue-800 leading-tight">{detalheChamado.titulo}</h2>
+                <div className="flex gap-2 mt-1 flex-wrap">
+                  {/* Badge categoria */}
+                  {detalheChamado.categoria && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+                      {detalheChamado.categoria.charAt(0).toUpperCase() + detalheChamado.categoria.slice(1)}
+                    </span>
+                  )}
+                  {/* Badge prioridade */}
+                  {detalheChamado.prioridade && (
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      detalheChamado.prioridade === 'alta' ? 'bg-red-100 text-red-700 border border-red-200' :
+                      detalheChamado.prioridade === 'media' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
+                      'bg-green-100 text-green-700 border border-green-200'
+                    }`}>
+                      Prioridade: {detalheChamado.prioridade.charAt(0).toUpperCase() + detalheChamado.prioridade.slice(1)}
+                    </span>
+                  )}
+                  {/* Badge status */}
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    detalheChamado.status === 'aberto' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-700 border border-gray-200'
+                  }`}>
+                    {detalheChamado.status === 'aberto' ? 'Aberto' : 'Fechado'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Grid de informações principais */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 rounded-lg p-4">
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Localização</div>
+                <div className="font-semibold text-gray-800">{detalheChamado.localizacao || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Orçamento</div>
+                <div className="font-semibold text-gray-800">{detalheChamado.orcamento || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Prazo</div>
+                <div className="font-semibold text-gray-800">{detalheChamado.prazo || '-'}</div>
+              </div>
+            </div>
+
+            {/* Descrição */}
+            <div>
+              <div className="text-xs text-gray-500 mb-1">Descrição</div>
+              <div className="bg-white rounded-lg p-3 border text-gray-700 text-sm">{detalheChamado.descricao}</div>
+            </div>
+
+            {/* Requisitos */}
+            {detalheChamado.requisitos && detalheChamado.requisitos.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-blue-600 text-lg">✔️</span>
+                  <span className="text-xs text-gray-500">Requisitos do Profissional</span>
+                </div>
+                <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                  {detalheChamado.requisitos.map((req, idx) => (
+                    <li key={idx}>{req}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Contato */}
+            <div className="bg-gray-50 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-start md:items-center">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h2.28a2 2 0 011.7 1l1.09 2.18a2 2 0 01-.45 2.45l-1.27 1.02a11.05 11.05 0 005.52 5.52l1.02-1.27a2 2 0 012.45-.45l2.18 1.09a2 2 0 011 1.7V19a2 2 0 01-2 2h-1C7.82 21 3 16.18 3 10V9a2 2 0 012-2z" /></svg>
+                <span className="font-medium text-gray-700 text-sm">{detalheChamado.telefone}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12H8m8 0a4 4 0 11-8 0 4 4 0 018 0zm2 0a6 6 0 11-12 0 6 6 0 0112 0z" /></svg>
+                <span className="font-medium text-gray-700 text-sm">{detalheChamado.email}</span>
+              </div>
+            </div>
+
+            {/* Data de abertura */}
+            <div className="text-xs text-gray-500">Data de abertura: <span className="font-semibold text-gray-700">{detalheChamado.data}</span></div>
+
             {/* Histórico de respostas */}
             {respostas[detalheChamado.id] && respostas[detalheChamado.id].length > 0 && (
               <div>
@@ -236,19 +467,23 @@ export default function Chamados() {
                 </ul>
               </div>
             )}
+
+            {/* Botão de ação */}
             <div className="flex justify-end mt-4">
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition"
+                className={`px-6 py-2 rounded-lg font-bold shadow text-base transition 
+                  ${isPlanoPago ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                 onClick={() => {
-                  if (!isPlanoPago && respostasGratisUsadas >= limiteRespostasGratis) {
+                  if (!isPlanoPago) {
                     setDetalheChamado(null);
                     setShowUpgradeModal(true);
                     return;
                   }
                   setDetalheChamado(null);
-                  navigate('/mensagens', { state: { assunto: detalheChamado.assunto, chamadoId: detalheChamado.id } });
+                  navigate('/mensagens', { state: { assunto: detalheChamado.titulo || detalheChamado.assunto, chamadoId: detalheChamado.id } });
                 }}
-                disabled={!isPlanoPago && respostasGratisUsadas >= limiteRespostasGratis}
+                disabled={!isPlanoPago}
+                title={!isPlanoPago ? 'Recurso exclusivo para planos pagos' : ''}
               >
                 Enviar Mensagem
               </button>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
 import { useMonetizacao } from '../context/MonetizacaoContext';
+import NotificacoesSwitch from '../components/NotificacoesSwitch';
 
 export default function Perfil() {
   const { user, updateProfile } = useAuth()
@@ -74,8 +75,8 @@ export default function Perfil() {
 
   // Dados mockados para idiomas
   const [idiomas, setIdiomas] = useState(user?.perfil?.idiomas || []);
-  // Remover declaração duplicada de novoIdioma e setNovoIdioma
-  // const [novoIdioma, setNovoIdioma] = useState({ idioma: '', nivel: 'básico' });
+  // Corrigir: adicionar useState para novoIdioma
+  const [novoIdioma, setNovoIdioma] = useState({ idioma: '', nivel: 'básico' });
 
   // Dados mockados para projetos
   const [projetos, setProjetos] = useState([
@@ -85,7 +86,7 @@ export default function Perfil() {
       descricao: 'Plataforma completa de e-commerce com React e Node.js',
       tecnologias: ['React', 'Node.js', 'MongoDB'],
       link: 'https://github.com/joaosilva/ecommerce',
-      imagem: 'https://via.placeholder.com/300x200'
+      imagem: '/nevu.png' // Substituir placeholder
     },
     { 
       id: 2, 
@@ -93,7 +94,7 @@ export default function Perfil() {
       descricao: 'Aplicativo para controle de finanças pessoais',
       tecnologias: ['React Native', 'Firebase'],
       link: 'https://github.com/joaosilva/financas',
-      imagem: 'https://via.placeholder.com/300x200'
+      imagem: '/nevu.png' // Substituir placeholder
     }
   ])
 
@@ -233,6 +234,11 @@ export default function Perfil() {
       reader.readAsDataURL(file);
     }
   }
+
+  // Definir o array de idiomas disponíveis no início do componente Perfil
+  const idiomasDisponiveis = [
+    'Português', 'Inglês', 'Espanhol', 'Francês', 'Alemão', 'Italiano', 'Mandarim', 'Árabe', 'Russo', 'Japonês', 'Outro'
+  ];
 
   // Se não houver usuário logado, mostrar mensagem de acesso restrito
   if (!user) {
@@ -712,7 +718,16 @@ export default function Perfil() {
       {/* Modal de adicionar idioma */}
       <Modal isOpen={modalIdioma} onClose={() => setModalIdioma(false)} title="Adicionar Idioma">
         <div className="space-y-3">
-          <input type="text" placeholder="Idioma" value={novoIdioma.idioma} onChange={e => setNovoIdioma(v => ({...v, idioma: e.target.value}))} className="w-full p-2 border rounded" />
+          <select
+            value={novoIdioma.idioma}
+            onChange={e => setNovoIdioma(v => ({...v, idioma: e.target.value}))}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Selecione o idioma</option>
+            {idiomasDisponiveis.map(idioma => (
+              <option key={idioma} value={idioma}>{idioma}</option>
+            ))}
+          </select>
           <select value={novoIdioma.nivel} onChange={e => setNovoIdioma(v => ({...v, nivel: e.target.value}))} className="w-full p-2 border rounded">
             <option value="básico">Básico</option>
             <option value="intermediário">Intermediário</option>
@@ -727,34 +742,50 @@ export default function Perfil() {
       </Modal>
       <div className="mb-6">
         <h2 className="text-lg font-bold text-gray-800 mb-2">Idiomas</h2>
-        <ul className="mb-2">
+        {/* Substituir a lista de idiomas adicionados por uma visualização mais "viva": */}
+        <ul className="flex flex-wrap gap-3 mb-2">
           {idiomas.map(i => (
-            <li key={i.id} className="flex items-center gap-2 mb-1">
-              <span>{i.idioma} ({i.nivel})</span>
+            <li key={i.id} className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-xl px-4 py-2 shadow-sm">
+              <span className="text-blue-600 text-lg mr-1">🌐</span>
+              <span className="font-semibold text-gray-800">{i.idioma}</span>
+              <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${
+                i.nivel === 'básico' ? 'bg-gray-200 text-gray-700' :
+                i.nivel === 'intermediário' ? 'bg-yellow-100 text-yellow-800' :
+                i.nivel === 'avançado' ? 'bg-blue-100 text-blue-700' :
+                i.nivel === 'fluente' ? 'bg-green-100 text-green-700' :
+                i.nivel === 'nativo' ? 'bg-purple-100 text-purple-700' :
+                'bg-gray-100 text-gray-700'
+              }`}>
+                {i.nivel.charAt(0).toUpperCase() + i.nivel.slice(1)}
+              </span>
               {editando && (
-                <button type="button" onClick={() => removerIdioma(i.id)} className="text-red-500 text-xs ml-2">Remover</button>
+                <button type="button" onClick={() => removerIdioma(i.id)} className="ml-2 text-red-500 text-xs hover:text-red-700 transition" title="Remover">
+                  ✖
+                </button>
               )}
             </li>
           ))}
         </ul>
         {editando && (
           <div className="flex gap-2 items-end">
-            <input
-              type="text"
-              placeholder="Idioma"
+            <select
               value={novoIdioma.idioma}
               onChange={e => setNovoIdioma({ ...novoIdioma, idioma: e.target.value })}
               className="border p-2 rounded"
-            />
+            >
+              <option value="">Selecione o idioma</option>
+              {idiomasDisponiveis.map(idioma => (
+                <option key={idioma} value={idioma}>{idioma}</option>
+              ))}
+            </select>
             <select
               value={novoIdioma.nivel}
               onChange={e => setNovoIdioma({ ...novoIdioma, nivel: e.target.value })}
               className="border p-2 rounded"
             >
-              <option value="básico">Básico</option>
-              <option value="intermediário">Intermediário</option>
-              <option value="avançado">Avançado</option>
-              <option value="nativo">Nativo</option>
+              {niveis.map(nivel => (
+                <option key={nivel} value={nivel}>{nivel}</option>
+              ))}
             </select>
             <button type="button" onClick={adicionarIdioma} className="bg-blue-600 text-white px-3 py-1 rounded">Adicionar</button>
           </div>
@@ -869,43 +900,32 @@ export default function Perfil() {
     </div>
   )
 
+  const isPlanoPago = assinatura?.plano === 'basico' || assinatura?.plano === 'premium';
   const renderSecaoNotificacoes = () => (
-    <div className="bg-white rounded-lg shadow p-2 sm:p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Notificações</h2>
-        <button
-          onClick={() => setEditando(!editando)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-        >
-          {editando ? 'Cancelar' : 'Editar'}
-        </button>
-      </div>
-      
-      <div className="space-y-4">
+    <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Notificações</h3>
+      <NotificacoesSwitch />
+      <div className="space-y-4 mt-6">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium text-gray-800">Alertas de vagas</h3>
             <p className="text-sm text-gray-600">Receber notificações de novas vagas</p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               checked={formData.alertasVagas}
-              onChange={(e) => setFormData({...formData, alertasVagas: e.target.checked})}
-              disabled={!editando}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
+            onChange={e => setFormData({...formData, alertasVagas: e.target.checked})}
+            className="w-5 h-5"
+            disabled={!isPlanoPago}
+          />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Frequência de alertas</label>
           <select
             name="frequenciaAlertas"
             value={formData.frequenciaAlertas}
             onChange={handleChange}
-            disabled={!editando}
+            disabled={!isPlanoPago}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
           >
             <option value="diario">Diário</option>
@@ -913,22 +933,21 @@ export default function Perfil() {
             <option value="quinzenal">Quinzenal</option>
           </select>
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Palavras-chave de interesse</label>
           <input
             type="text"
             name="vagasInteresse"
             value={formData.vagasInteresse.join(', ')}
-            onChange={(e) => setFormData({...formData, vagasInteresse: e.target.value.split(', ')})}
-            disabled={!editando}
+            onChange={e => setFormData({...formData, vagasInteresse: e.target.value.split(', ')})}
+            disabled={!isPlanoPago}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
             placeholder="Ex: desenvolvedor, frontend, react"
           />
         </div>
       </div>
     </div>
-  )
+  );
 
   const renderSecaoPrivacidade = () => (
     <div className="bg-white rounded-lg shadow p-2 sm:p-6">
@@ -1169,8 +1188,8 @@ export default function Perfil() {
         {secaoAtiva === 'notificacoes' && renderSecaoNotificacoes()}
         {secaoAtiva === 'privacidade' && renderSecaoPrivacidade()}
       </div>
-      {/* Botão de excluir conta */}
-      <div className="flex justify-end mb-8">
+      {/* Botão de excluir conta - mover para o final */}
+      <div className="flex justify-end mb-8 mt-8">
         <button
           onClick={() => setShowDeleteModal(true)}
           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-semibold"

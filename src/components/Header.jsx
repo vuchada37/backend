@@ -266,6 +266,8 @@ export default function Header() {
               {/* Sino de notificações aqui */}
               <Link to="/perfil-empresa" className={`font-medium text-sm sm:text-base ${isActive('/perfil-empresa') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Perfil</Link>
               <Link to="/monetizacao" className={`font-medium text-sm sm:text-base ${isActive('/monetizacao') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Planos</Link>
+              <Link to="/apoio" className={`font-medium text-sm sm:text-base ${isActive('/apoio') ? 'text-blue-700 font-bold underline underline-offset-4' : 'text-gray-700 hover:text-blue-600 transition-colors'}`}>Apoio</Link>
+              
               {/* Dropdown 'Mais' */}
               <div className="relative" ref={maisRef}>
                 <button onClick={() => setShowMais(v => !v)} className="relative px-3 py-1.5 rounded hover:bg-gray-100 text-gray-700 font-medium flex items-center gap-1">
@@ -277,8 +279,50 @@ export default function Header() {
                     <Link to="/candidaturas" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded" onClick={() => setShowMais(false)}>Candidaturas</Link>
                     <Link to="/relatorios" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded" onClick={() => setShowMais(false)}>Relatórios</Link>
                     <Link to="/assinaturas" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded" onClick={() => setShowMais(false)}>Assinatura</Link>
-                    <Link to="/apoio" className="block px-4 py-2 text-gray-700 hover:bg-blue-50 rounded" onClick={() => setShowMais(false)}>Apoio</Link>
                     <Link to="/denuncias" className="block px-4 py-2 text-red-600 hover:bg-red-50 rounded" onClick={() => setShowMais(false)}>Denunciar</Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Sino de notificações para empresas */}
+              <div className="relative" ref={notificacoesRef}>
+                <button
+                  onClick={() => setShowNotificacoes(v => !v)}
+                  className="relative p-2 rounded hover:bg-gray-100 focus:outline-none"
+                  aria-label="Notificações"
+                >
+                  <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {notificacoesNaoLidas > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1.5 font-bold shadow">{notificacoesNaoLidas}</span>
+                  )}
+                </button>
+                {showNotificacoes && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg p-4 z-50 border border-gray-100 animate-fade-in">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-bold text-blue-700">Notificações</h4>
+                      {notificacoesNaoLidas > 0 && (
+                        <button
+                          onClick={marcarTodasComoLidas}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Marcar todas como lidas
+                        </button>
+                      )}
+                      <button onClick={() => setShowNotificacoes(false)} className="text-gray-400 hover:text-gray-700 text-xl font-bold">×</button>
+                    </div>
+                    {notificacoes.length === 0 ? (
+                      <div className="text-gray-500 text-sm">Nenhuma notificação</div>
+                    ) : (
+                      <ul className="space-y-2 max-h-60 overflow-y-auto">
+                        {notificacoes.map(n => (
+                          <li key={n.id} className={`text-sm flex items-center gap-2 ${n.lida ? 'text-gray-500' : 'text-blue-700 font-semibold'}`}>
+                            <span className="text-lg">🔔</span> {n.texto}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
               </div>

@@ -13,76 +13,54 @@ export default function Cadastro() {
   const [sucesso, setSucesso] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('')
-  const { register, login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-
-  // Pegar a página de origem (se existir)
   const from = location.state?.from?.pathname || null
+  const { register } = useAuth()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setErro('')
     setSucesso('')
-
-    // Validações
     if (!nome || !email || !senha || !confirmarSenha) {
       setErro('Preencha todos os campos.')
       return
     }
-
     if (senha !== confirmarSenha) {
       setErro('As senhas não coincidem.')
       return
     }
-
     if (senha.length < 6) {
       setErro('A senha deve ter pelo menos 6 caracteres.')
       return
     }
-
     if (!email.includes('@')) {
       setErro('Digite um email válido.')
       return
     }
-
     setIsLoading(true)
-    setLoadingMessage('Verificando dados...')
-
-    // Simular delay para melhor UX
-    setTimeout(() => {
-      try {
-        setLoadingMessage('Criando conta...')
-        
-        // Registrar o usuário
-        const newUser = register({ nome, email, senha, tipo })
-        
-        setLoadingMessage('Fazendo login...')
-        
-        // Fazer login automaticamente
-        login({ email, senha, tipo })
-        
-        setLoadingMessage('Redirecionando...')
-        
-        // Redirecionar após 2 segundos
-        setTimeout(() => {
-          if (from) {
-            navigate(from, { replace: true })
-          } else {
-            if (tipo === 'usuario') {
-              navigate('/', { replace: true })
-            } else {
-              navigate('/empresa-home', { replace: true })
-            }
-          }
-        }, 2000)
-        
-      } catch (error) {
-        setErro(error.message)
-        setIsLoading(false)
-        setLoadingMessage('')
+    setLoadingMessage('Criando conta...')
+    try {
+      // Usar a função register do contexto de autenticação
+      const user = await register({ nome, email, senha, tipo })
+      setLoadingMessage('Redirecionando...')
+      setTimeout(() => {
+        if (from) {
+          navigate(from, { replace: true })
+        } else {
+          if (tipo === 'usuario') navigate('/', { replace: true })
+          else navigate('/empresa-home', { replace: true })
+        }
+      }, 1200)
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        setErro(error.response.data.error)
+      } else {
+        setErro('Erro ao registrar. Tente novamente.')
       }
-    }, 500)
+      setIsLoading(false)
+      setLoadingMessage('')
+    }
   }
 
   return (

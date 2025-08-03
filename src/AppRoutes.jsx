@@ -20,6 +20,7 @@ import PerfilEmpresa from './pages/PerfilEmpresa';
 import VagasPublicadas from './pages/VagasPublicadas';
 import PublicarVaga from './pages/PublicarVaga';
 import Mensagens from './pages/MensagensMelhorada';
+import TesteMensagens from './pages/TesteMensagens';
 import Monetizacao from './components/Monetizacao';
 import Assinaturas from './components/Assinaturas';
 import Apoio from './pages/Apoio';
@@ -116,7 +117,7 @@ export default function AppRoutes() {
               </ProtectedRoute>
             } />
             <Route path="/novo-chamado" element={
-              <ProtectedRoute allowedTypes={['usuario']}>
+              <ProtectedRoute allowedTypes={['usuario', 'empresa']}>
                 <NovoChamado />
               </ProtectedRoute>
             } />

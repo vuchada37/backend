@@ -1,149 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import Modal from '../components/Modal'
 import { useMonetizacao } from '../context/MonetizacaoContext';
 import { useAuth } from '../context/AuthContext';
-
-// Lista de vagas mockadas (copiada de Vagas.jsx)
-const vagasMock = [
-  {
-    id: 1,
-    titulo: 'Desenvolvedor Frontend',
-    empresa: 'TechMoç',
-    categoria: 'tecnologia',
-    prioridade: 'alta',
-    modalidade: 'Remoto',
-    descricao: 'Desenvolva interfaces modernas.',
-    localizacao: 'Maputo',
-    salario: '60.000 MT',
-    tipo: 'Tempo Integral',
-    experiencia: 'Pleno',
-    beneficios: ['Vale alimentação', 'Plano de saúde'],
-    premium: true,
-    dataPublicacao: '2024-06-01',
-    visualizacoes: 120,
-    candidatos: 8,
-    empresaInfo: { nome: 'TechMoç', descricao: 'Empresa de tecnologia', setor: 'TI', funcionarios: 50, localizacao: 'Maputo', fundacao: 2015 }
-  },
-  {
-    id: 2,
-    titulo: 'Designer UI/UX',
-    empresa: 'DesignPro',
-    categoria: 'design',
-    prioridade: 'media',
-    modalidade: 'Híbrido',
-    descricao: 'Crie experiências incríveis.',
-    localizacao: 'Matola',
-    salario: '45.000 MT',
-    tipo: 'Tempo Integral',
-    experiencia: 'Júnior',
-    beneficios: ['Vale transporte'],
-    premium: false,
-    dataPublicacao: '2024-06-02',
-    visualizacoes: 80,
-    candidatos: 5,
-    empresaInfo: { nome: 'DesignPro', descricao: 'Agência criativa', setor: 'Design', funcionarios: 20, localizacao: 'Matola', fundacao: 2018 }
-  },
-  {
-    id: 3,
-    titulo: 'Analista de Dados',
-    empresa: 'DataMoz',
-    categoria: 'tecnologia',
-    prioridade: 'alta',
-    modalidade: 'Remoto',
-    descricao: 'Analise grandes volumes de dados.',
-    localizacao: 'Maputo',
-    salario: '70.000 MT',
-    tipo: 'Tempo Integral',
-    experiencia: 'Sênior',
-    beneficios: ['Plano odontológico'],
-    premium: true,
-    dataPublicacao: '2024-06-03',
-    visualizacoes: 150,
-    candidatos: 12,
-    empresaInfo: { nome: 'DataMoz', descricao: 'Consultoria em dados', setor: 'TI', funcionarios: 30, localizacao: 'Maputo', fundacao: 2012 }
-  },
-  {
-    id: 4,
-    titulo: 'Gestor de Projetos',
-    empresa: 'Projeta',
-    categoria: 'administrativo',
-    prioridade: 'baixa',
-    modalidade: 'Presencial',
-    descricao: 'Gerencie projetos inovadores.',
-    localizacao: 'Beira',
-    salario: '55.000 MT',
-    tipo: 'Tempo Integral',
-    experiencia: 'Pleno',
-    beneficios: ['Seguro de vida'],
-    premium: true,
-    dataPublicacao: '2024-06-04',
-    visualizacoes: 60,
-    candidatos: 3,
-    empresaInfo: { nome: 'Projeta', descricao: 'Gestão de projetos', setor: 'Administração', funcionarios: 15, localizacao: 'Beira', fundacao: 2017 }
-  },
-  {
-    id: 5,
-    titulo: 'Assistente Administrativo',
-    empresa: 'OfficePlus',
-    categoria: 'administrativo',
-    prioridade: 'media',
-    modalidade: 'Presencial',
-    descricao: 'Auxilie nas rotinas administrativas.',
-    localizacao: 'Maputo',
-    salario: '30.000 MT',
-    tipo: 'Meio Período',
-    experiencia: 'Júnior',
-    beneficios: ['Vale refeição'],
-    premium: false,
-    dataPublicacao: '2024-06-05',
-    visualizacoes: 40,
-    candidatos: 2,
-    empresaInfo: { nome: 'OfficePlus', descricao: 'Serviços administrativos', setor: 'Administração', funcionarios: 10, localizacao: 'Maputo', fundacao: 2020 }
-  },
-  {
-    id: 6,
-    titulo: 'Engenheiro de Software Sênior',
-    empresa: 'SoftPlus',
-    categoria: 'tecnologia',
-    prioridade: 'alta',
-    modalidade: 'Remoto',
-    descricao: 'Lidere projetos de software inovadores.',
-    localizacao: 'Maputo',
-    salario: '120.000 MT',
-    tipo: 'Tempo Integral',
-    experiencia: 'Sênior',
-    beneficios: ['Bônus anual', 'Plano de saúde premium'],
-    premium: true,
-    dataPublicacao: '2024-06-06',
-    visualizacoes: 200,
-    candidatos: 4,
-    empresaInfo: { nome: 'SoftPlus', descricao: 'Desenvolvimento de software', setor: 'TI', funcionarios: 80, localizacao: 'Maputo', fundacao: 2010 }
-  },
-  {
-    id: 7,
-    titulo: 'Especialista em Segurança da Informação',
-    empresa: 'SecureIT',
-    categoria: 'tecnologia',
-    prioridade: 'media',
-    modalidade: 'Remoto',
-    descricao: 'Implemente políticas de segurança e proteja dados sensíveis.',
-    localizacao: 'Matola',
-    salario: '90.000 MT',
-    tipo: 'Tempo Integral',
-    experiencia: 'Pleno',
-    beneficios: ['Home office', 'Seguro de vida'],
-    premium: true,
-    dataPublicacao: '2024-06-07',
-    visualizacoes: 110,
-    candidatos: 6,
-    empresaInfo: { nome: 'SecureIT', descricao: 'Segurança digital', setor: 'TI', funcionarios: 40, localizacao: 'Matola', fundacao: 2016 }
-  }
-];
+import api from '../services/api';
 
 export default function DetalheVaga() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [vaga, setVaga] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [modalCandidatura, setModalCandidatura] = useState(false)
   const [candidatura, setCandidatura] = useState({
     telefone: '',
@@ -157,24 +24,26 @@ export default function DetalheVaga() {
   const [enviando, setEnviando] = useState(false);
   const [candidatado, setCandidatado] = useState(false);
   const { podeCandidatar, assinatura } = useMonetizacao();
-  // Estado para modal de upgrade
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { user } = useAuth();
 
-  // Buscar vaga pelo id
-  const vaga = vagasMock.find(v => v.id === parseInt(id));
-  if (!vaga) {
-    return (
-      <div className="max-w-2xl mx-auto py-12 text-center">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Vaga não encontrada</h2>
-        <p className="text-gray-700">A vaga que você tentou acessar não existe ou foi removida.</p>
-        <Link to="/vagas" className="mt-6 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">Voltar para Vagas</Link>
-      </div>
-    );
-  }
+  useEffect(() => {
+    async function fetchVaga() {
+      try {
+        setLoading(true)
+        const response = await api.get(`/vagas/${id}`)
+        setVaga(response.data)
+      } catch (err) {
+        setError('Vaga não encontrada')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchVaga()
+  }, [id])
 
   // Checar favorito no localStorage
-  useState(() => {
+  useEffect(() => {
     const favs = JSON.parse(localStorage.getItem('favoritosVagas') || '[]');
     setFavorito(favs.includes(id));
   }, [id]);
@@ -198,41 +67,38 @@ export default function DetalheVaga() {
     }
   }
 
-  const enviarCandidatura = () => {
+  const enviarCandidatura = async () => {
     setEnviando(true);
-    setTimeout(() => {
-      setEnviando(false);
+    try {
+      // Criar FormData para enviar arquivo
+      const formData = new FormData();
+      formData.append('vagaId', vaga.id);
+      formData.append('mensagem', candidatura.cartaApresentacao);
+      formData.append('telefone', candidatura.telefone);
+      formData.append('linkedin', candidatura.linkedin);
+      formData.append('disponibilidade', candidatura.disponibilidade);
+      
+      // Adicionar arquivo de CV se existir
+      if (candidatura.cv) {
+        formData.append('curriculo', candidatura.cv);
+      }
+
+      await api.post('/candidaturas', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
       setCandidatado(true);
       setShowToast({ type: 'success', message: 'Candidatura enviada com sucesso!' });
       setModalCandidatura(false);
-      setCandidatura({ cartaApresentacao: '', salarioPretendido: '', disponibilidade: '' });
-      setTimeout(() => setShowToast(null), 2200);
-      // Persistir candidatura por vaga
-      const candidaturaData = {
-        vagaId: vaga.id,
-        vagaTitulo: vaga.titulo,
-        empresa: vaga.empresa,
-        candidatoEmail: user?.email,
-        candidatoNome: user?.nome,
-        telefone: candidatura.telefone,
-        linkedin: candidatura.linkedin,
-        disponibilidade: candidatura.disponibilidade,
-        cartaApresentacao: candidatura.cartaApresentacao,
-        data: new Date().toISOString(),
-        status: 'Pendente',
-      };
-      // Por vaga
-      const keyVaga = `candidaturas_vaga_${vaga.id}`;
-      const candidaturasVaga = JSON.parse(localStorage.getItem(keyVaga) || '[]');
-      candidaturasVaga.push(candidaturaData);
-      localStorage.setItem(keyVaga, JSON.stringify(candidaturasVaga));
-      // Por usuário
-      const keyUsuario = `candidaturas_usuario_${user?.email}`;
-      const candidaturasUsuario = JSON.parse(localStorage.getItem(keyUsuario) || '[]');
-      candidaturasUsuario.push(candidaturaData);
-      localStorage.setItem(keyUsuario, JSON.stringify(candidaturasUsuario));
-    }, 1800);
-  }
+    } catch (err) {
+      console.error('Erro ao enviar candidatura:', err);
+      setShowToast({ type: 'error', message: 'Erro ao enviar candidatura.' });
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   // Favoritar
   const handleFavoritar = () => {
@@ -276,6 +142,15 @@ export default function DetalheVaga() {
     setTimeout(() => setShowToast(null), 2200);
   };
 
+  if (loading) return <div className="max-w-2xl mx-auto py-12 text-center">Carregando...</div>;
+  if (error || !vaga) return (
+    <div className="max-w-2xl mx-auto py-12 text-center">
+      <h2 className="text-2xl font-bold text-red-600 mb-4">Vaga não encontrada</h2>
+      <p className="text-gray-700">A vaga que você tentou acessar não existe ou foi removida.</p>
+      <Link to="/vagas" className="mt-6 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">Voltar para Vagas</Link>
+    </div>
+  );
+
   return (
     <div className="max-w-6xl mx-auto py-6 px-4 pb-20 md:pb-6">
       {/* Header */}
@@ -293,19 +168,36 @@ export default function DetalheVaga() {
           )}
         </h1>
         <div className="flex flex-wrap gap-2 mb-4">
+          {vaga.prioridade && (
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPrioridadeColor(vaga.prioridade)}`}>
             {vaga.prioridade.toUpperCase()}
           </span>
+          )}
+          {vaga.categoria && (
           <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
             {getCategoriaIcon(vaga.categoria)} {vaga.categoria.toUpperCase()}
           </span>
+          )}
           <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
             {vaga.modalidade}
           </span>
+          {/* Status da Capacidade */}
+          {vaga.statusCapacidade && (
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              vaga.statusCapacidade === 'aberta' ? 'bg-green-100 text-green-800' :
+              vaga.statusCapacidade === 'parcial' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {vaga.statusCapacidade === 'aberta' ? '🟢 Aberta' :
+               vaga.statusCapacidade === 'parcial' ? '🟡 Quase Cheia' :
+               '🔴 Fechada'}
+            </span>
+          )}
         </div>
         <div className="flex items-center text-gray-600 text-sm">
           <span className="mr-4">👁️ {vaga.visualizacoes} visualizações</span>
-          <span className="mr-4">👥 {vaga.candidatos} candidatos</span>
+          <span className="mr-4">👥 {vaga.candidaturas?.length || 0} candidatos</span>
+          <span className="mr-4">📊 Aprovados: {vaga.candidaturas?.filter(c => c.fase === 'aprovada' || c.fase === 'contratada').length || 0}/{vaga.capacidadeVagas || 1}</span>
           <span>📅 Publicada em {new Date(vaga.dataPublicacao).toLocaleDateString('pt-BR')}</span>
         </div>
       </div>
@@ -317,7 +209,6 @@ export default function DetalheVaga() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Descrição da Vaga</h2>
             <p className="text-gray-600 leading-relaxed mb-4">{vaga.descricao}</p>
-            
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Responsabilidades</h3>
@@ -333,7 +224,7 @@ export default function DetalheVaga() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Requisitos</h3>
                 <ul className="space-y-1">
-                  {(vaga.requisitos || []).map((req, index) => (
+                  {(Array.isArray(vaga.requisitos) ? vaga.requisitos : (vaga.requisitos ? vaga.requisitos.split('\n') : [])).map((req, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-600">
                       <span className="text-green-500 mr-2 mt-1">✓</span>
                       {req}
@@ -343,12 +234,11 @@ export default function DetalheVaga() {
               </div>
             </div>
           </div>
-
           {/* Benefícios */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Benefícios</h2>
             <div className="grid md:grid-cols-2 gap-3">
-              {(vaga.beneficios || []).map((beneficio, index) => (
+              {(Array.isArray(vaga.beneficios) ? vaga.beneficios : (vaga.beneficios ? vaga.beneficios.split('\n') : [])).map((beneficio, index) => (
                 <div key={index} className="flex items-center text-sm text-gray-600">
                   <span className="text-green-500 mr-2">🎁</span>
                   {beneficio}
@@ -357,7 +247,6 @@ export default function DetalheVaga() {
             </div>
           </div>
         </div>
-
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Informações da empresa */}
@@ -365,36 +254,25 @@ export default function DetalheVaga() {
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Empresa</h2>
             <div className="space-y-3">
               <div>
-                <div className="font-medium text-gray-800">{vaga.empresaInfo.nome}</div>
-                <div className="text-sm text-gray-500">{vaga.empresaInfo.descricao}</div>
+                <div className="font-medium text-gray-800">{vaga.empresa?.nome}</div>
+                <div className="text-sm text-gray-500">{vaga.empresa?.descricao}</div>
               </div>
               <div className="space-y-2 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <span>Setor:</span>
-                  <span className="font-medium">{vaga.empresaInfo.setor}</span>
+                  <span className="font-medium">{vaga.empresa?.setor}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Funcionários:</span>
-                  <span className="font-medium">{vaga.empresaInfo.funcionarios}</span>
+                  <span>Website:</span>
+                  <span className="font-medium">{vaga.empresa?.website}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Localização:</span>
-                  <span className="font-medium">{vaga.empresaInfo.localizacao}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Fundada em:</span>
-                  <span className="font-medium">{vaga.empresaInfo.fundacao}</span>
+                  <span className="font-medium">{vaga.empresa?.endereco || vaga.empresa?.localizacao}</span>
                 </div>
               </div>
-              <button 
-                onClick={() => navigate('/em-producao')}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-              >
-                Ver Perfil da Empresa
-              </button>
             </div>
           </div>
-
           {/* Detalhes da vaga */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Detalhes</h2>
@@ -409,11 +287,11 @@ export default function DetalheVaga() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tipo:</span>
-                <span className="font-medium">{vaga.tipo}</span>
+                <span className="font-medium">{vaga.tipoContrato}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Experiência:</span>
-                <span className="font-medium">{vaga.experiencia}</span>
+                <span className="font-medium">{vaga.nivelExperiencia}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Modalidade:</span>
@@ -421,7 +299,6 @@ export default function DetalheVaga() {
               </div>
             </div>
           </div>
-
           {/* Ações */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Ações</h2>

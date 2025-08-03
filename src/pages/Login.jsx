@@ -10,74 +10,37 @@ export default function Login() {
   const [erro, setErro] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('')
-  const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-
-  // Pegar a página de origem (se existir)
   const from = location.state?.from?.pathname || null
+  const { login } = useAuth()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setErro('')
-
-    if (!email || !senha) {
-      setErro('Preencha todos os campos.')
-      return
-    }
-
-    if (!email.includes('@')) {
-      setErro('Digite um email válido.')
-      return
-    }
-
     setIsLoading(true)
     setLoadingMessage('Verificando credenciais...')
-
-    // Simular delay para melhor UX
-    setTimeout(() => {
-      try {
-        // Tentar login como usuário primeiro
-        let user = null
-        let tipo = 'usuario'
-        
-        setLoadingMessage('Verificando como usuário...')
-        
-        try {
-          user = login({ email, senha, tipo: 'usuario' })
-        } catch (error) {
-          // Se não encontrar como usuário, tentar como empresa
-          setLoadingMessage('Verificando como empresa...')
-          try {
-            user = login({ email, senha, tipo: 'empresa' })
-            tipo = 'empresa'
-          } catch (empresaError) {
-            // Se não encontrar em nenhum dos dois, mostrar erro genérico
-            throw new Error('Email ou senha incorretos.')
-          }
+    try {
+      // Usar a função login do contexto de autenticação (sem enviar tipo)
+      const user = await login({ email, senha })
+      setLoadingMessage('Redirecionando...')
+      setTimeout(() => {
+        if (from) {
+          navigate(from, { replace: true })
+        } else {
+          if (user.tipo === 'usuario') navigate('/', { replace: true })
+          else navigate('/empresa-home', { replace: true })
         }
-        
-        setLoadingMessage('Redirecionando...')
-        
-        // Redirecionar para a página original ou página padrão baseada no tipo
-        setTimeout(() => {
-          if (from) {
-            navigate(from, { replace: true })
-          } else {
-            if (tipo === 'usuario') {
-              navigate('/', { replace: true })
-            } else {
-              navigate('/empresa-home', { replace: true })
-            }
-          }
-        }, 1000)
-        
-      } catch (error) {
-        setErro(error.message)
-        setIsLoading(false)
-        setLoadingMessage('')
+      }, 1000)
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        setErro(error.response.data.error)
+      } else {
+        setErro('Erro ao fazer login. Tente novamente.')
       }
-    }, 500)
+      setIsLoading(false)
+      setLoadingMessage('')
+    }
   }
 
   return (

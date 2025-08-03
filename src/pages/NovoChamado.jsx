@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useMonetizacao } from '../context/MonetizacaoContext'
+import api from '../services/api'
 
 export default function NovoChamado() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { assinatura } = useMonetizacao()
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
@@ -15,6 +20,9 @@ export default function NovoChamado() {
     telefone: '',
     email: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [showToast, setShowToast] = useState(null)
 
   const categorias = [
     { id: 'tecnologia', nome: 'Tecnologia', icon: '💻' },
@@ -63,10 +71,54 @@ export default function NovoChamado() {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    alert('Chamado criado com sucesso! (Funcionalidade mockada)')
-    navigate('/chamados')
+    
+    if (!user) {
+      setShowToast({ type: 'error', message: 'Faça login para criar um chamado' })
+      setTimeout(() => setShowToast(null), 3000)
+      return
+    }
+
+    // Validar campos obrigatórios
+    if (!formData.titulo.trim() || !formData.descricao.trim() || !formData.categoria) {
+      setShowToast({ type: 'error', message: 'Preencha todos os campos obrigatórios' })
+      setTimeout(() => setShowToast(null), 3000)
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Preparar dados para envio
+      const dadosChamado = {
+        titulo: formData.titulo.trim(),
+        descricao: formData.descricao.trim(),
+        categoria: formData.categoria,
+        localizacao: formData.localizacao.trim(),
+        orcamento: formData.orcamento.trim(),
+        prazo: formData.prazo,
+        prioridade: formData.prioridade,
+        requisitos: formData.requisitos.filter(req => req.trim()),
+        telefone: formData.telefone.trim(),
+        email: formData.email.trim()
+      }
+
+      await api.post('/chamados', dadosChamado)
+      
+      setShowToast({ type: 'success', message: 'Chamado criado com sucesso!' })
+      setTimeout(() => {
+        navigate('/chamados')
+      }, 1500)
+    } catch (err) {
+      console.error('Erro ao criar chamado:', err)
+      setError(err.response?.data?.error || 'Erro ao criar chamado. Tente novamente.')
+      setShowToast({ type: 'error', message: err.response?.data?.error || 'Erro ao criar chamado. Tente novamente.' })
+      setTimeout(() => setShowToast(null), 3000)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -281,13 +333,21 @@ export default function NovoChamado() {
           </div>
         </div>
 
+        {/* Mensagem de erro */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
         {/* Botões */}
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             type="submit"
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+            disabled={loading}
+            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Criar Chamado
+            {loading ? 'Criando...' : 'Criar Chamado'}
           </button>
           <Link
             to="/chamados"
@@ -297,6 +357,15 @@ export default function NovoChamado() {
           </Link>
         </div>
       </form>
+
+      {/* Toast */}
+      {showToast && (
+        <div className={`fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+          showToast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`}>
+          {showToast.message}
+        </div>
+      )}
     </div>
   )
 } 

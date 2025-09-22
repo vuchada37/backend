@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// Prefer DATABASE_URL; fallback to DATABASE_PUBLIC_URL; finally fallback to SQLite for dev
-const connectionUri = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
+// Prefer DATABASE_PUBLIC_URL (public proxy) for local dev; fallback to DATABASE_URL (internal) for cloud
+const connectionUri = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
 
 let sequelize;
 

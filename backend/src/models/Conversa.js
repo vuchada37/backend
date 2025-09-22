@@ -15,27 +15,15 @@ const Conversa = sequelize.define('Conversa', {
   },
   usuario1Id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'usuarios',
-      key: 'id'
-    }
+    allowNull: false
   },
   usuario2Id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'usuarios',
-      key: 'id'
-    }
+    allowNull: false
   },
   vagaId: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'vagas',
-      key: 'id'
-    }
+    allowNull: true
   },
   ultimaMensagem: {
     type: DataTypes.TEXT,
@@ -84,10 +72,6 @@ const Conversa = sequelize.define('Conversa', {
   timestamps: true,
   indexes: [
     {
-      fields: ['conversaId'],
-      unique: true
-    },
-    {
       fields: ['usuario1Id']
     },
     {
@@ -102,4 +86,4 @@ const Conversa = sequelize.define('Conversa', {
   ]
 });
 
-module.exports = Conversa; 
+module.exports = Conversa;

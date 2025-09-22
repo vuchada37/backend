@@ -104,7 +104,6 @@ const User = sequelize.define('User', {
   
   // Campos específicos para empresa
   logo: DataTypes.TEXT, // Mudado para TEXT para suportar base64
-  cnpj: DataTypes.STRING,
   descricao: DataTypes.TEXT,
   setor: DataTypes.STRING,
   tamanho: DataTypes.STRING,

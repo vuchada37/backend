@@ -96,7 +96,7 @@ exports.listarPorEmpresa = async (req, res) => {
         { 
           model: User, 
           as: 'usuario', 
-          attributes: ['id', 'nome', 'email', 'telefone', 'foto', 'experiencia', 'formacao']
+          attributes: ['id', 'nome', 'email', 'telefone', 'foto', 'experiencia', 'formacao', 'curriculo']
         },
         { model: Vaga, as: 'vaga' }
       ],
@@ -118,7 +118,7 @@ exports.detalhe = async (req, res) => {
         { 
           model: User, 
           as: 'usuario', 
-          attributes: ['id', 'nome', 'email', 'telefone', 'foto', 'experiencia', 'formacao']
+          attributes: ['id', 'nome', 'email', 'telefone', 'foto', 'experiencia', 'formacao', 'curriculo']
         },
         { model: Vaga, as: 'vaga' }
       ]
@@ -295,7 +295,7 @@ exports.candidaturasPorEmpresa = async (req, res) => {
         { 
           model: User, 
           as: 'usuario', 
-          attributes: ['id', 'nome', 'email', 'telefone', 'foto', 'experiencia', 'formacao']
+          attributes: ['id', 'nome', 'email', 'telefone', 'foto', 'experiencia', 'formacao', 'curriculo']
         }
       ],
       order: [['createdAt', 'DESC']]

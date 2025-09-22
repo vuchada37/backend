@@ -24,7 +24,6 @@ const filtrarCamposUsuario = (user) => {
         telefone: userData.telefone,
         endereco: userData.endereco,
         logo: userData.logo,
-        cnpj: userData.cnpj,
         descricao: userData.descricao,
         setor: userData.setor,
         tamanho: userData.tamanho,

@@ -14,8 +14,8 @@ const obterOuCriarConversa = async (userId1, userId2, vagaId = null) => {
   let conversa = await Conversa.findOne({
     where: { conversaId },
     include: [
-      { model: User, as: 'usuario1', attributes: ['id', 'nome', 'email', 'tipo', 'foto'] },
-      { model: User, as: 'usuario2', attributes: ['id', 'nome', 'email', 'tipo', 'foto'] },
+      { model: User, as: 'usuario1', attributes: ['id', 'nome', 'email', 'tipo', 'foto', 'logo'] },
+      { model: User, as: 'usuario2', attributes: ['id', 'nome', 'email', 'tipo', 'foto', 'logo'] },
       { model: Vaga, as: 'vaga', attributes: ['id', 'titulo'] }
     ]
   });
@@ -64,6 +64,17 @@ exports.listarConversas = async (req, res) => {
     });
 
     // Formatar dados para o frontend
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const toAbsolute = (foto) => {
+      if (!foto) return 'https://via.placeholder.com/150';
+      const f = String(foto);
+      // já é URL absoluta ou data URL (base64)
+      if (f.startsWith('http://') || f.startsWith('https://') || f.startsWith('data:')) return f;
+      // garantir que tenha uma barra inicial para caminhos relativos
+      const path = f.startsWith('/') ? f : `/${f}`;
+      return `${baseUrl}${path}`;
+    };
+
     const conversasFormatadas = conversas.map(conversa => {
       const outroUsuario = conversa.usuario1Id === userId ? conversa.usuario2 : conversa.usuario1;
       const mensagensNaoLidas = conversa.usuario1Id === userId ? 
@@ -84,16 +95,17 @@ exports.listarConversas = async (req, res) => {
         ultimaMensagem: conversa.ultimaMensagem || 'Nenhuma mensagem',
         lida: mensagensNaoLidas === 0,
         status: 'ativo',
-        tipo: outroUsuario.tipo,
+        tipo: outroUsuario.tipo === 'usuario' ? 'candidato' : 'empresa',
         online: false, // TODO: Implementar sistema de online
         ultimaAtividade: conversa.ultimaMensagemData ? 
           new Date(conversa.ultimaMensagemData).toLocaleString('pt-BR') : 'Nunca',
-        foto: outroUsuario.foto || 'https://via.placeholder.com/150',
+        foto: toAbsolute(outroUsuario.foto || outroUsuario.logo),
         prioridade: 'media',
         silenciada,
         bloqueada,
         mensagensNaoLidas,
-        vagaId: conversa.vagaId
+        vagaId: conversa.vagaId,
+        destinatarioId: outroUsuario.id
       };
     });
 
@@ -164,6 +176,8 @@ exports.obterMensagens = async (req, res) => {
       id: msg.id,
       remetente: msg.remetenteId === userId ? (req.user.tipo === 'empresa' ? 'empresa' : 'candidato') : 
                 (msg.remetente.tipo === 'empresa' ? 'empresa' : 'candidato'),
+      remetenteId: msg.remetenteId,
+      destinatarioId: msg.destinatarioId,
       texto: msg.texto,
       data: msg.createdAt.toLocaleString('pt-BR'),
       tipo: msg.tipo,
@@ -239,6 +253,8 @@ exports.enviarMensagem = async (req, res) => {
       remetente: mensagemCompleta.remetenteId === remetenteId ? 
                 (req.user.tipo === 'empresa' ? 'empresa' : 'candidato') : 
                 (mensagemCompleta.remetente.tipo === 'empresa' ? 'empresa' : 'candidato'),
+      remetenteId: mensagemCompleta.remetenteId,
+      destinatarioId: mensagemCompleta.destinatarioId,
       texto: mensagemCompleta.texto,
       data: mensagemCompleta.createdAt.toLocaleString('pt-BR'),
       tipo: mensagemCompleta.tipo,
@@ -400,13 +416,17 @@ exports.apagarConversa = async (req, res) => {
 // Buscar usuários para nova conversa
 exports.buscarUsuarios = async (req, res) => {
   try {
-    const { busca = '' } = req.query;
+    const { busca = '', tipo = '' } = req.query;
     const userId = req.user.id;
 
     const whereClause = {
       id: { [Op.ne]: userId },
-      ativo: true
     };
+
+    // Filtro por tipo opcional (empresa ou usuario)
+    if (tipo === 'empresa' || tipo === 'usuario') {
+      whereClause.tipo = tipo;
+    }
 
     if (busca) {
       whereClause[Op.or] = [
@@ -417,17 +437,26 @@ exports.buscarUsuarios = async (req, res) => {
 
     const usuarios = await User.findAll({
       where: whereClause,
-      attributes: ['id', 'nome', 'email', 'tipo', 'foto', 'telefone'],
+      attributes: ['id', 'nome', 'email', 'tipo', 'foto', 'logo', 'telefone'],
       limit: 20
     });
 
     // Formatar dados
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const toAbsolute = (foto) => {
+      if (!foto) return 'https://via.placeholder.com/150';
+      const f = String(foto);
+      if (f.startsWith('http://') || f.startsWith('https://') || f.startsWith('data:')) return f;
+      const path = f.startsWith('/') ? f : `/${f}`;
+      return `${baseUrl}${path}`;
+    };
+
     const usuariosFormatados = usuarios.map(usuario => ({
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
       tipo: usuario.tipo,
-      foto: usuario.foto || 'https://via.placeholder.com/150',
+      foto: toAbsolute(usuario.foto || usuario.logo),
       telefone: usuario.telefone || '',
       localizacao: usuario.localizacao || '',
       profissao: usuario.profissao || '',

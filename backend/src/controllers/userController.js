@@ -1,5 +1,34 @@
 const { User } = require('../models');
 
+// Util: normaliza valores vindos do frontend
+// - Converte string vazia ('') para null
+// - Converte 'null' e 'undefined' (strings) para null
+// - Mantém 0 e false
+const toNullable = (v) => {
+  if (v === '' || v === undefined || v === null) return null;
+  if (typeof v === 'string') {
+    const s = v.trim();
+    if (s === '') return null;
+    if (s.toLowerCase && (s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined')) return null;
+  }
+  return v;
+};
+
+const toNullableInt = (v) => {
+  const n = toNullable(v);
+  if (n === null) return null;
+  const parsed = parseInt(n, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const toNullableFloat = (v) => {
+  const n = toNullable(v);
+  if (n === null) return null;
+  const parsed = typeof n === 'string' ? n.replace(',', '.') : n;
+  const f = parseFloat(parsed);
+  return Number.isNaN(f) ? null : f;
+};
+
 // Função para filtrar campos por tipo de usuário (copiada do authController)
 const filtrarCamposUsuario = (user) => {
   const userData = user.toJSON();
@@ -20,7 +49,6 @@ const filtrarCamposUsuario = (user) => {
         telefone: userData.telefone,
         endereco: userData.endereco,
         logo: userData.logo,
-        cnpj: userData.cnpj,
         descricao: userData.descricao,
         setor: userData.setor,
         tamanho: userData.tamanho,
@@ -196,26 +224,25 @@ exports.atualizar = async (req, res) => {
     // Se for empresa, incluir campos específicos da empresa
     if (user.tipo === 'empresa') {
       // Campos básicos da empresa
-      dadosAtualizacao.telefone = updateData.telefone;
-      dadosAtualizacao.endereco = updateData.endereco;
-      dadosAtualizacao.descricao = updateData.descricao;
-      dadosAtualizacao.setor = updateData.setor;
-      dadosAtualizacao.tamanho = updateData.tamanho;
-      dadosAtualizacao.website = updateData.website;
-      dadosAtualizacao.logo = updateData.logo;
+      dadosAtualizacao.telefone = toNullable(updateData.telefone);
+      dadosAtualizacao.endereco = toNullable(updateData.endereco);
+      dadosAtualizacao.descricao = toNullable(updateData.descricao);
+      dadosAtualizacao.setor = toNullable(updateData.setor);
+      dadosAtualizacao.tamanho = toNullable(updateData.tamanho);
+      dadosAtualizacao.website = toNullable(updateData.website);
+      dadosAtualizacao.logo = toNullable(updateData.logo);
       
       // Campos de identificação
-      dadosAtualizacao.razaoSocial = updateData.razaoSocial;
-      dadosAtualizacao.nuit = updateData.nuit;
-      dadosAtualizacao.cnpj = updateData.cnpj;
-      dadosAtualizacao.alvara = updateData.alvara;
-      dadosAtualizacao.registroComercial = updateData.registroComercial;
-      dadosAtualizacao.inscricaoFiscal = updateData.inscricaoFiscal;
+      dadosAtualizacao.razaoSocial = toNullable(updateData.razaoSocial);
+      dadosAtualizacao.nuit = toNullable(updateData.nuit);
+      dadosAtualizacao.alvara = toNullable(updateData.alvara);
+      dadosAtualizacao.registroComercial = toNullable(updateData.registroComercial);
+      dadosAtualizacao.inscricaoFiscal = toNullable(updateData.inscricaoFiscal);
       
       // Campos financeiros
-      dadosAtualizacao.anoFundacao = updateData.anoFundacao;
-      dadosAtualizacao.capitalSocial = updateData.capitalSocial;
-      dadosAtualizacao.moedaCapital = updateData.moedaCapital;
+      dadosAtualizacao.anoFundacao = toNullableInt(updateData.anoFundacao);
+      dadosAtualizacao.capitalSocial = toNullableFloat(updateData.capitalSocial);
+      dadosAtualizacao.moedaCapital = toNullable(updateData.moedaCapital);
     }
     
     // Atualizar usuário

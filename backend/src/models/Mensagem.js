@@ -11,7 +11,7 @@ const Mensagem = sequelize.define('Mensagem', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'usuarios',
+      model: 'users',
       key: 'id'
     }
   },
@@ -19,7 +19,7 @@ const Mensagem = sequelize.define('Mensagem', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'usuarios',
+      model: 'users',
       key: 'id'
     }
   },
@@ -82,4 +82,4 @@ const Mensagem = sequelize.define('Mensagem', {
   ]
 });
 
-module.exports = Mensagem; 
+module.exports = Mensagem;

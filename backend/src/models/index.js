@@ -46,53 +46,28 @@ Mensagem.belongsTo(Conversa, { foreignKey: 'conversaId', targetKey: 'conversaId'
 
 const syncDb = async () => {
   try {
-    console.log('Sincronizando banco de dados...');
-    
-    // Verificar se o banco existe e tem dados
-    const tableExists = await sequelize.query(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='users'",
-      { type: sequelize.QueryTypes.SELECT }
-    );
-    
-    if (tableExists.length === 0) {
-      // Banco novo, criar todas as tabelas
-      console.log('Banco novo detectado, criando tabelas...');
-      await sequelize.sync({ force: true });
-      console.log('Tabelas criadas com sucesso!');
-    } else {
-      // Banco existente, tentar sincronização segura
-      try {
-        console.log('Tentando sincronização com alterações...');
-        await sequelize.sync({ alter: true });
-        console.log('Banco de dados sincronizado com alterações!');
-      } catch (alterError) {
-        console.warn('Erro na sincronização com alterações:', alterError.message);
-        console.log('Tentando sincronização sem alterações...');
-        
-        try {
-          // Tentar sincronização sem alterações
-          await sequelize.sync();
-          console.log('Banco de dados sincronizado!');
-        } catch (syncError) {
-          console.warn('Erro na sincronização sem alterações:', syncError.message);
-          console.log('Continuando com banco existente...');
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Erro ao sincronizar banco:', error.message);
-    console.error('Stack trace:', error.stack);
-    
-    // Último recurso: reset completo
+    console.log('Sincronizando banco de dados (alter=true)...');
+    await sequelize.sync({ alter: true });
+    console.log('Banco de dados sincronizado com alterações!');
+  } catch (alterError) {
+    console.warn('Erro na sincronização com alterações:', alterError.message);
+    console.log('Tentando sincronização sem alterações...');
     try {
-      console.log('Tentando reset completo do banco...');
-      await sequelize.sync({ force: true });
-      console.log('Banco de dados resetado com sucesso!');
+      await sequelize.sync();
+      console.log('Banco de dados sincronizado (sem alterações)!');
     } catch (syncError) {
-      console.error('Erro crítico ao sincronizar banco:', syncError.message);
-      process.exit(1);
+      console.warn('Erro na sincronização sem alterações:', syncError.message);
+      console.log('Última tentativa: reset completo do banco (force=true)...');
+      try {
+        await sequelize.sync({ force: true });
+        console.log('Banco de dados resetado com sucesso!');
+      } catch (forceError) {
+        console.error('Erro crítico ao sincronizar banco:', forceError.message);
+        console.error('Stack trace:', forceError.stack);
+        process.exit(1);
+      }
     }
   }
 };
 
-module.exports = { sequelize, User, Vaga, Candidatura, Chamado, RespostaChamado, Mensagem, Conversa, syncDb }; 
+module.exports = { sequelize, User, Vaga, Candidatura, Chamado, RespostaChamado, Mensagem, Conversa, syncDb };
